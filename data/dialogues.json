@@ -1,0 +1,39 @@
+{
+	"intro_npc": {
+		"name": "Old Mechanic",
+		"lines": [
+			"Hey, kid. You're new here, aren't you?",
+			"The wasteland is unforgiving. You'll need more than just that pistol.",
+			"I've got an old tank in the back. She's seen better days, but she'll run.",
+		"If you can scrape together some parts, I'll help you fix her up.",
+		"Oh, and watch out for the Sand Worm. There's a bounty on it.",
+			"Head north to the ruins if you're feeling brave. Good hunting."
+		]
+	},
+	"shop_npc": {
+		"name": "Shopkeeper",
+		"lines": [
+			"Welcome to my shop. Everything's salvaged, everything's for sale.",
+			"Buy something, or get out. I don't do window shopping."
+		]
+	},
+	"bounty_board": {
+		"name": "Bounty Board",
+		"lines": [
+			"--- ACTIVE BOUNTIES ---",
+			"Sand Worm - 1000G - Last seen in the northern desert",
+			"Iron Titan - 5000G - Roams the eastern ruins",
+			"--- --- --- --- --- ---"
+		]
+	},
+	"tank_get": {
+		"name": "Old Mechanic",
+		"lines": [
+			"There she is. A bit rusty, but the engine still turns over.",
+			"I've installed a basic chassis and engine. The rest is up to you.",
+			"Talk to me at the garage anytime to swap parts.",
+			"Remember: heavier chassis means more defense but fewer slots.",
+			"Now get out there and earn some gold!"
+		]
+	}
+}

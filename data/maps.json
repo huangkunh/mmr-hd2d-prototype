@@ -1,0 +1,33 @@
+{
+	"wasteland": {
+		"name": "Wasteland",
+		"scene": "res://scenes/world.tscn",
+		"encounter_zone": "wasteland",
+		"connections": {
+			"north": "ruins",
+			"east": "desert"
+		},
+		"npcs": ["intro_npc", "shop_npc"],
+		"interactables": ["bounty_board"]
+	},
+	"ruins": {
+		"name": "Old Ruins",
+		"scene": "res://scenes/world.tscn",
+		"encounter_zone": "ruins",
+		"connections": {
+			"south": "wasteland"
+		},
+		"npcs": [],
+		"interactables": []
+	},
+	"desert": {
+		"name": "Scorched Desert",
+		"scene": "res://scenes/world.tscn",
+		"encounter_zone": "desert",
+		"connections": {
+			"west": "wasteland"
+		},
+		"npcs": [],
+		"interactables": []
+	}
+}

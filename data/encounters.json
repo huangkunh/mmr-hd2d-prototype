@@ -1,0 +1,38 @@
+{
+	"wasteland": {
+		"table": [
+			{ "enemy_id": "slime", "weight": 40 },
+			{ "enemy_id": "scavenger", "weight": 30 },
+			{ "enemy_id": "bandit", "weight": 15 },
+			{ "enemy_id": "mutant_bear", "weight": 10 },
+			{ "enemy_id": "mech_drone", "weight": 5 }
+		],
+		"encounter_rate": 0.08,
+		"min_steps": 5,
+		"max_steps": 20
+	},
+	"ruins": {
+		"table": [
+			{ "enemy_id": "scavenger", "weight": 25 },
+			{ "enemy_id": "bandit", "weight": 25 },
+			{ "enemy_id": "mech_drone", "weight": 30 },
+			{ "enemy_id": "mutant_bear", "weight": 15 },
+			{ "enemy_id": "desert_worm", "weight": 5 }
+		],
+		"encounter_rate": 0.12,
+		"min_steps": 3,
+		"max_steps": 15
+	},
+	"desert": {
+		"table": [
+			{ "enemy_id": "scavenger", "weight": 30 },
+			{ "enemy_id": "mutant_bear", "weight": 25 },
+			{ "enemy_id": "desert_worm", "weight": 15 },
+			{ "enemy_id": "mech_drone", "weight": 20 },
+			{ "enemy_id": "iron_titan", "weight": 10 }
+		],
+		"encounter_rate": 0.10,
+		"min_steps": 4,
+		"max_steps": 18
+	}
+}

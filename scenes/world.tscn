@@ -1,0 +1,95 @@
+[gd_scene load_steps=7 format=3 uid="uid://b1_world_scn_001"]
+
+[ext_resource type="Script" path="res://scripts/world/world.gd" id="1_world"]
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/player/player_camera.gd" id="3_camera"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_player"]
+size = Vector3(0.5, 1, 0.5)
+
+[sub_resource type="Environment" id="Env_wasteland"]
+background_mode = 1
+background_color = Color(0.15, 0.1, 0.08, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.3, 0.25, 0.2, 1)
+ambient_light_energy = 0.4
+tonemap_mode = 3
+tonemap_exposure = 1.0
+ssao_enabled = true
+ssao_intensity = 1.5
+glow_enabled = true
+glow_intensity = 0.8
+glow_strength = 1.0
+glow_bloom = 0.2
+glow_blend_mode = 0
+fog_enabled = true
+fog_light_color = Color(0.4, 0.3, 0.2, 1)
+fog_light_energy = 0.3
+fog_density = 0.005
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(60, 60)
+
+[sub_resource type="StandardMaterial3D" id="StdMat_ground"]
+albedo_color = Color(0.35, 0.28, 0.2, 1)
+roughness = 0.9
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_world")
+map_id = "wasteland"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_wasteland")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, 0.25, 0.433, 0, 0.866, -0.5, -0.5, 0.433, 0.75, 0, 10, 0)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 1.5
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_ground")
+material_override = SubResource("StdMat_ground")
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="NPCs" type="Node3D" parent="."]
+
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("2_player")
+move_speed = 5.0
+steps_until_encounter = 12
+encounter_variance = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_player")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+pixel_size = 0.015625
+billboard = 0
+no_depth_test = false
+
+[node name="InteractionRay" type="RayCast3D" parent="Player"]
+target_position = Vector3(0, 0, -1.5)
+collision_mask = 2
+
+[node name="PlayerCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.819, 0.574, 0, -0.574, 0.819, 0, 8, 8)
+projection = 0
+size = 8.0
+near = 0.1
+far = 100.0
+script = ExtResource("3_camera")
+target_path = NodePath("../Player")
+follow_speed = 5.0
+offset = Vector3(0, 8, 8)
+ortho_size = 8.0
+tilt_angle = 35.0
+dof_enabled = true
+dof_blur_far = 15.0
+dof_amount = 0.3

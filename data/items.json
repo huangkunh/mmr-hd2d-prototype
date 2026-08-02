@@ -1,0 +1,49 @@
+{
+	"potion_small": {
+		"name": "Bandage",
+		"type": "heal",
+		"hp_restore": 30,
+		"price": 20,
+		"description": "A simple medical bandage. Restores 30 HP.",
+		"icon": "res://assets/ui/icon_potion.png"
+	},
+	"potion_medium": {
+		"name": "Med Kit",
+		"type": "heal",
+		"hp_restore": 80,
+		"price": 80,
+		"description": "Field medical kit. Restores 80 HP.",
+		"icon": "res://assets/ui/icon_potion.png"
+	},
+	"potion_large": {
+		"name": "Stim Pack",
+		"type": "heal",
+		"hp_restore": 200,
+		"price": 250,
+		"description": "Advanced stimulant. Restores 200 HP.",
+		"icon": "res://assets/ui/icon_potion.png"
+	},
+	"fuel_can": {
+		"name": "Fuel Canister",
+		"type": "fuel",
+		"fuel_restore": 50,
+		"price": 50,
+		"description": "Refuels your tank by 50 units.",
+		"icon": "res://assets/ui/icon_fuel.png"
+	},
+	"repair_kit": {
+		"name": "Repair Kit",
+		"type": "repair",
+		"repair_amount": 100,
+		"price": 100,
+		"description": "Field repair kit. Restores 100 tank SP.",
+		"icon": "res://assets/ui/icon_repair.png"
+	},
+	"smoke_bomb": {
+		"name": "Smoke Grenade",
+		"type": "escape",
+		"price": 30,
+		"description": "Creates a smoke screen. Allows escaping from battle.",
+		"icon": "res://assets/ui/icon_smoke.png"
+	}
+}

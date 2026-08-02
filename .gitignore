@@ -1,0 +1,23 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+/builds/
+
+# Imported translations (automatically generated)
+*.translation
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Godot export presets
+export_presets.cfg
+
+# Mono C# (if used)
+.mono/
+data_*/
