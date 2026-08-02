@@ -291,6 +291,36 @@ func _execute_item(item_id: String) -> void:
 		_consume_item(item_id)
 		await get_tree().create_timer(turn_delay).timeout
 		_enter_fled(true)
+	elif type == "cure":
+		# Cure status effects
+		var cures: Array = item.get("cures", [])
+		var cured_any: bool = false
+		for status_id in cures:
+			if player_actor.has_status(String(status_id)):
+				player_actor.remove_status(String(status_id))
+				cured_any = true
+		if cured_any:
+			_log("Used %s! Status effects cured!" % item_name)
+		else:
+			_log("Used %s, but nothing to cure." % item_name)
+		_consume_item(item_id)
+		await get_tree().create_timer(action_delay).timeout
+	elif type == "buff":
+		# Apply temporary buff
+		var buff_type: String = String(item.get("buff", ""))
+		var buff_amount: float = float(item.get("buff_amount", 0)) / 100.0
+		var buff_duration: int = int(item.get("buff_duration", 3))
+		match buff_type:
+			"attack":
+				player_actor.apply_status(BattleActor.STATUS_ATTACK_UP, buff_duration, buff_amount)
+				_log("Used %s! Attack boosted by %d%%!" % [item_name, int(item.get("buff_amount", 0))])
+			"defense":
+				player_actor.apply_status(BattleActor.STATUS_DEFENSE_UP, buff_duration, buff_amount)
+				_log("Used %s! Defense boosted by %d%%!" % [item_name, int(item.get("buff_amount", 0))])
+			_:
+				_log("Used %s, but nothing happened." % item_name)
+		_consume_item(item_id)
+		await get_tree().create_timer(action_delay).timeout
 	else:
 		_log("Can't use %s here." % item_name)
 		await get_tree().create_timer(action_delay).timeout

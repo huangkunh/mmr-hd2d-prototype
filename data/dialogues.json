@@ -35,5 +35,93 @@
 			"Remember: heavier chassis means more defense but fewer slots.",
 			"Now get out there and earn some gold!"
 		]
+	},
+	"mayor_npc": {
+		"name": "Town Mayor",
+		"lines": [
+			"Welcome, traveler. I am the mayor of this survivor town.",
+			"Times are hard, but we manage. Perhaps you can help us?",
+			"What would you like to know?"
+		],
+		"choices": [
+			"Tell me about the bounty board",
+			"Where can I rest?",
+			"What's in the ruins?",
+			"Goodbye"
+		]
+	},
+	"merchant_npc": {
+		"name": "Traveling Merchant",
+		"lines": [
+			"Ah, a new face! I deal in rare goods from across the wasteland.",
+			"I've heard rumors of a hidden laboratory beneath the old ruins.",
+			"They say it holds technology from before the war..."
+		]
+	},
+	"base_commander": {
+		"name": "Base Commander",
+		"lines": [
+			"So you found our hidden base. Impressive.",
+			"We've been monitoring the situation. The prototype mech in the lab below...",
+			"It's been killing everyone we send down there.",
+			"If you can destroy it, we'll reward you handsomely.",
+			"What do you say?"
+		],
+		"choices": [
+			"I'll destroy the prototype mech",
+			"Tell me more about this lab",
+			"I need more time to prepare",
+			"Maybe later"
+		]
+	},
+	"mountain_npc": {
+		"name": "Mountain Hermit",
+		"lines": [
+			"Few make it this far into the mountains. You must be skilled.",
+			"The pass ahead is guarded by a Steel Golem. Be careful.",
+			"There's a toxic swamp to the east, and a hidden base further north.",
+			"Watch your step out there."
+		]
+	},
+	"swamp_npc": {
+		"name": "Swamp Trader",
+		"lines": [
+			"Ugh, the smell doesn't bother me anymore.",
+			"You looking to buy something? I've got supplies.",
+			"There's an ancient relic hidden somewhere in this swamp...",
+			"Find it, and it might lead you somewhere special."
+		]
+	},
+	"lab_npc": {
+		"name": "Damaged Terminal",
+		"lines": [
+			"...SYSTEM ONLINE...",
+			"WARNING: Security protocols compromised.",
+			"Prototype Mech in sublevel 3... active and hostile.",
+			"...WARNING: Intruders detected. Security engaged..."
+		]
+	},
+	"base_merchant": {
+		"name": "Base Quartermaster",
+		"lines": [
+			"Welcome to the quartermaster's desk.",
+			"We stock the finest equipment in the wasteland.",
+			"Premium weapons, armor, and tank parts. Take a look."
+		]
+	},
+	"base_healer": {
+		"name": "Base Medic",
+		"lines": [
+			"You look hurt. Let me patch you up.",
+			"There, good as new. Stay safe out there."
+		]
+	},
+	"base_engineer": {
+		"name": "Base Engineer",
+		"lines": [
+			"I keep the tanks running here at the base.",
+			"Need repairs or a refuel? I've got you covered.",
+			"Your tank is in top shape now. Come back anytime."
+		]
 	}
 }

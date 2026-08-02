@@ -4,12 +4,19 @@ extends CharacterBody3D
 # --- Signals ---
 signal steps_taken(count: int)
 signal interaction_triggered(target: Node)
+signal mode_changed(mode: String)
+signal fuel_consumed(amount: int)
 
 # --- Config ---
 @export_group("Movement")
 @export var move_speed: float = 5.0
 @export var acceleration: float = 10.0
 @export var friction: float = 12.0
+
+@export_group("Tank Mode")
+@export var tank_move_speed: float = 7.0
+@export var fuel_per_step: int = 1
+@export var fuel_consumption_interval: int = 5  # consume fuel every N steps
 
 @export_group("Encounters")
 @export var steps_until_encounter: int = 12
@@ -26,6 +33,8 @@ var _encounter_threshold: int = 12
 var _can_encounter: bool = true
 var _sprite: AnimatedSprite3D
 var _interaction_ray: RayCast3D
+var _current_mode: String = "infantry"  # "infantry" or "tank"
+var _fuel_step_counter: int = 0
 
 # Sprite frame names per direction
 const DIR_FRAMES = {
@@ -46,6 +55,10 @@ func _ready() -> void:
 	_setup_sprite()
 	_setup_interaction()
 	_encounter_threshold = steps_until_encounter + randi() % encounter_variance
+	# Sync mode with GameState
+	_current_mode = GameState.battle_mode  # Use battle_mode as the source of truth
+	if _current_mode == "tank" and GameState.tank_owned:
+		move_speed = tank_move_speed
 
 
 func _setup_sprite() -> void:
@@ -188,6 +201,18 @@ func _count_step() -> void:
 	if _step_counter >= _encounter_threshold:
 		_trigger_encounter()
 
+	# Fuel consumption in tank mode
+	if _current_mode == "tank" and GameState.tank_owned:
+		_fuel_step_counter += 1
+		if _fuel_step_counter >= fuel_consumption_interval:
+			_fuel_step_counter = 0
+			GameState.consume_fuel(fuel_per_step)
+			fuel_consumed.emit(fuel_per_step)
+			# Auto-switch to infantry if out of fuel
+			if GameState.tank_fuel <= 0:
+				print("[Player] Tank out of fuel! Switching to infantry mode.")
+				toggle_mode()
+
 
 func _trigger_encounter() -> void:
 	_step_counter = 0
@@ -206,6 +231,8 @@ func _trigger_encounter() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		_try_interact()
+	elif event.is_action_pressed("toggle_mode"):
+		toggle_mode()
 
 
 func _try_interact() -> void:
@@ -220,3 +247,28 @@ func _try_interact() -> void:
 func reset_step_counter() -> void:
 	_step_counter = 0
 	_encounter_threshold = steps_until_encounter + randi() % encounter_variance
+
+
+func toggle_mode() -> void:
+	if not GameState.tank_owned:
+		print("[Player] You don't own a tank!")
+		return
+	if _current_mode == "infantry":
+		_current_mode = "tank"
+		move_speed = tank_move_speed
+		# Change sprite color to indicate tank mode
+		if _sprite:
+			_sprite.modulate = Color(0.7, 0.7, 0.8, 1.0)
+		print("[Player] Switched to TANK mode")
+	else:
+		_current_mode = "infantry"
+		move_speed = 5.0
+		if _sprite:
+			_sprite.modulate = Color.WHITE
+		print("[Player] Switched to INFANTRY mode")
+	mode_changed.emit(_current_mode)
+	AudioManager.play_sfx("confirm")
+
+
+func get_current_mode() -> String:
+	return _current_mode

@@ -18,6 +18,8 @@ extends Control
 # --- Signals ----------------------------------------------------------------
 ## Emitted after the last line has been advanced past.
 signal dialogue_finished()
+## Emitted when the player selects a branching choice (carries the index).
+signal choice_made(choice_index: int)
 
 # --- Exports ----------------------------------------------------------------
 ## Typewriter speed in revealed characters per second.
@@ -48,6 +50,18 @@ var since_done: float = 0.0
 ## Cooldown after a character blip so SFX don't stack every frame.
 var _blip_accum: float = 0.0
 
+# --- Branching choices ------------------------------------------------------
+## Choices offered after the last line (empty = no choices).
+var _choices: Array[String] = []
+## Currently highlighted choice index.
+var _choice_index: int = 0
+## True while the choice list is on screen awaiting input.
+var _showing_choices: bool = false
+## Label nodes for each choice (kept for highlight updates).
+var _choice_labels: Array[Label] = []
+## Container that holds the choice labels (hidden until needed).
+var _choice_container: VBoxContainer
+
 # --- Scene references (set via % unique names in dialogue.tscn) -------------
 @onready var speaker_label: Label = %SpeakerLabel
 @onready var dialogue_text: RichTextLabel = %DialogueText
@@ -63,6 +77,17 @@ func _ready() -> void:
 	dialogue_text.bbcode_enabled = true
 	# Mouse input on the box itself should not steal focus from the game.
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Create choice container (hidden by default)
+	_choice_container = VBoxContainer.new()
+	_choice_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_choice_container.offset_left = 40
+	_choice_container.offset_top = -120
+	_choice_container.offset_right = -40
+	_choice_container.offset_bottom = -20
+	_choice_container.alignment = BoxContainer.ALIGNMENT_END
+	_choice_container.add_theme_constant_override("separation", 4)
+	_choice_container.visible = false
+	add_child(_choice_container)
 
 
 func _process(delta: float) -> void:
@@ -92,6 +117,17 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not active:
 		return
+	if _showing_choices:
+		if event.is_action_pressed("move_up"):
+			_move_choice(-1)
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("move_down"):
+			_move_choice(1)
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("confirm") or event.is_action_pressed("interact"):
+			_select_choice()
+			get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("confirm") or event.is_action_pressed("interact") or event.is_action_pressed("cancel"):
 		# While a line is still typing, confirm instantly completes it.
 		# Once complete, confirm advances to the next line (or ends).
@@ -115,7 +151,14 @@ func start(dialogue_id: String) -> void:
 	var parsed: Array[String] = []
 	for l in raw_lines:
 		parsed.append(String(l))
-	start_with(String(data.get("name", "")), parsed)
+	var raw_choices = data.get("choices", [])
+	var parsed_choices: Array[String] = []
+	for c in raw_choices:
+		parsed_choices.append(String(c))
+	if not parsed_choices.is_empty():
+		start_with_choices(String(data.get("name", "")), parsed, parsed_choices)
+	else:
+		start_with(String(data.get("name", "")), parsed)
 
 
 ## Starts a dialogue from explicit speaker + lines (bypasses DataLoader).
@@ -130,6 +173,13 @@ func start_with(speaker: String, raw_lines: Array[String]) -> void:
 	visible = true
 	since_done = 0.0
 	_show_line()
+
+
+## Starts a dialogue with branching choices at the end.
+## After all lines are shown, the choices appear for selection.
+func start_with_choices(speaker: String, raw_lines: Array[String], choices: Array[String]) -> void:
+	_choices = choices
+	start_with(speaker, raw_lines)
 
 
 ## Forcefully closes the dialogue immediately (e.g. scene change).
@@ -172,12 +222,63 @@ func _advance() -> void:
 
 
 func _end() -> void:
+	if not _choices.is_empty():
+		_show_choices()
+		return
 	active = false
 	visible = false
 	continue_arrow.visible = false
 	dialogue_text.text = ""
 	speaker_label.text = ""
 	dialogue_finished.emit()
+
+
+# --- Branching choices -------------------------------------------------------
+
+func _show_choices() -> void:
+	_showing_choices = true
+	continue_arrow.visible = false
+	_choice_container.visible = true
+	# Clear old labels
+	for label in _choice_labels:
+		label.queue_free()
+	_choice_labels.clear()
+	# Create labels for each choice
+	for i in _choices.size():
+		var l := Label.new()
+		l.text = _choices[i]
+		l.add_theme_font_size_override("font_size", 18)
+		l.add_theme_color_override("font_color", Color.WHITE if i != _choice_index else Color(1.0, 0.92, 0.23))
+		l.add_theme_color_override("font_outline_color", Color.BLACK)
+		l.add_theme_outline_size_override("outline_size", 3)
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_choice_container.add_child(l)
+		_choice_labels.append(l)
+
+func _select_choice() -> void:
+	if not _showing_choices:
+		return
+	var chosen: int = _choice_index
+	_showing_choices = false
+	_choice_container.visible = false
+	_choices = []
+	active = false
+	visible = false
+	dialogue_text.text = ""
+	speaker_label.text = ""
+	choice_made.emit(chosen)
+	dialogue_finished.emit()
+
+func _move_choice(direction: int) -> void:
+	if _choice_labels.is_empty():
+		return
+	_choice_index = posmod(_choice_index + direction, _choice_labels.size())
+	for i in _choice_labels.size():
+		_choice_labels[i].add_theme_color_override(
+			"font_color",
+			Color(1.0, 0.92, 0.23) if i == _choice_index else Color.WHITE
+		)
+	AudioManager.play_sfx("cursor")
 
 
 # --- Audio -------------------------------------------------------------------

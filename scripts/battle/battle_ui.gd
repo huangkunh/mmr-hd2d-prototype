@@ -84,6 +84,10 @@ var _player_name_label: Label
 var _enemy_name_label: Label
 var _player_status_label: Label
 
+# Status effect displays
+var _player_status_container: HBoxContainer
+var _enemy_status_container: HBoxContainer
+
 # Log
 var _log_label: Label
 var _log_lines: Array[String] = []
@@ -251,6 +255,14 @@ func _build_enemy_info() -> void:
 	_enemy_hp_bar.root.position = Vector2(16, 44)
 	panel.add_child(_enemy_hp_bar.root)
 
+	# Enemy status effects
+	_enemy_status_container = HBoxContainer.new()
+	_enemy_status_container.position = Vector2(16, 72)
+	_enemy_status_container.size = Vector2(w - 32, 12)
+	_enemy_status_container.add_theme_constant_override("separation", 4)
+	_enemy_status_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(_enemy_status_container)
+
 func _build_player_info() -> void:
 	var w: float = 400.0
 	var h: float = 134.0
@@ -277,6 +289,14 @@ func _build_player_info() -> void:
 	stats.position = Vector2(16, 98)
 	stats.size = Vector2(w - 32, 22)
 	panel.add_child(stats)
+
+	# Status effect display
+	_player_status_container = HBoxContainer.new()
+	_player_status_container.position = Vector2(16, 118)
+	_player_status_container.size = Vector2(w - 32, 16)
+	_player_status_container.add_theme_constant_override("separation", 4)
+	_player_status_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(_player_status_container)
 
 func _build_battle_log() -> void:
 	var w: float = 400.0
@@ -423,7 +443,7 @@ func _rebuild_item_menu() -> void:
 		if item.is_empty():
 			continue
 		var type: String = item.get("type", "")
-		if type != "heal" and type != "escape":
+		if type != "heal" and type != "escape" and type != "cure" and type != "buff":
 			continue
 		var name: String = item.get("name", item_id)
 		var detail: String = ""
@@ -691,6 +711,12 @@ func _on_actors_ready(p_actor: BattleActor, e_actor: BattleActor) -> void:
 	p_actor.hp_changed.connect(_on_player_hp_changed)
 	e_actor.hp_changed.connect(_on_enemy_hp_changed)
 
+	# Keep status effect displays in sync with actor status_changed signals.
+	if _player_actor:
+		_player_actor.status_changed.connect(_on_player_status_changed)
+	if _enemy_actor:
+		_enemy_actor.status_changed.connect(_on_enemy_status_changed)
+
 	_enemy_name_label.text = e_actor.name
 	_player_name_label.text = p_actor.name
 	_update_hp_bar(_player_hp_bar, p_actor.hp_ratio(), p_actor.hp, p_actor.max_hp, false)
@@ -701,6 +727,10 @@ func _on_actors_ready(p_actor: BattleActor, e_actor: BattleActor) -> void:
 
 	_start_idle_bob(_enemy_sprite, 5.0, 2.4)
 	_start_idle_bob(_player_sprite, 4.0, 2.0)
+
+	# Refresh status effect displays for the initial state.
+	_on_player_status_changed()
+	_on_enemy_status_changed()
 
 func _on_state_changed(state: int) -> void:
 	# Close menus whenever we leave the player's turn.
@@ -725,6 +755,14 @@ func _on_player_hp_changed(current: int, maximum: int) -> void:
 func _on_enemy_hp_changed(current: int, maximum: int) -> void:
 	if _enemy_actor:
 		_update_hp_bar(_enemy_hp_bar, float(current) / float(maxi(1, maximum)), current, maximum, true)
+
+func _on_player_status_changed() -> void:
+	if _player_actor and _player_status_container:
+		_update_status_display(_player_actor, _player_status_container)
+
+func _on_enemy_status_changed() -> void:
+	if _enemy_actor and _enemy_status_container:
+		_update_status_display(_enemy_actor, _enemy_status_container)
 
 func _on_damage_dealt(target: BattleActor, amount: int) -> void:
 	_spawn_popup(str(amount), _pos_for(target), COL_DAMAGE, false)
@@ -866,6 +904,50 @@ func _update_hp_bar(bar: Dictionary, ratio: float, current: int, maximum: int, a
 	else:
 		fill.size = Vector2(target_w, height)
 		fill.color = color
+
+func _update_status_display(target: BattleActor, container: HBoxContainer) -> void:
+	if container == null:
+		return
+	# Clear old labels
+	for child in container.get_children():
+		child.queue_free()
+	if target == null or target.status_effects.is_empty():
+		return
+	# Create compact labels for each status
+	for effect_id in target.status_effects:
+		var duration: int = int(target.status_effects[effect_id].get("duration", 0))
+		var label_text: String = ""
+		var label_color: Color = Color.WHITE
+		match effect_id:
+			BattleActor.STATUS_POISON:
+				label_text = "PSN"
+				label_color = Color(0.5, 1.0, 0.3)
+			BattleActor.STATUS_BURN:
+				label_text = "BRN"
+				label_color = Color(1.0, 0.5, 0.2)
+			BattleActor.STATUS_DEFENSE_DOWN:
+				label_text = "DEF-"
+				label_color = Color(1.0, 0.5, 0.5)
+			BattleActor.STATUS_DEFENSE_UP:
+				label_text = "DEF+"
+				label_color = Color(0.5, 0.8, 1.0)
+			BattleActor.STATUS_ATTACK_UP:
+				label_text = "ATK+"
+				label_color = Color(1.0, 0.8, 0.3)
+			BattleActor.STATUS_EVASION_UP:
+				label_text = "EVA+"
+				label_color = Color(0.7, 0.7, 1.0)
+			_:
+				label_text = effect_id.substr(0, 3).to_upper()
+				label_color = Color(0.8, 0.8, 0.8)
+		var l := Label.new()
+		l.text = "%s(%d)" % [label_text, duration]
+		l.add_theme_font_size_override("font_size", 12)
+		l.add_theme_color_override("font_color", label_color)
+		l.add_theme_color_override("font_outline_color", Color.BLACK)
+		l.add_theme_outline_size_override("outline_size", 2)
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		container.add_child(l)
 
 func _append_log(message: String) -> void:
 	_log_lines.append(message)

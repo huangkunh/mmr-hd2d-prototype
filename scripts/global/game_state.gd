@@ -17,6 +17,7 @@ signal scene_change_started(target: String)
 signal battle_started(enemy_id: String)
 signal battle_ended(result: int)
 signal quest_updated(quest_id: String, status: String)
+signal mode_changed(mode: String)
 
 # --- Enums ---
 enum BattleResult { VICTORY, DEFEAT, FLED }
@@ -74,6 +75,7 @@ var current_map: String = "wasteland"
 var player_position: Vector3 = Vector3(0, 0, 0)
 var defeated_bounties: Array[String] = []
 var flags: Dictionary = {}  # event flags
+var movement_mode: String = "infantry"  # "infantry" or "tank" for world exploration
 
 # --- Battle State ---
 var in_battle: bool = false
@@ -84,6 +86,10 @@ var battle_mode: String = "infantry"  # "infantry" or "tank"
 func change_scene(target: String) -> void:
 	scene_change_started.emit(target)
 	get_tree().change_scene_to_file(target)
+
+func set_movement_mode(mode: String) -> void:
+	movement_mode = mode
+	mode_changed.emit(mode)
 
 func start_battle(enemy_id: String) -> void:
 	current_enemy_id = enemy_id

@@ -43,6 +43,18 @@ var map_label: Label
 var minimap_box: Panel
 var minimap_label: Label
 var menu_hint: Label
+var level_label: Label
+var exp_bar: ProgressBar
+var exp_label: Label
+var fuel_bar: ProgressBar
+var fuel_label: Label
+var tank_hp_bar: ProgressBar
+var tank_hp_label: Label
+var tank_sp_bar: ProgressBar
+var tank_sp_label: Label
+var quest_label: Label
+var mode_label: Label
+var minimap_grid: GridContainer
 
 var pause_overlay: Control
 var pause_panel: Panel
@@ -62,6 +74,13 @@ func _ready() -> void:
 	_on_hp_changed(GameState.player_hp, GameState.player_max_hp)
 	_on_gold_changed(GameState.gold)
 	_update_map_name()
+	_on_exp_changed(GameState.player_exp, GameState.player_exp_next)
+	_on_fuel_changed(GameState.tank_fuel, GameState.tank_max_fuel)
+	_on_tank_hp_changed(GameState.tank_hp, GameState.tank_max_hp)
+	_on_tank_sp_changed(GameState.tank_sp, GameState.tank_max_sp)
+	_on_level_up(GameState.player_level)
+	_refresh_quest_count()
+	_refresh_mode()
 
 
 func _wire_signals() -> void:
@@ -69,6 +88,18 @@ func _wire_signals() -> void:
 		GameState.hp_changed.connect(_on_hp_changed)
 	if not GameState.gold_changed.is_connected(_on_gold_changed):
 		GameState.gold_changed.connect(_on_gold_changed)
+	if not GameState.exp_changed.is_connected(_on_exp_changed):
+		GameState.exp_changed.connect(_on_exp_changed)
+	if not GameState.fuel_changed.is_connected(_on_fuel_changed):
+		GameState.fuel_changed.connect(_on_fuel_changed)
+	if not GameState.tank_hp_changed.is_connected(_on_tank_hp_changed):
+		GameState.tank_hp_changed.connect(_on_tank_hp_changed)
+	if not GameState.tank_sp_changed.is_connected(_on_tank_sp_changed):
+		GameState.tank_sp_changed.connect(_on_tank_sp_changed)
+	if not GameState.level_up.is_connected(_on_level_up):
+		GameState.level_up.connect(_on_level_up)
+	if not GameState.quest_updated.is_connected(_on_quest_updated):
+		GameState.quest_updated.connect(_on_quest_updated)
 
 
 func _exit_tree() -> void:
@@ -177,6 +208,13 @@ func _on_load() -> void:
 	# fields (gold / map) that may have changed on disk manually.
 	_on_gold_changed(GameState.gold)
 	_update_map_name()
+	_on_exp_changed(GameState.player_exp, GameState.player_exp_next)
+	_on_fuel_changed(GameState.tank_fuel, GameState.tank_max_fuel)
+	_on_tank_hp_changed(GameState.tank_hp, GameState.tank_max_hp)
+	_on_tank_sp_changed(GameState.tank_sp, GameState.tank_max_sp)
+	_on_level_up(GameState.player_level)
+	_refresh_quest_count()
+	_refresh_mode()
 	load_requested.emit()
 	_flash_button(pause_buttons[2], "Loaded!")
 
@@ -222,12 +260,87 @@ func _on_gold_changed(amount: int) -> void:
 		gold_label.text = "%d G" % amount
 
 
+func _on_exp_changed(current: int, next: int) -> void:
+	if exp_bar:
+		exp_bar.max_value = maxi(next, 1)
+		exp_bar.value = clampi(current, 0, next)
+	if exp_label:
+		exp_label.text = "EXP %d / %d" % [current, next]
+
+
+func _on_fuel_changed(current: int, maximum: int) -> void:
+	if fuel_bar:
+		fuel_bar.max_value = maxi(maximum, 1)
+		fuel_bar.value = clampi(current, 0, maximum)
+		# Red when low
+		var ratio := float(current) / float(maxi(maximum, 1))
+		fuel_bar.modulate = Color(0.9, 0.25, 0.25) if ratio < 0.25 else Color(0.35, 0.85, 0.35)
+	if fuel_label:
+		fuel_label.text = "Fuel %d / %d" % [current, maximum]
+
+
+func _on_tank_hp_changed(current: int, maximum: int) -> void:
+	if tank_hp_bar:
+		tank_hp_bar.max_value = maxi(maximum, 1)
+		tank_hp_bar.value = clampi(current, 0, maximum)
+		tank_hp_bar.visible = GameState.tank_owned
+	if tank_hp_label:
+		tank_hp_label.text = "Tank HP %d / %d" % [current, maximum]
+		tank_hp_label.visible = GameState.tank_owned
+
+
+func _on_tank_sp_changed(current: int, maximum: int) -> void:
+	if tank_sp_bar:
+		tank_sp_bar.max_value = maxi(maximum, 1)
+		tank_sp_bar.value = clampi(current, 0, maximum)
+		tank_sp_bar.visible = GameState.tank_owned
+	if tank_sp_label:
+		tank_sp_label.text = "Tank SP %d / %d" % [current, maximum]
+		tank_sp_label.visible = GameState.tank_owned
+
+
+func _on_level_up(new_level: int) -> void:
+	if level_label:
+		level_label.text = "Lv. %d" % new_level
+
+
+func _on_quest_updated(_quest_id: String, _status: String) -> void:
+	_refresh_quest_count()
+
+
+func _refresh_quest_count() -> void:
+	if quest_label:
+		var active: int = GameState.active_quests.size()
+		var completed: int = GameState.completed_quests.size()
+		quest_label.text = "Quests: %d active / %d done" % [active, completed]
+
+
+func _refresh_mode() -> void:
+	if mode_label:
+		if GameState.tank_owned:
+			mode_label.text = "[TAB] Toggle Tank/On-Foot"
+			mode_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.3))
+		else:
+			mode_label.text = ""
+
+
 func _update_map_name() -> void:
 	if map_label == null:
 		return
 	var map_data: Dictionary = DataLoader.get_map_data(GameState.current_map)
 	var display_name: String = String(map_data.get("name", GameState.current_map))
 	map_label.text = display_name
+	# Update minimap with connections
+	if minimap_label:
+		var text := "Location: %s\n" % display_name
+		var connections: Dictionary = map_data.get("connections", {})
+		if not connections.is_empty():
+			text += "Routes:\n"
+			for direction in connections:
+				var dest_id: String = String(connections[direction])
+				var dest: Dictionary = DataLoader.get_map_data(dest_id)
+				text += "  %s -> %s\n" % [String(direction).capitalize(), String(dest.get("name", dest_id))]
+		minimap_label.text = text
 
 
 ## Public hook: call this when GameState.current_map changes so the HUD label
@@ -253,67 +366,167 @@ func _build_ui() -> void:
 
 
 func _build_top_left() -> void:
-	# A semi-transparent panel holding HP bar + gold + map name.
-	var panel := _make_panel(Color(0, 0, 0, 0.55))
+	var panel := _make_panel(Color(0, 0, 0, 0.6))
 	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	panel.position = Vector2(16, 16)
-	panel.size = Vector2(330, 92)
+	panel.size = Vector2(340, 210)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(panel)
 
 	var vbox := VBoxContainer.new()
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	vbox.offset_left = 10
-	vbox.offset_top = 8
+	vbox.offset_top = 6
 	vbox.offset_right = -10
-	vbox.offset_bottom = -8
+	vbox.offset_bottom = -6
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_theme_constant_override("separation", 4)
+	vbox.add_theme_constant_override("separation", 3)
 	panel.add_child(vbox)
 
+	# Level + EXP row
+	var level_row := HBoxContainer.new()
+	level_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(level_row)
+	level_label = _make_label("Lv. 1", 14)
+	level_label.custom_minimum_size = Vector2(60, 0)
+	level_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.23))
+	level_row.add_child(level_label)
+	exp_bar = ProgressBar.new()
+	exp_bar.min_value = 0
+	exp_bar.max_value = 50
+	exp_bar.value = 0
+	exp_bar.custom_minimum_size = Vector2(160, 14)
+	exp_bar.show_percentage = false
+	level_row.add_child(exp_bar)
+	exp_label = _make_label("", 11)
+	exp_label.custom_minimum_size = Vector2(90, 0)
+	level_row.add_child(exp_label)
+
+	# HP row
 	var hp_row := HBoxContainer.new()
 	hp_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(hp_row)
-
 	hp_label = _make_label("HP 100 / 100", 14)
 	hp_label.custom_minimum_size = Vector2(120, 0)
 	hp_row.add_child(hp_label)
-
 	hp_bar = ProgressBar.new()
 	hp_bar.min_value = 0
 	hp_bar.max_value = 100
 	hp_bar.value = 100
-	hp_bar.custom_minimum_size = Vector2(170, 18)
+	hp_bar.custom_minimum_size = Vector2(190, 16)
 	hp_bar.show_percentage = false
 	hp_row.add_child(hp_bar)
 
+	# Gold row
 	gold_label = _make_label("0 G", 14)
+	gold_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
 	vbox.add_child(gold_label)
 
-	map_label = _make_label("Map", 13)
+	# Map name
+	map_label = _make_label("Map", 12)
 	map_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.7))
 	vbox.add_child(map_label)
 
+	# Separator
+	var sep := HSeparator.new()
+	sep.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(sep)
+
+	# Tank HP row (hidden if no tank)
+	var tank_hp_row := HBoxContainer.new()
+	tank_hp_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(tank_hp_row)
+	tank_hp_label = _make_label("Tank HP 200 / 200", 12)
+	tank_hp_label.custom_minimum_size = Vector2(140, 0)
+	tank_hp_row.add_child(tank_hp_label)
+	tank_hp_bar = ProgressBar.new()
+	tank_hp_bar.min_value = 0
+	tank_hp_bar.max_value = 200
+	tank_hp_bar.value = 200
+	tank_hp_bar.custom_minimum_size = Vector2(170, 14)
+	tank_hp_bar.show_percentage = false
+	tank_hp_row.add_child(tank_hp_bar)
+
+	# Tank SP row
+	var tank_sp_row := HBoxContainer.new()
+	tank_sp_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(tank_sp_row)
+	tank_sp_label = _make_label("Tank SP 100 / 100", 12)
+	tank_sp_label.custom_minimum_size = Vector2(140, 0)
+	tank_sp_row.add_child(tank_sp_label)
+	tank_sp_bar = ProgressBar.new()
+	tank_sp_bar.min_value = 0
+	tank_sp_bar.max_value = 100
+	tank_sp_bar.value = 100
+	tank_sp_bar.custom_minimum_size = Vector2(170, 14)
+	tank_sp_bar.show_percentage = false
+	tank_sp_row.add_child(tank_sp_bar)
+
+	# Fuel row
+	var fuel_row := HBoxContainer.new()
+	fuel_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(fuel_row)
+	fuel_label = _make_label("Fuel 100 / 100", 12)
+	fuel_label.custom_minimum_size = Vector2(140, 0)
+	fuel_row.add_child(fuel_label)
+	fuel_bar = ProgressBar.new()
+	fuel_bar.min_value = 0
+	fuel_bar.max_value = 100
+	fuel_bar.value = 100
+	fuel_bar.custom_minimum_size = Vector2(170, 14)
+	fuel_bar.show_percentage = false
+	fuel_row.add_child(fuel_bar)
+
+	# Initially hide tank stats
+	tank_hp_bar.visible = false
+	tank_hp_label.visible = false
+	tank_sp_bar.visible = false
+	tank_sp_label.visible = false
+
 
 func _build_top_right() -> void:
-	# Minimap placeholder in the top-right corner. Anchored to the right edge so
-	# it stays put at any window size (PRESET_TOP_RIGHT pins to top-right).
-	minimap_box = _make_panel(Color(0, 0, 0, 0.55))
+	minimap_box = _make_panel(Color(0, 0, 0, 0.6))
 	minimap_box.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	minimap_box.offset_left = -176.0
+	minimap_box.offset_left = -196.0
 	minimap_box.offset_top = 16.0
 	minimap_box.offset_right = -16.0
-	minimap_box.offset_bottom = 136.0
+	minimap_box.offset_bottom = 176.0
 	minimap_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(minimap_box)
 
-	minimap_label = _make_label("MINIMAP\n(placeholder)", 12)
-	minimap_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	minimap_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	minimap_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	minimap_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	var title := _make_label("MAP", 12)
+	title.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	title.offset_top = 4
+	title.offset_bottom = 20
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_color_override("font_color", Color(1.0, 0.92, 0.23))
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	minimap_box.add_child(title)
+
+	# Build a minimap using labels in a VBox
+	var container := VBoxContainer.new()
+	container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	container.offset_left = 8
+	container.offset_top = 24
+	container.offset_right = -8
+	container.offset_bottom = -8
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_theme_constant_override("separation", 2)
+	minimap_box.add_child(container)
+
+	minimap_label = _make_label("", 11)
 	minimap_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	minimap_box.add_child(minimap_label)
+	container.add_child(minimap_label)
+
+	quest_label = _make_label("", 11)
+	quest_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	quest_label.add_theme_color_override("font_color", Color(0.6, 0.8, 1.0))
+	container.add_child(quest_label)
+
+	mode_label = _make_label("", 11)
+	mode_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mode_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.3))
+	container.add_child(mode_label)
 
 
 func _build_bottom_hint() -> void:
