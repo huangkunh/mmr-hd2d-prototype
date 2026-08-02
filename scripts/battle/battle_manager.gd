@@ -67,6 +67,8 @@ const ACTION_DEFEND := "defend"
 const ACTION_SKILL := "skill"
 const ACTION_ITEM := "item"
 const ACTION_FLEE := "flee"
+const ACTION_TANK_ATTACK := "tank_attack"
+const ACTION_TANK_SE := "tank_se"
 
 ## Enemy AI skill use chance (per turn when a skill is available).
 const ENEMY_SKILL_CHANCE := 0.30
@@ -108,6 +110,7 @@ var current_state: int = State.INTRO
 var player_actor: BattleActor
 var enemy_actor: BattleActor
 var enemy_data: Dictionary = {}
+var party_actors: Array[BattleActor] = []
 
 var _battle_ui: Control
 var _busy: bool = false  # True while a player command is being resolved.
@@ -134,8 +137,18 @@ func _start_battle() -> void:
 		enemy_data = DataLoader.get_enemy("slime")
 
 	# Create the two combatants from data.
-	player_actor = BattleActor.create_from_player()
+	# Check if player should fight in tank mode
+	var use_tank: bool = GameState.tank_owned and GameState.battle_mode == "tank"
+	if use_tank:
+		player_actor = BattleActor.create_from_tank()
+	else:
+		player_actor = BattleActor.create_from_player()
 	enemy_actor = BattleActor.create_from_enemy(enemy_data)
+	# Create party member actors (recruited companions)
+	party_actors.clear()
+	for member in GameState.get_active_party():
+		var party_actor = BattleActor.create_from_party_member(member)
+		party_actors.append(party_actor)
 	actors_ready.emit(player_actor, enemy_actor)
 
 	# Pick the battle BGM: boss encounters get their own theme.
@@ -213,6 +226,10 @@ func select_action(action: String, item_id: String = "", skill_id: String = "") 
 			await _execute_item(item_id)
 		ACTION_FLEE:
 			await _execute_flee()
+		ACTION_TANK_ATTACK:
+			await _execute_tank_cannon_attack()
+		ACTION_TANK_SE:
+			await _execute_tank_se_attack()
 		_:
 			push_warning("[BattleManager] Unknown action: %s" % action)
 			_busy = false
@@ -258,6 +275,200 @@ func _execute_player_attack() -> void:
 
 	if not enemy_actor.is_alive():
 		_enter_victory()
+
+## Tank main cannon attack: high damage, single hit
+func _execute_tank_cannon_attack() -> void:
+	_log("%s fires the main cannon!" % player_actor.name)
+	AudioManager.play_sfx("explosion")
+	await get_tree().create_timer(turn_delay).timeout
+
+	var result := _compute_tank_damage(player_actor, enemy_actor, player_actor.cannon_attack)
+	if not result.hit:
+		attack_missed.emit(enemy_actor)
+		_log("...but missed!")
+		await get_tree().create_timer(action_delay).timeout
+		return
+
+	enemy_actor.take_damage(result.amount)
+	_emit_hit(enemy_actor, result)
+	_log_damage(enemy_actor, result.crit, result.amount)
+	await get_tree().create_timer(action_delay).timeout
+
+	if not enemy_actor.is_alive():
+		_enter_victory()
+
+## Tank sub-weapon attack: multiple hits, lower damage each
+func _execute_tank_sub_attack() -> void:
+	_log("%s fires the sub-weapon!" % player_actor.name)
+	AudioManager.play_sfx("hit")
+	await get_tree().create_timer(turn_delay).timeout
+
+	var hit_count: int = 3
+	for i in range(hit_count):
+		if not enemy_actor.is_alive():
+			break
+		var result := _compute_tank_damage(player_actor, enemy_actor, player_actor.sub_attack)
+		if not result.hit:
+			attack_missed.emit(enemy_actor)
+			_log("Hit %d: missed!" % (i + 1))
+		else:
+			enemy_actor.take_damage(result.amount)
+			_emit_hit(enemy_actor, result)
+			_log("Hit %d: %d damage." % [(i + 1), result.amount])
+		await get_tree().create_timer(0.3).timeout
+
+	if not enemy_actor.is_alive():
+		_enter_victory()
+
+## Tank SE weapon attack: special effect depending on SE type
+## Types: missile (multi-hit), flamethrower (burn DoT), laser (defense-ignoring),
+##        smoke (evasion buff), repair (SP heal), earthquake (defense break + damage)
+func _execute_tank_se_attack() -> void:
+	var se_type: String = player_actor.se_type
+	if se_type.is_empty():
+		se_type = "missile"  # Default fallback
+	
+	_log("%s launches the SE weapon!" % player_actor.name)
+	AudioManager.play_sfx("explosion")
+	await get_tree().create_timer(turn_delay).timeout
+	
+	match se_type:
+		"missile":
+			await _se_missile_attack()
+		"flamethrower":
+			await _se_flamethrower_attack()
+		"laser":
+			await _se_laser_attack()
+		"smoke":
+			await _se_smoke_attack()
+		"repair":
+			await _se_repair_attack()
+		"earthquake":
+			await _se_earthquake_attack()
+		_:
+			await _se_missile_attack()
+	
+	if not enemy_actor.is_alive():
+		_enter_victory()
+
+## SE Missile: multi-hit (default 4 hits), high damage each
+func _se_missile_attack() -> void:
+	var hit_count: int = int(player_actor.se_data.get("se_hits", 4))
+	for i in range(hit_count):
+		if not enemy_actor.is_alive():
+			break
+		var result := _compute_tank_damage(player_actor, enemy_actor, player_actor.se_attack)
+		if not result.hit:
+			attack_missed.emit(enemy_actor)
+			_log("Hit %d: missed!" % (i + 1))
+		else:
+			enemy_actor.take_damage(result.amount)
+			_emit_hit(enemy_actor, result)
+			_log("Hit %d: %d damage." % [(i + 1), result.amount])
+		await get_tree().create_timer(0.25).timeout
+
+## SE Flamethrower: single powerful hit + chance to burn
+func _se_flamethrower_attack() -> void:
+	var burn_chance: float = float(player_actor.se_data.get("se_burn_chance", 0.5))
+	var burn_duration: int = int(player_actor.se_data.get("se_burn_duration", 3))
+	var result := _compute_tank_damage(player_actor, enemy_actor, player_actor.se_attack)
+	if not result.hit:
+		attack_missed.emit(enemy_actor)
+		_log("...but missed!")
+	else:
+		enemy_actor.take_damage(result.amount)
+		_emit_hit(enemy_actor, result)
+		_log_damage(enemy_actor, result.crit, result.amount)
+		# Chance to apply burn
+		if randf() < burn_chance:
+			enemy_actor.apply_status(BattleActor.STATUS_BURN, burn_duration)
+			_log("%s is engulfed in flames!" % enemy_actor.name)
+	await get_tree().create_timer(action_delay).timeout
+
+## SE Laser: single hit that ignores defense
+func _se_laser_attack() -> void:
+	var miss_chance: float = clampf(
+		BASE_MISS_CHANCE - float(player_actor.accuracy_bonus) * 0.005,
+		0.01, MISS_CHANCE_MAX
+	)
+	miss_chance += enemy_actor.get_evasion_bonus()
+	if randf() < miss_chance:
+		attack_missed.emit(enemy_actor)
+		_log("...but missed!")
+		await get_tree().create_timer(action_delay).timeout
+		return
+	# Laser ignores defense entirely
+	var base: int = maxi(1, player_actor.se_attack + randi_range(-DMG_VARIANCE, DMG_VARIANCE))
+	var crit: bool = randf() < CRIT_CHANCE * 1.5  # Higher crit chance for laser
+	if crit:
+		base = int(base * CRIT_MULTIPLIER)
+	enemy_actor.take_damage(base)
+	_emit_hit(enemy_actor, {"crit": crit, "amount": base})
+	_log("Laser pierces through! %d damage!" % base)
+	if crit:
+		_log("Critical hit!")
+	await get_tree().create_timer(action_delay).timeout
+
+## SE Smoke: deploys smoke screen, boosts evasion
+func _se_smoke_attack() -> void:
+	var evasion_amount: float = float(player_actor.se_data.get("se_evasion_amount", 0.7))
+	var evasion_duration: int = int(player_actor.se_data.get("se_evasion_duration", 3))
+	player_actor.apply_status(BattleActor.STATUS_EVASION_UP, evasion_duration, evasion_amount)
+	_log("Smoke screen deployed! Evasion +%.0f%% for %d turns!" % [evasion_amount * 100, evasion_duration])
+	AudioManager.play_sfx("hit")
+	await get_tree().create_timer(action_delay).timeout
+
+## SE Repair: restores tank SP
+func _se_repair_attack() -> void:
+	var repair_amount: int = int(player_actor.se_data.get("se_repair_amount", 50))
+	var actual: int = player_actor.repair_sp(repair_amount)
+	_log("Repair drone active! Restored %d SP!" % actual)
+	AudioManager.play_sfx("heal")
+	healed.emit(player_actor, actual)
+	await get_tree().create_timer(action_delay).timeout
+
+## SE Earthquake: high damage + defense break debuff
+func _se_earthquake_attack() -> void:
+	var def_break: float = float(player_actor.se_data.get("se_defense_break", 0.4))
+	var def_break_duration: int = int(player_actor.se_data.get("se_defense_break_duration", 2))
+	var result := _compute_tank_damage(player_actor, enemy_actor, player_actor.se_attack)
+	if not result.hit:
+		attack_missed.emit(enemy_actor)
+		_log("...but missed!")
+	else:
+		# Earthquake does 1.5x damage
+		var amplified: int = int(result.amount * 1.5)
+		enemy_actor.take_damage(amplified)
+		_emit_hit(enemy_actor, {"crit": result.crit, "amount": amplified})
+		_log("Earthquake strikes! %d damage!" % amplified)
+		# Apply defense break
+		enemy_actor.apply_status(BattleActor.STATUS_DEFENSE_DOWN, def_break_duration, def_break)
+		_log("%s's defense is shattered!" % enemy_actor.name)
+	await get_tree().create_timer(action_delay).timeout
+
+## Computes tank damage with accuracy bonus from C-Unit
+func _compute_tank_damage(attacker: BattleActor, defender: BattleActor, weapon_attack: int) -> Dictionary:
+	# Tank accuracy is higher due to C-Unit
+	var miss_chance: float = clampf(
+		BASE_MISS_CHANCE + (defender.get_effective_speed() - attacker.get_effective_speed()) * MISS_SPEED_FACTOR,
+		MISS_CHANCE_MIN, MISS_CHANCE_MAX
+	)
+	# C-Unit reduces miss chance
+	miss_chance -= float(attacker.accuracy_bonus) * 0.005
+	miss_chance = maxf(miss_chance, 0.01)
+	miss_chance += defender.get_evasion_bonus()
+
+	if randf() < miss_chance:
+		return {"hit": false, "crit": false, "amount": 0}
+
+	# Tank damage formula: weapon_attack - defender_defense + variance
+	var base: int = maxi(1, weapon_attack - defender.get_effective_defense() + randi_range(-DMG_VARIANCE, DMG_VARIANCE))
+
+	var crit: bool = randf() < CRIT_CHANCE
+	if crit:
+		base = int(base * CRIT_MULTIPLIER)
+
+	return {"hit": true, "crit": crit, "amount": base}
 
 func _execute_defend() -> void:
 	player_actor.defending = true
@@ -418,6 +629,13 @@ func _execute_skill(skill_id: String) -> void:
 			var def_buff_duration: int = int(skill.get("buff_duration", 3))
 			player_actor.apply_status(BattleActor.STATUS_DEFENSE_UP, def_buff_duration, def_buff_amount)
 			_log("%s's defense increased!" % player_actor.name)
+			await get_tree().create_timer(action_delay).timeout
+		"repair_sp":
+			var repair_amount: int = int(skill.get("repair_amount", 30))
+			var actual_repair: int = player_actor.repair_sp(repair_amount)
+			_log("%s repaired %d SP!" % [player_actor.name, actual_repair])
+			AudioManager.play_sfx("heal")
+			healed.emit(player_actor, actual_repair)
 			await get_tree().create_timer(action_delay).timeout
 		_:
 			await _execute_burst(player_actor, enemy_actor, power_mult)
@@ -675,6 +893,15 @@ func _flee_chance() -> float:
 
 # --- End-of-battle transitions ----------------------------------------------
 
+## Returns true if the player or any party member can still fight.
+func _party_can_fight() -> bool:
+	if player_actor.is_alive():
+		return true
+	for actor in party_actors:
+		if actor.is_alive():
+			return true
+	return false
+
 func _enter_victory() -> void:
 	_set_state(State.VICTORY)
 	AudioManager.play_bgm("victory_theme")
@@ -687,9 +914,42 @@ func _enter_victory() -> void:
 		gold_gained += bounty_reward
 		_log("BOUNTY target downed!")
 	_log("Victory! Gained %d EXP and %d gold." % [exp_gained, gold_gained])
+	# Sync party member HP back to GameState
+	var active_party = GameState.get_active_party()
+	for i in range(mini(party_actors.size(), active_party.size())):
+		active_party[i]["hp"] = party_actors[i].hp
+	# Sync tank state back to GameState
+	if player_actor.is_tank_mode:
+		GameState.tank_hp = player_actor.hp
+		GameState.tank_sp = player_actor.sp
 	victory.emit(exp_gained, gold_gained, is_bounty, bounty_reward)
 
 func _enter_defeat() -> void:
+	# If tank was destroyed, switch to infantry instead of full game over
+	if player_actor.is_tank_mode and GameState.tank_owned:
+		_log("Tank destroyed! Switching to infantry mode!")
+		AudioManager.play_sfx("explosion")
+		GameState.tank_hp = 1  # Tank barely survives
+		GameState.battle_mode = "infantry"
+		GameState.movement_mode = "infantry"
+		# Recreate player as infantry
+		player_actor = BattleActor.create_from_player()
+		actors_ready.emit(player_actor, enemy_actor)
+		_log("%s continues on foot!" % player_actor.name)
+		await get_tree().create_timer(action_delay).timeout
+		_begin_player_turn()
+		return
+	# Check if any party member is still standing
+	if not player_actor.is_alive():
+		for actor in party_actors:
+			if actor.is_alive():
+				# Swap to the party member as the active fighter
+				_log("%s takes over!" % actor.name)
+				player_actor = actor
+				actors_ready.emit(player_actor, enemy_actor)
+				await get_tree().create_timer(action_delay).timeout
+				_begin_player_turn()
+				return
 	_set_state(State.DEFEAT)
 	AudioManager.play_bgm("game_over_theme")
 	AudioManager.play_sfx("defeat")
@@ -698,6 +958,10 @@ func _enter_defeat() -> void:
 
 func _enter_fled(used_item: bool) -> void:
 	_set_state(State.OUTRO)
+	# Sync tank HP/SP back to GameState when fleeing in tank mode.
+	if player_actor and player_actor.is_tank_mode:
+		GameState.tank_hp = player_actor.hp
+		GameState.tank_sp = player_actor.sp
 	AudioManager.play_sfx("flee")
 	fled.emit()
 	await get_tree().create_timer(action_delay).timeout

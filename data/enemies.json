@@ -66,6 +66,10 @@
 		"sprite": "res://assets/sprites/enemy_worm.png",
 		"is_bounty": true,
 		"bounty_reward": 1000,
+		"difficulty": 3,
+		"location": "Scorched Desert",
+		"alias": "The Sand Terror",
+		"threat_level": "Dangerous",
 		"description": "BOUNTY: Giant worm that swallows vehicles whole. Slow but devastating.",
 		"skills": [],
 		"weakness": "fire"
@@ -81,6 +85,10 @@
 		"sprite": "res://assets/sprites/enemy_titan.png",
 		"is_bounty": true,
 		"bounty_reward": 5000,
+		"difficulty": 5,
+		"location": "Old Military Ruins",
+		"alias": "The Walking Fortress",
+		"threat_level": "Extremely Dangerous",
 		"description": "BOUNTY: A walking fortress from the old war. Heavily armored, extremely dangerous.",
 		"skills": ["barrage"],
 		"weakness": "electric"
@@ -196,8 +204,31 @@
 		"sprite": "res://assets/sprites/enemy_titan.png",
 		"is_bounty": true,
 		"bounty_reward": 8000,
+		"difficulty": 5,
+		"location": "Underground Laboratory",
+		"alias": "The Ultimate Weapon",
+		"threat_level": "Lethal",
 		"description": "BOUNTY: Experimental war machine still active in the lab. The ultimate challenge.",
 		"skills": ["barrage", "incendiary_round", "enemy_heal_protocol"],
 		"weakness": "electric"
+	},
+	"mad_maxer": {
+		"name": "Mad Maxer",
+		"hp": 350,
+		"attack": 45,
+		"defense": 25,
+		"speed": 20,
+		"exp": 200,
+		"gold": 400,
+		"sprite": "res://assets/sprites/enemy_bandit.png",
+		"is_bounty": true,
+		"bounty_reward": 3000,
+		"difficulty": 4,
+		"location": "Mountain Pass",
+		"alias": "The Desert Reaver",
+		"threat_level": "Very Dangerous",
+		"description": "BOUNTY: A notorious raider warlord with a custom battle tank. Terrorizes the mountain routes.",
+		"skills": ["rapid_fire", "incendiary_round", "guard_break"],
+		"weakness": ""
 	}
 }

@@ -141,5 +141,31 @@
 		"reward_item": "lab_keycard",
 		"prerequisite": "quest_swamp_exploration",
 		"npc_origin": "swamp_npc"
+	},
+	"bounty_mad_maxer": {
+		"name": "The Desert Reaver",
+		"type": "bounty",
+		"description": "A notorious raider warlord known as Mad Maxer terrorizes the mountain routes with his custom battle tank. Stop him.",
+		"objectives": [
+			{ "type": "kill", "target": "mad_maxer", "count": 1 }
+		],
+		"reward_gold": 4000,
+		"reward_exp": 300,
+		"reward_item": "cannon_155mm",
+		"prerequisite": "bounty_desert_worm",
+		"npc_origin": "bounty_board"
+	},
+	"bounty_prototype_mech": {
+		"name": "The Ultimate Weapon",
+		"type": "bounty",
+		"description": "An experimental prototype mech still guards the underground laboratory. It's the most dangerous target on the continent.",
+		"objectives": [
+			{ "type": "kill", "target": "prototype_mech", "count": 1 }
+		],
+		"reward_gold": 10000,
+		"reward_exp": 600,
+		"reward_item": "engine_fusion",
+		"prerequisite": "bounty_iron_titan",
+		"npc_origin": "bounty_board"
 	}
 }

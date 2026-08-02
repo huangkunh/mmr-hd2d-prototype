@@ -191,5 +191,18 @@
 		"effect": "heal_self",
 		"heal_percent": 0.25,
 		"unlock_level": 1
+	},
+	"repair_field": {
+		"name": "Field Repair",
+		"type": "active",
+		"mode": "infantry",
+		"power_multiplier": 0.0,
+		"hit_count": 0,
+		"cooldown": 3,
+		"mp_cost": 0,
+		"description": "Mechanic skill. Repairs tank SP by 30 during battle.",
+		"effect": "repair_sp",
+		"repair_amount": 30,
+		"unlock_level": 1
 	}
 }

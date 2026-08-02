@@ -1,0 +1,186 @@
+{
+	"craft_premium_fuel": {
+		"name": "Premium Fuel",
+		"result_item": "premium_fuel",
+		"result_count": 1,
+		"materials": {
+			"fuel_can": 2
+		},
+		"gold_cost": 20,
+		"description": "Refine two fuel canisters into high-octane premium fuel."
+	},
+	"craft_mega_repair": {
+		"name": "Nano Repair Kit",
+		"result_item": "mega_repair_kit",
+		"result_count": 1,
+		"materials": {
+			"repair_kit": 2,
+			"energy_cell": 1
+		},
+		"gold_cost": 50,
+		"description": "Combine repair kits with an energy cell to create a nano repair system."
+	},
+	"craft_potion_large": {
+		"name": "Stim Pack",
+		"result_item": "potion_large",
+		"result_count": 1,
+		"materials": {
+			"potion_medium": 2,
+			"antidote": 1
+		},
+		"gold_cost": 30,
+		"description": "Mix medical kits with an antidote to create a powerful stim pack."
+	},
+	"craft_potion_full": {
+		"name": "Nano Med Kit",
+		"result_item": "potion_full",
+		"result_count": 1,
+		"materials": {
+			"potion_large": 2,
+			"energy_cell": 2
+		},
+		"gold_cost": 100,
+		"description": "Advanced medical synthesis. Creates a full-heal nano med kit."
+	},
+	"craft_energy_cell": {
+		"name": "Energy Cell",
+		"result_item": "energy_cell",
+		"result_count": 1,
+		"materials": {
+			"antidote": 1,
+			"armor_plate": 1
+		},
+		"gold_cost": 30,
+		"description": "Salvage components to create an energy cell."
+	},
+	"craft_armor_plate": {
+		"name": "Temp Armor Plate",
+		"result_item": "armor_plate",
+		"result_count": 2,
+		"materials": {
+			"repair_kit": 1
+		},
+		"gold_cost": 40,
+		"description": "Break down a repair kit into temporary armor plates."
+	},
+	"craft_smoke_bomb": {
+		"name": "Smoke Grenades x3",
+		"result_item": "smoke_bomb",
+		"result_count": 3,
+		"materials": {
+			"fuel_can": 1,
+			"antidote": 1
+		},
+		"gold_cost": 15,
+		"description": "Mix chemicals to create smoke grenades for escaping battles."
+	},
+	"craft_plasma_rifle": {
+		"name": "Plasma Rifle",
+		"result_item": "plasma_rifle",
+		"result_count": 1,
+		"materials": {
+			"ancient_relic": 1,
+			"energy_cell": 3,
+			"sniper_rifle": 1
+		},
+		"gold_cost": 500,
+		"description": "Use ancient technology to upgrade a sniper rifle into a plasma rifle."
+	},
+	"craft_se_laser": {
+		"name": "Laser Cannon SE",
+		"result_item": "se_laser",
+		"result_count": 1,
+		"materials": {
+			"ancient_relic": 1,
+			"energy_cell": 5
+		},
+		"gold_cost": 1000,
+		"description": "Reverse-engineer ancient tech to build a laser cannon for your tank."
+	},
+	"craft_engine_fusion": {
+		"name": "Fusion Engine",
+		"result_item": "engine_fusion",
+		"result_count": 1,
+		"materials": {
+			"ancient_relic": 2,
+			"engine_v12": 1,
+			"energy_cell": 5
+		},
+		"gold_cost": 2000,
+		"description": "The ultimate engine upgrade. Combines ancient relics with a V12 turbo."
+	},
+	"craft_ap_rounds": {
+		"name": "AP Rounds x3",
+		"result_item": "armor_plate",
+		"result_count": 3,
+		"materials": {
+			"repair_kit": 1,
+			"fuel_can": 1
+		},
+		"gold_cost": 60,
+		"description": "Salvage metal from a repair kit to forge reinforced armor plates."
+	},
+	"craft_stim_cocktail": {
+		"name": "Combat Stimulant",
+		"result_item": "energy_cell",
+		"result_count": 2,
+		"materials": {
+			"potion_medium": 1,
+			"antidote": 2
+		},
+		"gold_cost": 40,
+		"description": "Distill medical compounds into energy cells for combat buffs."
+	},
+	"craft_disassemble_rifle": {
+		"name": "Strip Rifle for Parts",
+		"result_item": "energy_cell",
+		"result_count": 1,
+		"materials": {
+			"rifle": 1
+		},
+		"gold_cost": 10,
+		"description": "Disassemble a spare rifle to recover an energy cell and components."
+	},
+	"craft_disassemble_armor": {
+		"name": "Strip Armor for Plates",
+		"result_item": "armor_plate",
+		"result_count": 2,
+		"materials": {
+			"leather_armor": 1
+		},
+		"gold_cost": 10,
+		"description": "Break down old leather armor into reusable armor plates."
+	},
+	"craft_disassemble_engine": {
+		"name": "Strip V6 Engine",
+		"result_item": "repair_kit",
+		"result_count": 2,
+		"materials": {
+			"engine_v6": 1
+		},
+		"gold_cost": 15,
+		"description": "Disassemble a V6 engine to recover repair components and salvage."
+	},
+	"craft_heavy_repair": {
+		"name": "Heavy Repair Kit",
+		"result_item": "tank_repair_kit_large",
+		"result_count": 1,
+		"materials": {
+			"repair_kit": 2,
+			"armor_plate": 1
+		},
+		"gold_cost": 80,
+		"description": "Reinforce standard repair kits with armor plating for heavy-duty tank repairs."
+	},
+	"craft_antidote_batch": {
+		"name": "Antidote x3",
+		"result_item": "antidote",
+		"result_count": 3,
+		"materials": {
+			"potion_small": 2,
+			"fuel_can": 1
+		},
+		"gold_cost": 25,
+		"description": "Chemically process bandages and fuel additives into antidotes."
+	}
+}

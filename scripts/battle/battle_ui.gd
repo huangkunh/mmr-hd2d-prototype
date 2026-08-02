@@ -80,6 +80,7 @@ var _skill_index: int = 0
 # HP bars
 var _player_hp_bar: Dictionary
 var _enemy_hp_bar: Dictionary
+var _player_sp_bar: Dictionary
 var _player_name_label: Label
 var _enemy_name_label: Label
 var _player_status_label: Label
@@ -121,13 +122,7 @@ func _ready() -> void:
 	if _player_display:
 		_player_pos = _player_display.position
 
-	_commands = [
-		{id = BattleManager.ACTION_ATTACK, label = "Attack"},
-		{id = BattleManager.ACTION_SKILL, label = "Skill"},
-		{id = BattleManager.ACTION_DEFEND, label = "Defend"},
-		{id = BattleManager.ACTION_ITEM, label = "Item"},
-		{id = BattleManager.ACTION_FLEE, label = "Flee"},
-	]
+	_refresh_commands()
 
 	_build_ui()
 	_connect_manager_signals()
@@ -147,6 +142,32 @@ func _connect_manager_signals() -> void:
 	_manager.victory.connect(_on_victory)
 	_manager.defeat.connect(_on_defeat)
 	_manager.fled.connect(_on_fled)
+
+## Rebuilds the command list depending on whether the player is fighting in
+## tank mode (Cannon / Skill / SE Weapon / Item / Flee) or on foot
+## (Attack / Skill / Defend / Item / Flee). Called on ready and whenever a
+## new actor pair is presented (e.g. after a tank is destroyed).
+func _refresh_commands() -> void:
+	if _player_actor and _player_actor.is_tank_mode:
+		# Show the SE weapon type in the label for clarity.
+		var se_label: String = "SE Weapon"
+		if not _player_actor.se_type.is_empty():
+			se_label = "SE: %s" % _player_actor.se_type.capitalize()
+		_commands = [
+			{id = BattleManager.ACTION_TANK_ATTACK, label = "Cannon"},
+			{id = BattleManager.ACTION_SKILL, label = "Skill"},
+			{id = BattleManager.ACTION_TANK_SE, label = se_label},
+			{id = BattleManager.ACTION_ITEM, label = "Item"},
+			{id = BattleManager.ACTION_FLEE, label = "Flee"},
+		]
+	else:
+		_commands = [
+			{id = BattleManager.ACTION_ATTACK, label = "Attack"},
+			{id = BattleManager.ACTION_SKILL, label = "Skill"},
+			{id = BattleManager.ACTION_DEFEND, label = "Defend"},
+			{id = BattleManager.ACTION_ITEM, label = "Item"},
+			{id = BattleManager.ACTION_FLEE, label = "Flee"},
+		]
 
 # --- UI construction ---------------------------------------------------------
 
@@ -265,7 +286,7 @@ func _build_enemy_info() -> void:
 
 func _build_player_info() -> void:
 	var w: float = 400.0
-	var h: float = 134.0
+	var h: float = 158.0
 	var x: float = 24.0
 	var y: float = _vp_size.y - h - 24.0
 	var panel := _add_panel(x, y, w, h, _make_style(COL_PANEL_BG, COL_PANEL_BORDER, 2, 8))
@@ -284,15 +305,22 @@ func _build_player_info() -> void:
 	_player_hp_bar.root.position = Vector2(16, 66)
 	panel.add_child(_player_hp_bar.root)
 
+	# SP bar (for tank mode)
+	_player_sp_bar = _make_hp_bar(w - 32, 18)
+	_player_sp_bar.root.position = Vector2(16, 94)
+	_player_sp_bar.fill.color = Color(0.3, 0.5, 0.9)  # Blue for SP
+	_player_sp_bar.root.visible = false
+	panel.add_child(_player_sp_bar.root)
+
 	# Show a compact stat line under the bar (effective stats with equipment).
 	var stats := _make_label("ATK %d   DEF %d   SPD %d" % [GameState.get_effective_attack(), GameState.get_effective_defense(), GameState.get_effective_speed()], COL_TEXT_DIM, 14, HORIZONTAL_ALIGNMENT_LEFT)
-	stats.position = Vector2(16, 98)
+	stats.position = Vector2(16, 116)
 	stats.size = Vector2(w - 32, 22)
 	panel.add_child(stats)
 
 	# Status effect display
 	_player_status_container = HBoxContainer.new()
-	_player_status_container.position = Vector2(16, 118)
+	_player_status_container.position = Vector2(16, 140)
 	_player_status_container.size = Vector2(w - 32, 16)
 	_player_status_container.add_theme_constant_override("separation", 4)
 	_player_status_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -350,6 +378,32 @@ func _build_command_menu() -> void:
 		l.custom_minimum_size = Vector2(0, 38)
 		vbox.add_child(l)
 		_command_labels.append(l)
+
+## Rebuilds the command labels inside the existing command menu so the list
+## matches the current `_commands` (which changes between tank/infantry mode).
+## Preserves the "COMMAND" title and reuses the VBoxContainer from _build_command_menu.
+func _rebuild_command_menu() -> void:
+	if _command_menu == null:
+		return
+	# Locate the VBoxContainer created by _build_command_menu().
+	var vbox: VBoxContainer = null
+	for child in _command_menu.get_children():
+		if child is VBoxContainer:
+			vbox = child
+			break
+	if vbox == null:
+		return
+	# Clear existing command labels (preserves the "COMMAND" title).
+	for label in vbox.get_children():
+		label.queue_free()
+	_command_labels.clear()
+	# Rebuild with current commands.
+	for cmd in _commands:
+		var l := _make_label(cmd.label, COL_TEXT, 22, HORIZONTAL_ALIGNMENT_LEFT)
+		l.custom_minimum_size = Vector2(0, 38)
+		vbox.add_child(l)
+		_command_labels.append(l)
+	_cmd_index = 0
 
 func _build_item_menu() -> void:
 	var w: float = 360.0
@@ -732,6 +786,23 @@ func _on_actors_ready(p_actor: BattleActor, e_actor: BattleActor) -> void:
 	_on_player_status_changed()
 	_on_enemy_status_changed()
 
+	# Update player name to show tank mode
+	if _player_name_label and _player_actor:
+		if _player_actor.is_tank_mode:
+			_player_name_label.text = _player_actor.name
+		else:
+			_player_name_label.text = GameState.player_name
+
+	# Refresh the command menu for the current battle mode (tank vs infantry).
+	_refresh_commands()
+	_rebuild_command_menu()
+
+	# Show the SP bar only in tank mode and sync its value.
+	if not _player_sp_bar.is_empty():
+		_player_sp_bar.root.visible = _player_actor.is_tank_mode
+	if _player_actor.is_tank_mode:
+		_update_sp_bar()
+
 func _on_state_changed(state: int) -> void:
 	# Close menus whenever we leave the player's turn.
 	if state != BattleManager.State.PLAYER_TURN:
@@ -751,6 +822,9 @@ func _on_battle_log(message: String) -> void:
 func _on_player_hp_changed(current: int, maximum: int) -> void:
 	if _player_actor:
 		_update_hp_bar(_player_hp_bar, float(current) / float(maxi(1, maximum)), current, maximum, true)
+		# In tank mode, SP absorbs damage before HP, so refresh the SP bar too.
+		if _player_actor.is_tank_mode:
+			_update_sp_bar()
 
 func _on_enemy_hp_changed(current: int, maximum: int) -> void:
 	if _enemy_actor:
@@ -904,6 +978,17 @@ func _update_hp_bar(bar: Dictionary, ratio: float, current: int, maximum: int, a
 	else:
 		fill.size = Vector2(target_w, height)
 		fill.color = color
+
+## Updates the tank SP bar fill width and label from the player actor's SP.
+func _update_sp_bar() -> void:
+	if _player_actor == null or _player_sp_bar.is_empty():
+		return
+	var fill: ColorRect = _player_sp_bar.fill
+	var width: float = _player_sp_bar.width
+	var height: float = _player_sp_bar.height
+	_player_sp_bar.label.text = "SP %s" % _player_actor.sp_text()
+	var r := clampf(_player_actor.sp_ratio(), 0.0, 1.0)
+	fill.size = Vector2(width * r, height)
 
 func _update_status_display(target: BattleActor, container: HBoxContainer) -> void:
 	if container == null:

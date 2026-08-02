@@ -57,6 +57,20 @@ var status_effects: Dictionary = {}
 ## Skill IDs this actor can use (populated from data or learned skills).
 var skills: Array[String] = []
 
+## Tank-specific properties (used when is_tank_mode is true)
+var sp: int = 0           # Shield Points - absorbs damage before HP
+var max_sp: int = 0
+var is_tank_mode: bool = false
+var cannon_attack: int = 0    # Main cannon attack power
+var sub_attack: int = 0       # Sub-weapon attack power
+var se_attack: int = 0        # SE unit attack power
+var accuracy_bonus: int = 0   # From C-Unit
+
+## SE weapon type and parameters (read from equipment data).
+## Supported types: "missile", "flamethrower", "laser", "smoke", "repair", "earthquake"
+var se_type: String = ""
+var se_data: Dictionary = {}  # Full SE equipment data for effect parameters
+
 # --- Constructor -------------------------------------------------------------
 
 func _init(
@@ -75,15 +89,20 @@ func _init(
 
 # --- Combat API --------------------------------------------------------------
 
-## Apply `amount` damage (already finalised by the manager). Returns the actual
-## damage dealt, clamped to the remaining HP so it can never drop below zero.
+## Apply `amount` damage. In tank mode, SP absorbs damage first, then HP.
 func take_damage(amount: int) -> int:
-	var actual: int = clampi(amount, 0, hp)
+	var remaining: int = clampi(amount, 0, hp + sp)
+	if is_tank_mode and sp > 0:
+		var sp_absorb: int = mini(sp, remaining)
+		sp -= sp_absorb
+		remaining -= sp_absorb
+		hp_changed.emit(hp, max_hp)
+	var actual: int = clampi(remaining, 0, hp)
 	hp -= actual
 	hp_changed.emit(hp, max_hp)
 	if hp <= 0:
 		died.emit()
-	return actual
+	return clampi(amount, 0, hp + sp)
 
 ## Restore up to `amount` HP. Returns the amount actually healed.
 func heal(amount: int) -> int:
@@ -105,6 +124,25 @@ func hp_ratio() -> float:
 	if max_hp <= 0:
 		return 0.0
 	return float(hp) / float(max_hp)
+
+## Current SP ratio in the 0.0–1.0 range, handy for driving SP bars.
+func sp_ratio() -> float:
+	if max_sp <= 0:
+		return 0.0
+	return float(sp) / float(max_sp)
+
+## Human-readable SP string, e.g. "45 / 100".
+func sp_text() -> String:
+	return "%d / %d" % [sp, max_sp]
+
+## Restore up to `amount` SP. Returns the amount actually repaired.
+func repair_sp(amount: int) -> int:
+	var before: int = sp
+	sp = mini(max_sp, sp + maxi(0, amount))
+	# Emit hp_changed so the UI refreshes the SP bar (which is tied to hp_changed
+	# in tank mode).
+	hp_changed.emit(hp, max_hp)
+	return sp - before
 
 # --- Effective stats (with status modifiers) ---------------------------------
 
@@ -218,6 +256,50 @@ static func create_from_player() -> BattleActor:
 	actor.skills = GameState.learned_skills.duplicate()
 	return actor
 
+## Build a BattleActor initialised from the player's tank state.
+## Uses tank parts for attack/defense and SP for shield absorption.
+static func create_from_tank() -> BattleActor:
+	var actor := BattleActor.new()
+	actor.name = GameState.player_name + "'s Tank"
+	actor.is_player = true
+	actor.is_tank_mode = true
+	actor.max_hp = GameState.tank_max_hp
+	actor.hp = GameState.tank_hp
+	actor.max_sp = GameState.tank_max_sp
+	actor.sp = GameState.tank_sp
+	# Tank attack comes from equipped parts
+	actor.cannon_attack = 0
+	actor.sub_attack = 0
+	actor.se_attack = 0
+	actor.attack = GameState.get_tank_attack()
+	actor.defense = GameState.get_tank_defense()
+	actor.speed = 10  # Tanks are slower
+	actor.accuracy_bonus = 0
+	# Read accuracy from C-Unit
+	var c_unit_id = GameState.tank_parts.get("c_unit")
+	if c_unit_id != null and not String(c_unit_id).is_empty():
+		var c_unit = DataLoader.get_equipment(String(c_unit_id))
+		actor.accuracy_bonus = int(c_unit.get("accuracy_bonus", 0))
+	# Read individual weapon attacks
+	var main_cannon_id = GameState.tank_parts.get("main_cannon")
+	if main_cannon_id != null and not String(main_cannon_id).is_empty():
+		var cannon = DataLoader.get_equipment(String(main_cannon_id))
+		actor.cannon_attack = int(cannon.get("attack", 0))
+	var sub_cannon_id = GameState.tank_parts.get("sub_cannon")
+	if sub_cannon_id != null and not String(sub_cannon_id).is_empty():
+		var sub = DataLoader.get_equipment(String(sub_cannon_id))
+		actor.sub_attack = int(sub.get("attack", 0))
+	var se_unit_id = GameState.tank_parts.get("se_unit")
+	if se_unit_id != null and not String(se_unit_id).is_empty():
+		var se = DataLoader.get_equipment(String(se_unit_id))
+		actor.se_attack = int(se.get("attack", 0))
+		actor.se_type = String(se.get("se_type", "missile"))
+		actor.se_data = se
+	actor.sprite_path = "res://assets/sprites/player_idle_down.jpg"
+	# Tank skills
+	actor.skills = ["tank_cannon_barrage", "tank_smokescreen", "tank_missile_swarm"]
+	return actor
+
 ## Build a BattleActor initialised from an enemy data dictionary returned by
 ## `DataLoader.get_enemy(id)`.
 static func create_from_enemy(enemy_data: Dictionary) -> BattleActor:
@@ -234,4 +316,20 @@ static func create_from_enemy(enemy_data: Dictionary) -> BattleActor:
 	var enemy_skills: Array = enemy_data.get("skills", [])
 	for skill_id in enemy_skills:
 		actor.skills.append(String(skill_id))
+	return actor
+
+## Build a BattleActor from a party member dictionary.
+static func create_from_party_member(member: Dictionary) -> BattleActor:
+	var actor := BattleActor.new()
+	actor.name = String(member.get("name", "Companion"))
+	actor.is_player = true
+	actor.max_hp = int(member.get("max_hp", 100))
+	actor.hp = int(member.get("hp", actor.max_hp))
+	actor.attack = int(member.get("attack", 10))
+	actor.defense = int(member.get("defense", 5))
+	actor.speed = int(member.get("speed", 10))
+	actor.sprite_path = "res://assets/sprites/player_idle_down.jpg"
+	var skill_id = String(member.get("skill_id", ""))
+	if not skill_id.is_empty():
+		actor.skills.append(skill_id)
 	return actor

@@ -55,6 +55,9 @@ func _ready() -> void:
 	# Spawn hidden treasure chests
 	_spawn_treasures()
 
+	# Spawn bounty target markers for tracked bounties on this map
+	_spawn_bounty_markers()
+
 	# Spawn map transition zones at edges
 	_spawn_transition_zones()
 
@@ -63,6 +66,12 @@ func _ready() -> void:
 		_player.steps_taken.connect(_on_player_steps)
 
 	print("[World] Loaded map: %s (zone: %s)" % [_map_data.get("name", "Unknown"), _map_data.get("encounter_zone", "none")])
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("world_map"):
+		_open_world_map()
+		get_viewport().set_input_as_handled()
 
 
 func _setup_environment() -> void:
@@ -273,6 +282,105 @@ func _spawn_treasures() -> void:
 			_npcs.add_child(treasure_npc)
 
 
+## Spawns special NPC markers for tracked bounties that are located on this
+## map. Each marker is a red, larger NPC with a "[WANTED]" label. Interacting
+## with it triggers the bounty battle directly.
+func _spawn_bounty_markers() -> void:
+	if not _npcs:
+		_npcs = Node3D.new()
+		_npcs.name = "NPCs"
+		add_child(_npcs)
+	var bounty_ids := GameState.get_bounties_for_map(map_id)
+	for bounty_id in bounty_ids:
+		var enemy_data := DataLoader.get_enemy(bounty_id)
+		if enemy_data.is_empty():
+			continue
+		var npc := _create_bounty_npc(bounty_id, enemy_data)
+		if npc:
+			_npcs.add_child(npc)
+			print("[World] Spawned bounty marker: %s" % enemy_data.get("name", bounty_id))
+
+
+## Creates a special bounty NPC marker with distinct visuals (larger, red,
+## with a skull-like label). The NPC stores the bounty enemy_id as metadata.
+func _create_bounty_npc(bounty_id: String, enemy_data: Dictionary) -> Node3D:
+	var npc := CharacterBody3D.new()
+	npc.name = "Bounty_%s" % bounty_id
+	npc.collision_layer = 2  # Interactable layer
+
+	# Larger body mesh for bounty targets
+	var body := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(1.0, 2.0, 0.6)
+	body.mesh = box
+	body.position = Vector3(0, 1.0, 0)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.8, 0.15, 0.15)  # Menacing red
+	mat.emission_enabled = true
+	mat.emission = Color(0.5, 0.05, 0.05)
+	mat.emission_energy_multiplier = 0.5
+	body.material_override = mat
+	npc.add_child(body)
+
+	# Add a floating "[WANTED]" label
+	var label := Label3D.new()
+	var alias: String = String(enemy_data.get("alias", enemy_data.get("name", bounty_id)))
+	label.text = "[WANTED] %s" % alias
+	label.position = Vector3(0, 2.5, 0)
+	label.font_size = 28
+	label.outline_size = 10
+	label.outline_modulate = Color.BLACK
+	label.modulate = Color(1.0, 0.3, 0.2)
+	npc.add_child(label)
+
+	# Add difficulty stars label
+	var stars_label := Label3D.new()
+	var difficulty: int = int(enemy_data.get("difficulty", 1))
+	var stars: String = ""
+	for i in range(difficulty):
+		stars += "*"
+	stars_label.text = stars
+	stars_label.position = Vector3(0, 2.1, 0)
+	stars_label.font_size = 32
+	stars_label.outline_size = 8
+	stars_label.outline_modulate = Color.BLACK
+	stars_label.modulate = Color(1.0, 0.85, 0.2)
+	npc.add_child(stars_label)
+
+	# Collision shape
+	var col := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(1.0, 2.0, 0.6)
+	col.shape = shape
+	col.position = Vector3(0, 1.0, 0)
+	npc.add_child(col)
+
+	# Position the bounty NPC at a prominent spot (far from center)
+	var angle := float(hash(bounty_id)) * TAU / 4294967296.0
+	npc.position = Vector3(cos(angle) * 12.0, 0, sin(angle) * 12.0)
+
+	# Store metadata
+	npc.set_meta("npc_id", "bounty_" + bounty_id)
+	npc.set_meta("interaction_type", "bounty_encounter")
+	npc.set_meta("bounty_enemy_id", bounty_id)
+
+	# Attach interact script
+	var npc_script := GDScript.new()
+	npc_script.source_code = @"
+extends CharacterBody3D
+
+func interact() -> void:
+	var npc_id = get_meta(\"npc_id\", \"\")
+	var interaction_type = get_meta(\"interaction_type\", \"dialogue\")
+	var world = get_parent().get_parent()
+	if world.has_method(\"_on_npc_interact\"):
+		world._on_npc_interact(npc_id, interaction_type)
+"
+	npc.set_script(npc_script)
+
+	return npc
+
+
 func _create_npc(npc_id: String) -> Node3D:
 	var npc := CharacterBody3D.new()
 	npc.name = "NPC_%s" % npc_id
@@ -351,6 +459,12 @@ func _get_npc_type(npc_id: String) -> String:
 		return "heal"
 	elif npc_id == "tank_depot":
 		return "tank_depot"
+	elif npc_id == "mechanic_npc" or npc_id == "soldier_npc":
+		return "recruit"
+	elif npc_id == "map_npc" or npc_id == "cartographer":
+		return "world_map"
+	elif npc_id.find("craft") >= 0 or npc_id.find("engineer") >= 0 or npc_id.find("blacksmith") >= 0:
+		return "craft"
 	else:
 		return "dialogue"
 
@@ -365,6 +479,9 @@ func _get_npc_color(npc_id: String) -> Color:
 		"heal": return Color(0.9, 0.3, 0.3)  # Red for healer
 		"tank_depot": return Color(0.5, 0.5, 0.6)  # Gray for tank
 		"treasure": return Color(1.0, 0.84, 0.0)  # Gold for treasure chests
+		"recruit": return Color(0.6, 0.4, 0.8)  # Purple for recruitable
+		"world_map": return Color(0.3, 0.5, 0.7)  # Blue for map
+		"craft": return Color(0.8, 0.6, 0.2)  # Bronze for crafting
 		_: return Color(0.5, 0.4, 0.3)
 
 
@@ -378,6 +495,9 @@ func _get_npc_label(npc_id: String) -> String:
 		"heal": return "[HEAL]"
 		"tank_depot": return "[TANK DEPOT]"
 		"treasure": return "[TREASURE]"
+		"recruit": return "[RECRUIT]"
+		"world_map": return "[MAP]"
+		"craft": return "[CRAFT]"
 		_: return "[TALK]"
 
 
@@ -399,8 +519,67 @@ func _on_npc_interact(npc_id: String, interaction_type: String = "dialogue") -> 
 			_recover_tank()
 		"treasure":
 			_open_treasure(npc_id)
+		"recruit":
+			_try_recruit_member(npc_id)
+		"world_map":
+			_open_world_map()
+		"bounty_encounter":
+			_trigger_bounty_encounter(npc_id)
+		"craft":
+			_open_crafting()
 		_:
 			_show_dialogue(npc_id)
+
+
+func _try_recruit_member(npc_id: String) -> void:
+	# Map NPC IDs to party member IDs
+	var member_id: String = ""
+	match npc_id:
+		"mechanic_npc", "sparky":
+			member_id = "mechanic"
+		"soldier_npc", "ironhand":
+			member_id = "soldier"
+		_:
+			_show_dialogue(npc_id)
+			return
+
+	# Check if already recruited
+	for member in GameState.party_members:
+		if String(member.get("id", "")) == member_id:
+			if bool(member.get("recruited", false)):
+				print("[World] %s is already in your party!" % member.get("name", member_id))
+				_show_dialogue(npc_id)
+			else:
+				if GameState.recruit_member(member_id):
+					print("[World] %s joined the party!" % member.get("name", member_id))
+					AudioManager.play_sfx("confirm")
+				else:
+					print("[World] Party is full! (max %d)" % GameState.MAX_PARTY_SIZE)
+					AudioManager.play_sfx("cancel")
+			return
+
+
+## Triggers a bounty boss encounter. The npc_id is "bounty_<enemy_id>".
+## Shows a warning message before starting the battle.
+func _trigger_bounty_encounter(npc_id: String) -> void:
+	# Extract enemy_id from "bounty_<enemy_id>"
+	var enemy_id: String = npc_id.substr(7) if npc_id.begins_with("bounty_") else npc_id
+	if enemy_id.is_empty():
+		return
+	# Already defeated?
+	if GameState.defeated_bounties.has(enemy_id):
+		print("[World] This bounty has already been claimed.")
+		return
+	var enemy_data := DataLoader.get_enemy(enemy_id)
+	if enemy_data.is_empty():
+		print("[World] Unknown bounty target: %s" % enemy_id)
+		return
+	var alias: String = String(enemy_data.get("alias", enemy_data.get("name", enemy_id)))
+	var threat: String = String(enemy_data.get("threat_level", "Unknown"))
+	print("[World] Encountered bounty target: %s! (%s)" % [alias, threat])
+	AudioManager.play_sfx("explosion")
+	# Start the bounty battle
+	GameState.start_battle(enemy_id)
 
 
 func _open_shop(npc_id: String) -> void:
@@ -420,15 +599,40 @@ func _open_shop(npc_id: String) -> void:
 
 
 func _open_quest_board() -> void:
-	# Instantiate the quest UI overlay.
-	var quest_scene := load("res://scenes/quest_ui.tscn")
-	if quest_scene:
-		var quest_ui := quest_scene.instantiate() as Control
-		add_child(quest_ui)
-		if quest_ui.has_method("open"):
-			quest_ui.open()
-		if quest_ui.has_signal("quest_ui_closed"):
-			quest_ui.quest_ui_closed.connect(quest_ui.queue_free)
+	# Show the bounty board UI overlay.
+	var bounty_scene := load("res://scenes/bounty_board.tscn")
+	if bounty_scene:
+		var bounty_ui := bounty_scene.instantiate() as Control
+		add_child(bounty_ui)
+		if bounty_ui.has_method("open"):
+			bounty_ui.open()
+		if bounty_ui.has_signal("bounty_board_closed"):
+			bounty_ui.bounty_board_closed.connect(bounty_ui.queue_free)
+
+
+func _open_world_map() -> void:
+	var map_scene := load("res://scenes/world_map.tscn")
+	if map_scene:
+		var world_map := map_scene.instantiate() as Control
+		add_child(world_map)
+		if world_map.has_method("open"):
+			world_map.open()
+		if world_map.has_signal("map_closed"):
+			world_map.map_closed.connect(world_map.queue_free)
+
+
+## Opens the crafting workshop overlay. The crafting UI lists all recipes
+## from crafting.json and lets the player combine materials + gold into
+## new items and equipment.
+func _open_crafting() -> void:
+	var craft_scene := load("res://scenes/crafting.tscn")
+	if craft_scene:
+		var craft_ui := craft_scene.instantiate() as Control
+		add_child(craft_ui)
+		if craft_ui.has_method("open"):
+			craft_ui.open()
+		if craft_ui.has_signal("crafting_closed"):
+			craft_ui.crafting_closed.connect(craft_ui.queue_free)
 
 
 func _save_game() -> void:
@@ -459,18 +663,41 @@ func _heal_player() -> void:
 
 func _recover_tank() -> void:
 	if not GameState.tank_owned:
-		print("[World] You don't own a tank yet!")
+		# First time: give the player a free tank with a basic chassis.
+		GameState.tank_parts["chassis"] = "tank_chassis_basic"
+		GameState.tank_owned = true
+		GameState._init_garage()
+		GameState.heal_tank(GameState.tank_max_hp)
+		GameState.repair_tank(GameState.tank_max_sp)
+		GameState.refuel(GameState.tank_max_fuel)
+		print("[World] Recovered a tank from the depot! A basic chassis has been installed.")
+		AudioManager.play_sfx("confirm")
 		return
+	# Open the vehicle garage UI for repairing, switching, and buying vehicles.
+	_open_vehicle_garage()
+
+
+## Opens the vehicle garage overlay for tank management.
+func _open_vehicle_garage() -> void:
+	var garage_scene := load("res://scenes/vehicle_garage.tscn")
+	if garage_scene:
+		var garage_ui := garage_scene.instantiate() as Control
+		add_child(garage_ui)
+		if garage_ui.has_method("open"):
+			garage_ui.open()
+		if garage_ui.has_signal("garage_closed"):
+			garage_ui.garage_closed.connect(garage_ui.queue_free)
+		# Auto-repair all vehicles when the garage is closed.
+		if garage_ui.has_signal("vehicle_switched"):
+			garage_ui.vehicle_switched.connect(_on_vehicle_switched)
+
+
+func _on_vehicle_switched(_index: int) -> void:
+	# Full repair when switching at the depot.
 	GameState.heal_tank(GameState.tank_max_hp)
 	GameState.repair_tank(GameState.tank_max_sp)
 	GameState.refuel(GameState.tank_max_fuel)
-	print("[World] Tank fully repaired and refueled!")
-	# Also give a free chassis if the player doesn't have one.
-	var has_chassis: bool = GameState.tank_parts.get("chassis") != null and not String(GameState.tank_parts.get("chassis")).is_empty()
-	if not has_chassis:
-		GameState.tank_parts["chassis"] = "tank_chassis_basic"
-		GameState.tank_owned = true
-		print("[World] Recovered a tank chassis from the depot!")
+	print("[World] Vehicle switched and fully repaired!")
 
 
 func _show_dialogue(dialogue_id: String) -> void:

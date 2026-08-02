@@ -530,7 +530,7 @@ func _build_top_right() -> void:
 
 
 func _build_bottom_hint() -> void:
-	menu_hint = _make_label("Esc: Menu", 13)
+	menu_hint = _make_label("Esc: Menu  M: Map", 13)
 	menu_hint.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	menu_hint.anchor_left = 1.0
 	menu_hint.anchor_right = 1.0

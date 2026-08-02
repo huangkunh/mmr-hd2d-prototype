@@ -18,6 +18,7 @@ signal battle_started(enemy_id: String)
 signal battle_ended(result: int)
 signal quest_updated(quest_id: String, status: String)
 signal mode_changed(mode: String)
+signal party_changed()
 
 # --- Enums ---
 enum BattleResult { VICTORY, DEFEAT, FLED }
@@ -61,6 +62,15 @@ var tank_parts: Dictionary = {
 	"engine": null,
 }
 
+# --- Vehicle Garage (multi-tank system, MMR-style) ---
+## Stores all owned vehicles. The active vehicle's stats are mirrored in
+## tank_hp/tank_sp/tank_fuel/tank_parts above. When switching, the current
+## state is saved back to the garage entry and the new one is loaded.
+var vehicle_garage: Array[Dictionary] = []
+var active_vehicle_index: int = 0
+const MAX_VEHICLES: int = 4
+const DEFAULT_VEHICLE_NAME := "Tank"
+
 # --- Skills ---
 var learned_skills: Array[String] = ["rapid_fire"]
 var skill_cooldowns: Dictionary = {}  # skill_id -> turns remaining
@@ -77,10 +87,23 @@ var defeated_bounties: Array[String] = []
 var flags: Dictionary = {}  # event flags
 var movement_mode: String = "infantry"  # "infantry" or "tank" for world exploration
 
+# --- Party System ---
+## Party member data. Each member is a Dictionary with:
+## { id, name, class_type, level, hp, max_hp, attack, defense, speed,
+##   skill_id, recruited, recruited_map, dialogue_id }
+var party_members: Array[Dictionary] = []
+const MAX_PARTY_SIZE: int = 3  # Player + 2 companions
+
 # --- Battle State ---
 var in_battle: bool = false
 var current_enemy_id: String = ""
 var battle_mode: String = "infantry"  # "infantry" or "tank"
+
+# --- Lifecycle ---
+
+func _ready() -> void:
+	_init_party_roster()
+	_init_garage()
 
 # --- Scene Management ---
 func change_scene(target: String) -> void:
@@ -116,6 +139,232 @@ func end_battle(result: BattleResult) -> void:
 			gold = max(0, gold / 2)
 			current_map = "wasteland"
 	change_scene("res://scenes/world.tscn")
+
+# --- Party Management ---
+
+## Returns the number of active party members (including the player).
+func get_party_size() -> int:
+	return 1 + _get_recruited_count()
+
+func _get_recruited_count() -> int:
+	var count := 0
+	for member in party_members:
+		if bool(member.get("recruited", false)):
+			count += 1
+	return count
+
+## Attempts to recruit a party member by id. Returns true on success.
+func recruit_member(member_id: String) -> bool:
+	for member in party_members:
+		if String(member.get("id", "")) == member_id:
+			if bool(member.get("recruited", false)):
+				return false  # Already recruited
+			if get_party_size() >= MAX_PARTY_SIZE:
+				return false  # Party full
+			member["recruited"] = true
+			party_changed.emit()
+			print("[GameState] Recruited party member: %s" % member.get("name", member_id))
+			return true
+	return false
+
+## Removes a party member from the active party.
+func dismiss_member(member_id: String) -> void:
+	for member in party_members:
+		if String(member.get("id", "")) == member_id:
+			member["recruited"] = false
+			party_changed.emit()
+			return
+
+## Returns all recruited party members (not including the player).
+func get_active_party() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for member in party_members:
+		if bool(member.get("recruited", false)):
+			result.append(member)
+	return result
+
+## Heals all party members to full (e.g. at an inn).
+func heal_party() -> void:
+	for member in party_members:
+		if bool(member.get("recruited", false)):
+			member["hp"] = member.get("max_hp", 100)
+	party_changed.emit()
+
+## Initialize default party member roster (called on first game start).
+func _init_party_roster() -> void:
+	if not party_members.is_empty():
+		return
+	party_members = [
+		{
+			"id": "mechanic",
+			"name": "Sparky",
+			"class_type": "Mechanic",
+			"level": 1,
+			"hp": 80,
+			"max_hp": 80,
+			"attack": 15,
+			"defense": 12,
+			"speed": 10,
+			"skill_id": "repair_field",
+			"recruited": false,
+			"recruited_map": "town",
+			"dialogue_id": "mechanic_npc",
+			"description": "A skilled mechanic who can repair tanks mid-battle."
+		},
+		{
+			"id": "soldier",
+			"name": "Ironhand",
+			"class_type": "Soldier",
+			"level": 1,
+			"hp": 120,
+			"max_hp": 120,
+			"attack": 25,
+			"defense": 15,
+			"speed": 12,
+			"skill_id": "barrage",
+			"recruited": false,
+			"recruited_map": "secret_base",
+			"dialogue_id": "soldier_npc",
+			"description": "A veteran soldier with heavy weapons expertise."
+		}
+	]
+
+# --- Vehicle Garage Management ---
+
+## Initializes the garage. Called on first game start.
+## If the player already owns a tank, it becomes the first garage entry.
+func _init_garage() -> void:
+	if not vehicle_garage.is_empty():
+		return
+	if tank_owned:
+		# The existing tank becomes the first garage entry.
+		vehicle_garage.append(_pack_vehicle_state(DEFAULT_VEHICLE_NAME))
+		active_vehicle_index = 0
+
+## Packs the current tank_hp/sp/fuel/parts into a Dictionary for garage storage.
+func _pack_vehicle_state(vname: String) -> Dictionary:
+	return {
+		"name": vname,
+		"hp": tank_hp,
+		"max_hp": tank_max_hp,
+		"sp": tank_sp,
+		"max_sp": tank_max_sp,
+		"fuel": tank_fuel,
+		"max_fuel": tank_max_fuel,
+		"parts": tank_parts.duplicate(true),
+	}
+
+## Loads a vehicle from the garage into the active tank state variables.
+func _load_vehicle_from_garage(index: int) -> void:
+	if index < 0 or index >= vehicle_garage.size():
+		return
+	var v: Dictionary = vehicle_garage[index]
+	tank_hp = int(v.get("hp", 200))
+	tank_max_hp = int(v.get("max_hp", 200))
+	tank_sp = int(v.get("sp", 100))
+	tank_max_sp = int(v.get("max_sp", 100))
+	tank_fuel = int(v.get("fuel", 100))
+	tank_max_fuel = int(v.get("max_fuel", 100))
+	tank_parts = v.get("parts", {}).duplicate(true)
+	tank_hp_changed.emit(tank_hp, tank_max_hp)
+	tank_sp_changed.emit(tank_sp, tank_max_sp)
+	fuel_changed.emit(tank_fuel, tank_max_fuel)
+
+## Saves the current active vehicle state back to the garage entry.
+func _save_active_to_garage() -> void:
+	if active_vehicle_index < 0 or active_vehicle_index >= vehicle_garage.size():
+		return
+	var v: Dictionary = vehicle_garage[active_vehicle_index]
+	v["hp"] = tank_hp
+	v["max_hp"] = tank_max_hp
+	v["sp"] = tank_sp
+	v["max_sp"] = tank_max_sp
+	v["fuel"] = tank_fuel
+	v["max_fuel"] = tank_max_fuel
+	v["parts"] = tank_parts.duplicate(true)
+
+## Adds a new vehicle to the garage. Returns true on success.
+## The new vehicle starts with default stats and no parts.
+func add_vehicle(vname: String = "") -> bool:
+	if vehicle_garage.size() >= MAX_VEHICLES:
+		return false
+	if vname.is_empty():
+		vname = "%s %d" % [DEFAULT_VEHICLE_NAME, vehicle_garage.size() + 1]
+	vehicle_garage.append({
+		"name": vname,
+		"hp": 200,
+		"max_hp": 200,
+		"sp": 100,
+		"max_sp": 100,
+		"fuel": 100,
+		"max_fuel": 100,
+		"parts": {
+			"chassis": null,
+			"main_cannon": null,
+			"sub_cannon": null,
+			"se_unit": null,
+			"c_unit": null,
+			"engine": null,
+		},
+	})
+	if not tank_owned:
+		tank_owned = true
+		active_vehicle_index = vehicle_garage.size() - 1
+		_load_vehicle_from_garage(active_vehicle_index)
+	print("[GameState] Added vehicle: %s (garage size: %d)" % [vname, vehicle_garage.size()])
+	return true
+
+## Switches to a different vehicle in the garage.
+## Saves the current vehicle state and loads the new one.
+func switch_vehicle(index: int) -> bool:
+	if index < 0 or index >= vehicle_garage.size() or index == active_vehicle_index:
+		return false
+	_save_active_to_garage()
+	active_vehicle_index = index
+	_load_vehicle_from_garage(index)
+	print("[GameState] Switched to vehicle: %s" % vehicle_garage[index].get("name", "Tank"))
+	return true
+
+## Returns the number of vehicles in the garage.
+func get_vehicle_count() -> int:
+	return vehicle_garage.size()
+
+## Returns the active vehicle's name.
+func get_active_vehicle_name() -> String:
+	if active_vehicle_index < 0 or active_vehicle_index >= vehicle_garage.size():
+		return DEFAULT_VEHICLE_NAME
+	return String(vehicle_garage[active_vehicle_index].get("name", DEFAULT_VEHICLE_NAME))
+
+## Returns a summary array of all vehicles for garage display.
+## Each entry: { name, hp, max_hp, sp, max_sp, fuel, max_fuel, parts_count, active }
+func get_garage_summary() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for i in range(vehicle_garage.size()):
+		var v: Dictionary = vehicle_garage[i]
+		var parts_count: int = 0
+		var parts: Dictionary = v.get("parts", {})
+		for slot in parts:
+			if parts[slot] != null and not String(parts[slot]).is_empty():
+				parts_count += 1
+		result.append({
+			"name": String(v.get("name", "Tank")),
+			"hp": int(v.get("hp", 0)),
+			"max_hp": int(v.get("max_hp", 0)),
+			"sp": int(v.get("sp", 0)),
+			"max_sp": int(v.get("max_sp", 0)),
+			"fuel": int(v.get("fuel", 0)),
+			"max_fuel": int(v.get("max_fuel", 0)),
+			"parts_count": parts_count,
+			"active": i == active_vehicle_index,
+			"index": i,
+		})
+	return result
+
+## Renames a vehicle in the garage.
+func rename_vehicle(index: int, new_name: String) -> void:
+	if index < 0 or index >= vehicle_garage.size():
+		return
+	vehicle_garage[index]["name"] = new_name
 
 # --- Effective Stats (with equipment) ---
 
@@ -187,10 +436,18 @@ func spend_gold(amount: int) -> bool:
 	return false
 
 func take_damage(amount: int) -> void:
+	# In tank battles the BattleActor handles SP/HP absorption directly.
+	# GameState.tank_hp / tank_sp are synced by BattleManager at battle end,
+	# so we must not reduce the player's *infantry* HP here.
+	if in_battle and battle_mode == "tank":
+		return
 	player_hp = max(0, player_hp - amount)
 	hp_changed.emit(player_hp, player_max_hp)
 
 func heal(amount: int) -> void:
+	# Same guard as take_damage: don't modify infantry HP during a tank battle.
+	if in_battle and battle_mode == "tank":
+		return
 	player_hp = min(player_max_hp, player_hp + amount)
 	hp_changed.emit(player_hp, player_max_hp)
 
@@ -263,7 +520,12 @@ func _check_skill_unlocks() -> void:
 
 # --- Skill Cooldowns ---
 func can_use_skill(skill_id: String) -> bool:
-	if not learned_skills.has(skill_id):
+	# Tank skills (prefixed "tank_") are available while the player owns a tank.
+	# Infantry skills must be in the learned_skills list.
+	if skill_id.begins_with("tank_"):
+		if not tank_owned:
+			return false
+	elif not learned_skills.has(skill_id):
 		return false
 	if skill_cooldowns.has(skill_id) and int(skill_cooldowns[skill_id]) > 0:
 		return false
@@ -378,6 +640,57 @@ func get_quest_progress_text(quest_id: String) -> String:
 		lines.append("  %s: %d / %d" % [String(target_data.get("name", target)), current, required])
 	return "\n".join(lines)
 
+## Returns all tracked bounty IDs (active quests that start with "bounty_")
+func get_tracked_bounties() -> Array[String]:
+	var result: Array[String] = []
+	for quest_id in active_quests:
+		if quest_id.begins_with("bounty_"):
+			result.append(quest_id.substr(7))  # Remove "bounty_" prefix
+	return result
+
+## Returns all available bounty IDs that haven't been defeated
+func get_available_bounties() -> Array[String]:
+	var result: Array[String] = []
+	var all_bounties = DataLoader.get_bounty_list()
+	for bounty_id in all_bounties:
+		if not defeated_bounties.has(String(bounty_id)):
+			result.append(String(bounty_id))
+	return result
+
+## Returns bounty enemy IDs that are tracked AND located on the given map.
+## Each bounty enemy has a "location" field in enemies.json that matches a
+## map's "name" field. This lets us spawn bounty NPCs on the correct map.
+func get_bounties_for_map(map_id: String) -> Array[String]:
+	var result: Array[String] = []
+	var tracked := get_tracked_bounties()
+	if tracked.is_empty():
+		return result
+	var map_data := DataLoader.get_map_data(map_id)
+	if map_data.is_empty():
+		return result
+	var map_name: String = String(map_data.get("name", ""))
+	for bounty_id in tracked:
+		if defeated_bounties.has(bounty_id):
+			continue
+		var enemy_data := DataLoader.get_enemy(bounty_id)
+		if enemy_data.is_empty():
+			continue
+		var bounty_location: String = String(enemy_data.get("location", ""))
+		# Match by location name or by a direct map_id mapping.
+		if bounty_location == map_name or _bounty_map_match(bounty_id, map_id):
+			result.append(bounty_id)
+	return result
+
+## Hardcoded mapping of bounty IDs to map IDs for reliable spawning.
+func _bounty_map_match(bounty_id: String, map_id: String) -> bool:
+	var mapping := {
+		"desert_worm": "desert",
+		"iron_titan": "ruins",
+		"prototype_mech": "underground_lab",
+		"mad_maxer": "mountain_pass",
+	}
+	return String(mapping.get(bounty_id, "")) == map_id
+
 # --- Equipment Management ---
 func equip_infantry(slot: String, equip_id: String) -> void:
 	match slot:
@@ -403,6 +716,45 @@ func unequip_infantry(slot: String) -> void:
 				inventory[armor_slot] = int(inventory.get(armor_slot, 0)) + 1
 				armor_slot = ""
 	equipment_changed.emit()
+
+# --- Crafting System ---
+
+## Attempts to craft an item from a recipe. Returns true on success.
+## Consumes materials from inventory and gold. Result is added to inventory
+## (for items) or can be equipped in the garage (for equipment).
+func craft_item(recipe_id: String) -> bool:
+	var recipe := DataLoader.get_crafting_recipe(recipe_id)
+	if recipe.is_empty():
+		return false
+	# Verify requirements one more time.
+	var check := DataLoader.check_craft_requirements(recipe_id)
+	if not bool(check.get("can_craft", false)):
+		return false
+	# Consume materials.
+	var materials: Dictionary = recipe.get("materials", {})
+	for mat_id in materials:
+		var needed: int = int(materials[mat_id])
+		var remaining: int = int(inventory.get(mat_id, 0)) - needed
+		if remaining <= 0:
+			inventory.erase(mat_id)
+		else:
+			inventory[mat_id] = remaining
+	# Consume gold.
+	var gold_cost: int = int(recipe.get("gold_cost", 0))
+	if gold_cost > 0:
+		spend_gold(gold_cost)
+	# Add result item to inventory.
+	var result_item: String = String(recipe.get("result_item", ""))
+	var result_count: int = int(recipe.get("result_count", 1))
+	if not result_item.is_empty():
+		inventory[result_item] = int(inventory.get(result_item, 0)) + result_count
+	AudioManager.play_sfx("confirm")
+	print("[GameState] Crafted: %s (recipe: %s)" % [result_item, recipe_id])
+	return true
+
+## Returns the count of an item in the inventory.
+func get_item_count(item_id: String) -> int:
+	return int(inventory.get(item_id, 0))
 
 # --- Save / Load (multi-slot) ---
 const SAVE_DIR := "user://saves/"
@@ -443,6 +795,11 @@ func save_game(slot: int = 0) -> void:
 		"current_map": current_map,
 		"defeated_bounties": defeated_bounties,
 		"flags": flags,
+		"vehicle_garage": vehicle_garage,
+		"active_vehicle_index": active_vehicle_index,
+		"party_members": party_members,
+		"movement_mode": movement_mode,
+		"battle_mode": battle_mode,
 	}
 	var path := SAVE_DIR + SAVE_PREFIX + str(slot) + SAVE_EXT
 	var file = FileAccess.open(path, FileAccess.WRITE)

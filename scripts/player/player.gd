@@ -266,6 +266,9 @@ func toggle_mode() -> void:
 		if _sprite:
 			_sprite.modulate = Color.WHITE
 		print("[Player] Switched to INFANTRY mode")
+	# Sync mode to GameState so battles use the correct combat mode.
+	GameState.battle_mode = _current_mode
+	GameState.set_movement_mode(_current_mode)
 	mode_changed.emit(_current_mode)
 	AudioManager.play_sfx("confirm")
 

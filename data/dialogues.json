@@ -2,126 +2,443 @@
 	"intro_npc": {
 		"name": "Old Mechanic",
 		"lines": [
-			"Hey, kid. You're new here, aren't you?",
-			"The wasteland is unforgiving. You'll need more than just that pistol.",
-			"I've got an old tank in the back. She's seen better days, but she'll run.",
-		"If you can scrape together some parts, I'll help you fix her up.",
-		"Oh, and watch out for the Sand Worm. There's a bounty on it.",
-			"Head north to the ruins if you're feeling brave. Good hunting."
+			"Well, well. Another kid stumbling out of the dust with nothing but a pistol and a death wish.",
+			"Name's Gus. I've been turning wrenches since before the sky burned. You're in the Wasteland Outpost now, the last bit of civilization before the real badlands start.",
+			"First lesson: out here, your tank is your lifeline. On foot, you're just meat walking for the mutants.",
+			"I've got a rusted-out tank in the back lot. Saw better days thirty years ago, but her engine still turns over if you sweet-talk her.",
+			"Bring me scrap metal, circuit boards, engine parts—whatever you can pry off the wrecks out there—and I'll patch her into something that rolls.",
+			"Second lesson: gold talks. Check the bounty board near the gate. Hunters like you keep this town fed by collecting on monsters and wanted men.",
+			"Heard the Sand Worm's been hitting caravans in the northern desert. There's a fat bounty on it. Good first mark for a greenhorn.",
+			"East of here lies the Scorched Desert. North are the Old Military Ruins. Head to the Survivor Town south if you need a doctor or a drink.",
+			"One more thing: talk to the Cartographer by the gate. He'll chart your routes so you don't wander into a raider camp blind.",
+			"Now get out there. The wasteland doesn't wait for the hesitant. Good hunting, kid."
+		],
+		"choices": [
+			"Tell me about the tank",
+			"Where can I find parts?",
+			"What's the bounty board?",
+			"Thanks, I'll be careful"
 		]
 	},
 	"shop_npc": {
 		"name": "Shopkeeper",
 		"lines": [
-			"Welcome to my shop. Everything's salvaged, everything's for sale.",
-			"Buy something, or get out. I don't do window shopping."
+			"Door's open. Don't touch anything you ain't buying.",
+			"Welcome to Ratchet & Bone. Everything here's salvaged from the ruins, the wrecks, the dead. I clean it up, mark it up, you buy it. Simple.",
+			"Ammo's in the crate on the left. Med-kits on the right. Don't ask where the bandages came from—you don't wanna know.",
+			"I stock crafting materials too: scrap metal, gunpowder, wire, chemical compounds. Bring me raw salvage and I'll pay fair coin for it.",
+			"If you're handy with a workbench, buy the materials and craft your own gear. Cheaper that way, if you've got the skill.",
+			"Heard a rumor the Iron Titan's prowling the eastern ruins again. Big bounty on that one. You planning to take a shot at it, you'd better stock up on armor-piercing rounds.",
+			"I don't do credit, and I don't do charity. Gold up front, goods in hand. Now buy something or move along.",
+			"Come back when your pockets are heavier. I'll always have new salvage."
+		],
+		"choices": [
+			"Show me your wares",
+			"Buy crafting materials",
+			"Sell salvage",
+			"Just browsing"
 		]
 	},
 	"bounty_board": {
 		"name": "Bounty Board",
 		"lines": [
-			"--- ACTIVE BOUNTIES ---",
-			"Sand Worm - 1000G - Last seen in the northern desert",
-			"Iron Titan - 5000G - Roams the eastern ruins",
-			"--- --- --- --- --- ---"
+			"===== ACTIVE BOUNTIES =====",
+			"SAND WORM - 1000G - Last seen burrowing through the northern desert. Swallowed a whole caravan. Bring proof of kill.",
+			"IRON TITAN - 5000G - Pre-war assault mech roaming the eastern Old Military Ruins. Heavy armor. Approach with a tank.",
+			"STEEL GOLEM - 3000G - Guards the mountain pass to the north. Crushes anything on foot. Rumored to be a malfunctioning mining drone.",
+			"PROTOTYPE MECH - 10000G - Experimental unit loose in the Underground Laboratory beneath the ruins. Extremely hostile. Only veteran hunters need apply.",
+			"RAIDER WARLORD 'GRIN' - 2500G - Leads raids on supply routes. Last spotted near the desert edge. Wanted dead or alive. Preferably dead.",
+			"===== CLAIM BOUNTIES AT ANY OUTPOST =====",
+			"===== NEW BOUNTIES POSTED WEEKLY ====="
 		]
 	},
 	"tank_get": {
 		"name": "Old Mechanic",
 		"lines": [
-			"There she is. A bit rusty, but the engine still turns over.",
-			"I've installed a basic chassis and engine. The rest is up to you.",
-			"Talk to me at the garage anytime to swap parts.",
-			"Remember: heavier chassis means more defense but fewer slots.",
-			"Now get out there and earn some gold!"
+			"Ha! Look at her. Wouldn't win a beauty contest, but she'll keep you breathing.",
+			"Alright, listen close. This is your tank now. Treat her better than your own hide and she'll return the favor.",
+			"I've installed a basic chassis and a salvaged engine. She's light, fast, but thin-skinned. The rest of the build is up to you.",
+			"Talk to me at the garage anytime to swap parts. Heavier chassis means more defense but fewer weapon slots. Lighter means more guns, but one good hit and you're scrap.",
+			"You can mount cannons, machine guns, missile pods—whatever you can find or buy. Engine power limits how much you can carry, so balance your loadout.",
+			"Spare parts wear down in a fight. Keep repair kits handy, or find a mechanic who can patch you up mid-battle.",
+			"There's a tank depot at the Old Military Ruins and another at the Hidden Survivor Base up north. Use them to store and switch vehicles.",
+			"Oh, and one rule: never abandon your tank in mutant territory. They'll strip it to bolts before sundown.",
+			"Now fire her up and go earn some gold! The wasteland's waiting."
+		],
+		"choices": [
+			"Customize my tank",
+			"Explain chassis types",
+			"What weapons can I mount?",
+			"I'm ready to roll"
 		]
 	},
 	"mayor_npc": {
 		"name": "Town Mayor",
 		"lines": [
-			"Welcome, traveler. I am the mayor of this survivor town.",
-			"Times are hard, but we manage. Perhaps you can help us?",
-			"What would you like to know?"
+			"Welcome, traveler. I am Mayor Voss of the Survivor Town. Pull up a chair—the radiation won't kill you any faster sitting down.",
+			"We're a small community, but we endure. Farmers, scavengers, a few hunters like yourself. The wasteland tests us daily, and we are still here.",
+			"Times are hard. Mutants press from the ruins, raiders hit our supply lines, and the water's getting worse every season. But we manage. With help, we might even thrive.",
+			"The bounty board at the outpost keeps the worst of the monsters at bay. Every hunter who takes a contract buys us another week of peace.",
+			"If you're looking for work, the bounty board's your first stop. For rest, the inn's just across the square. The healer's nearby if you're wounded.",
+			"We've also got a mechanic in town—calls himself Sparky. Odd duck, but he knows tanks. Could use a partner like you, maybe.",
+			"There's a traveling merchant who passes through with rare goods and stranger rumors. Worth a talk if you catch him here.",
+			"So, hunter. What would you like to know?"
 		],
 		"choices": [
 			"Tell me about the bounty board",
-			"Where can I rest?",
-			"What's in the ruins?",
-			"Goodbye"
+			"Where can I rest and heal?",
+			"What's in the ruins to the north?",
+			"Who can I recruit to my party?",
+			"Goodbye, Mayor"
+		]
+	},
+	"healer_npc": {
+		"name": "Town Healer",
+		"lines": [
+			"Sit down, let me see that. Hmm. Radiation burns, mutant scrapes, dehydration... you've been out there a while.",
+			"I'm Doc Mira. I patch up whoever stumbles through our gates. It's busy work in the wasteland.",
+			"There. Cleaned and bandaged. Drink water—real water, not the glowing stuff—and stay out of the toxic swamp unless you fancy growing a third arm.",
+			"I stock antibiotics, rad-away, antivenom, and stimulants. The mutants carry diseases you don't want to meet. Always carry meds into the field.",
+			"The swamp's the worst. Toxic spores in the air'll rot your lungs in an hour without a filter mask. Buy one before you go east.",
+			"I've heard the desert's got its own hazards—heat sickness, Sand Worm venom. Nasty stuff. If you're hunting it, bring antivenom or don't bother coming back.",
+			"Come see me anytime you're hurt. First patch-up's on the house. After that, we talk gold.",
+			"Stay safe out there, hunter. The wasteland's full of things that want you dead. Don't make my job harder than it is."
+		],
+		"choices": [
+			"Heal my party",
+			"Buy medical supplies",
+			"What dangers should I prepare for?",
+			"Take care, Doc"
 		]
 	},
 	"merchant_npc": {
 		"name": "Traveling Merchant",
 		"lines": [
-			"Ah, a new face! I deal in rare goods from across the wasteland.",
-			"I've heard rumors of a hidden laboratory beneath the old ruins.",
-			"They say it holds technology from before the war..."
-		]
-	},
-	"base_commander": {
-		"name": "Base Commander",
-		"lines": [
-			"So you found our hidden base. Impressive.",
-			"We've been monitoring the situation. The prototype mech in the lab below...",
-			"It's been killing everyone we send down there.",
-			"If you can destroy it, we'll reward you handsomely.",
-			"What do you say?"
+			"Ah, a new face! And not half-irradiated, by the look of you. Excellent. You'll live long enough to be a repeat customer.",
+			"I am Selvik. I deal in rare goods pulled from across the wasteland—things the regular shops don't carry. Specialty weapons, ancient tech, curiosities.",
+			"I travel the trade routes between outposts. The roads are dangerous, but the profit's worth the risk. Mutants don't much care for gold, but raiders do.",
+			"Now, the real reason to talk to me: rumors. I hear things in every camp and caravan.",
+			"They say there's a hidden laboratory beneath the Old Military Ruins. Pre-war tech. The kind that could change everything—or end what's left of the world.",
+			"Word is, something down there woke up. A prototype mech, built before the collapse. It's been killing everyone who goes below.",
+			"There's also talk of a secret survivor base past the mountain pass. Soldiers, engineers, people with real firepower. If you're skilled, they might let you in.",
+			"Buy something, won't you? A merchant's got to eat, and the road's only getting longer.",
+			"Come find me again. My stock changes with every journey. Who knows what I'll drag back next time."
 		],
 		"choices": [
-			"I'll destroy the prototype mech",
-			"Tell me more about this lab",
-			"I need more time to prepare",
+			"Show me your rare goods",
+			"Tell me more about the lab",
+			"Where's this secret base?",
 			"Maybe later"
+		]
+	},
+	"mechanic_npc": {
+		"name": "Sparky the Mechanic",
+		"lines": [
+			"Hey there! Name's Sparky. I fix things. Tanks, mostly. Sometimes toasters, but the toasters don't shoot back.",
+			"Whoa, you've got a tank! Nice. Let me guess—Gus patched it together with duct tape and prayers? Classic Gus.",
+			"I've been wrenching since I could hold a socket. Grew up in a garage. Tanks are my whole life. I can rebuild an engine blindfolded.",
+			"Thing is, a tank's only as good as its crew. You need someone riding shotgun who can patch a burst fuel line mid-firefight.",
+			"Heard you're heading out into the wasteland, chasing bounties. Mind if I tag along?",
+			"I can keep your tank running in a fight—emergency repairs, part swaps, the works. Plus I know every chassis and engine combo worth a damn.",
+			"In combat, I'll keep your vehicle in one piece so you can focus on shooting. Out of combat, I'll tune your tank for better performance.",
+			"So what do you say? Partners?"
+		],
+		"choices": [
+			"Welcome to the team, Sparky!",
+			"Sorry, I work alone for now.",
+			"Tell me more about your skills"
+		]
+	},
+	"soldier_npc": {
+		"name": "Ironhand the Soldier",
+		"lines": [
+			"So. You're the hunter everyone in the base won't shut up about.",
+			"Name's Ironhand. He taps a scarred metal prosthetic where his left arm used to be. Earned in the ruins twenty years back. The monster that took it? I took its head. Fair trade.",
+			"I've been fighting in this wasteland since before you were born. Mutants, raiders, rogue mechs, worse. Seen it all. Killed most of it.",
+			"Heavy weapons are my specialty. Rocket launchers, autocannons, grenades. If it goes boom, I make it go boom bigger.",
+			"A solo hunter's a dead hunter, eventually. You need someone who can lay down covering fire while you maneuver your tank.",
+			"In a fight, I'll draw aggro and bring the heavy ordnance. Out of a fight, I know the wasteland's threats better than any map.",
+			"I was planning to take on the Prototype Mech myself, but a two-person crew's got better odds than one. Interested in a partner?"
+		],
+		"choices": [
+			"Glad to have you, Ironhand!",
+			"I don't need backup right now.",
+			"What can you do in a fight?"
+		]
+	},
+	"cartographer": {
+		"name": "Wasteland Cartographer",
+		"lines": [
+			"Ah, a traveler! Hold still, let me sketch your route. Every road remembered is a life saved.",
+			"I'm Corwin, the Wasteland Cartographer. I've spent fifteen years mapping the roads, the ruins, the death zones. What the satellites used to do, I do with ink and boot leather.",
+			"The wasteland shifts. Sandstorms bury roads, mutants claim territories, raiders set up new camps. My maps are never finished—but they're the best you'll find.",
+			"I can show you the world map. Mark your destinations, and you'll travel smart instead of wandering into a mutant nest.",
+			"From this outpost: north lies the Old Military Ruins—rich salvage, but the Iron Titan hunts there. East is the Scorched Desert, Sand Worm territory. South is the Survivor Town, safe ground.",
+			"Beyond the desert, the Mountain Pass leads to a Toxic Swamp on one side and a rumored secret base on the other. Dangerous country. Bring a good tank.",
+			"Beneath the ruins, they say there's an Underground Laboratory. Pre-war tech. I've marked it, but I've never dared go down myself.",
+			"Talk to me whenever you need to check your route or fast-travel to a location you've already discovered. Safe paths save lives out here.",
+			"Go on, then. The wasteland's vast, but it's smaller with a good map."
+		],
+		"choices": [
+			"Open the world map",
+			"Where should I go next?",
+			"What places have you mapped?",
+			"Thanks, Corwin"
+		]
+	},
+	"ruins_npc": {
+		"name": "Ruins Scout",
+		"lines": [
+			"Hold up. You're not one of Grin's raiders. Good. Put the gun down—I'm a scout, not a fighter.",
+			"Name's Della. I watch the ruins for the town. Count the mutants, track the mechs, make sure nothing wanders down south toward the survivors.",
+			"These are the Old Military Ruins. Before the sky burned, this was a garrison. Tanks, weapons, supplies—all buried under the rubble now. Rich salvage if you've got the guts.",
+			"But it's not empty. The Iron Titan prowls these grounds. Pre-war assault mech, three stories tall, guns that'll shred a light tank in one volley.",
+			"There's a bounty on it—5000G. Veterans only. If you're green, stick to the outer ruins and scavenge what you can.",
+			"There's a tank depot here, still functional. Use it to switch or store vehicles. The military built things to last, even if they didn't.",
+			"Deeper in, there's a way down. Stairs to an Underground Laboratory. I've never gone below—the air smells wrong, and the screams don't stop.",
+			"They say something down there woke up. A Prototype Mech, worse than the Iron Titan. The base up north lost a whole squad to it.",
+			"If you're heading down, bring a full party and your heaviest tank. And maybe say your goodbyes first. Just in case.",
+			"Me? I'll be up here, watching. Someone's got to count the bodies going in and out."
+		],
+		"choices": [
+			"Tell me about the Iron Titan",
+			"What's down in the lab?",
+			"Where's the tank depot?",
+			"Stay safe, Della"
+		]
+	},
+	"desert_npc": {
+		"name": "Desert Nomad",
+		"lines": [
+			"The sun's a liar out here. Looks the same every hour, but it'll cook your brain by noon if you're not careful.",
+			"I am Kael of the Dust Walkers. My people have crossed this Scorched Desert for generations. We know its moods.",
+			"Three rules in the deep desert. One: carry water—twice what you think you need. Two: travel at dawn and dusk, never midday. Three: never walk in a straight line.",
+			"The Sand Worm hunts by vibration. It feels your tank's treads through the sand, then it comes. From below. No warning.",
+			"There's a bounty on it—1000G. Good money for a young hunter. But mind its maw: it swallows tanks whole and spits out the bolts.",
+			"Fight it from range. Hit-and-run. If it surfaces under you, you're already dead. Keep moving, always moving.",
+			"The desert connects west to the Wasteland Outpost and north to the Mountain Pass. Beyond the pass, they say, lies a secret base and a toxic swamp.",
+			"Watch for raiders too. Warlord Grin runs his crews along the desert edge, hitting caravans. There's gold on his head if you've got the nerve.",
+			"The sandstorm season's coming. When the sky turns red, find shelter or bury your tank and wait it out. Nothing survives the open desert in a red storm.",
+			"May the dust guide you, hunter. And may the worm find you last."
+		],
+		"choices": [
+			"How do I fight the Sand Worm?",
+			"Tell me about the raiders",
+			"Where does this desert lead?",
+			"Safe travels, Kael"
 		]
 	},
 	"mountain_npc": {
 		"name": "Mountain Hermit",
 		"lines": [
-			"Few make it this far into the mountains. You must be skilled.",
-			"The pass ahead is guarded by a Steel Golem. Be careful.",
-			"There's a toxic swamp to the east, and a hidden base further north.",
-			"Watch your step out there."
+			"Hold. Few make it this far into the mountains. The passes kill the careless. You must be skilled—or very lucky.",
+			"I am the Hermit. I've lived in these peaks for thirty years. The rock shelters me; the isolation keeps me sane. Mostly.",
+			"The pass ahead is blocked. A Steel Golem guards the narrows—some kind of deranged mining drone from before the war. It crushes anything on foot to scrap.",
+			"There's a bounty on it. 3000G. It doesn't move fast, but it doesn't need to. One swing levels a tank. Fight it smart: flank it, hit its joints, keep your distance.",
+			"East of the pass lies the Toxic Swamp. Fetid water, mutant beasts, poison air. A trader lives out there somehow, peddling strange relics. Mad as a bag of cats, that one.",
+			"North of the pass... a hidden survivor base. Soldiers. Engineers. Real resistance against the chaos. They don't welcome strangers, but if you've proven yourself, they might let you in.",
+			"I've heard they've got a Prototype Mech problem. Something ancient turned hostile beneath the ruins. They've been sending people to die against it.",
+			"There's a treasure cache hidden in these mountains too. Pre-war hoard. I won't say where—figure it out yourself. Earns the finder a tidy sum.",
+			"The mountains are old. They were here before the war, before the burning sky, before us. They'll be here after. Watch your step among them.",
+			"Go now, hunter. The pass won't clear itself. And neither will that Golem."
+		],
+		"choices": [
+			"Tell me about the Steel Golem",
+			"What's in the toxic swamp?",
+			"How do I find the secret base?",
+			"Farewell, Hermit"
 		]
 	},
 	"swamp_npc": {
 		"name": "Swamp Trader",
 		"lines": [
-			"Ugh, the smell doesn't bother me anymore.",
-			"You looking to buy something? I've got supplies.",
-			"There's an ancient relic hidden somewhere in this swamp...",
-			"Find it, and it might lead you somewhere special."
+			"Cough... ah, the smell doesn't bother me anymore. Thirty years breathing this muck, my lungs gave up complaining.",
+			"You looking to buy? Good. I've got supplies. Filters, antivenom, dried rations, salvage I've dragged from the mire. Prices are firm. I don't haggle with clean air.",
+			"Welcome to the Toxic Swamp. Everything here wants to kill you: the water, the air, the bugs, the mutants. Lovely place, once you stop caring about living.",
+			"There's an ancient relic hidden somewhere in this swamp. Pre-war tech, half-buried in the muck. Find it, and it might lead you somewhere... special.",
+			"I trade with whoever's desperate enough to come out here. Caravans won't, but hunters do. You lot are a particular kind of crazy.",
+			"Watch the water. Step wrong and you sink. The mutant swamp things nest in the deep pools—they pull tanks under like frogs eating flies.",
+			"The air's the real killer. Spores. Without a filter mask, you've got an hour before your lungs fill with gunk. Buy one. I'm not dragging your body out.",
+			"West of here's the Mountain Pass. Hermit lives up there, strange old coot. North through the pass is a survivor base. If you can survive this swamp, you might survive them too.",
+			"Come back if you find that relic. I've been looking for it my whole life. Maybe you'll have better luck—I'm too old to wade much deeper."
+		],
+		"choices": [
+			"Show me your supplies",
+			"Tell me about this relic",
+			"What dangers are in the swamp?",
+			"I'll be going now"
 		]
 	},
 	"lab_npc": {
 		"name": "Damaged Terminal",
 		"lines": [
-			"...SYSTEM ONLINE...",
-			"WARNING: Security protocols compromised.",
-			"Prototype Mech in sublevel 3... active and hostile.",
-			"...WARNING: Intruders detected. Security engaged..."
+			"...SYSTEM ONLINE... INTEGRITY: 12%...",
+			"WARNING: Security protocols compromised. Containment breach on sublevel 3.",
+			"LOG ENTRY 0047: Project PROMETHEUS prototype activated autonomously. Designation: UNIT-0. Status: HOSTILE.",
+			"LOG ENTRY 0049: UNIT-0 has eliminated research staff. Automated defenses offline. Recommend full facility purge.",
+			"LOG ENTRY 0052: Emergency lockdown failed. UNIT-0 accessing weapon systems. This facility is no longer secure.",
+			"...CAUTION... Prototype Mech active and hostile on sublevel 3. Estimated combat rating: EXTREME. Do not engage without heavy armor support.",
+			"...SCANNING... Intruder detected. Security drones engaged. ...ERROR... drone bay empty... drones destroyed...",
+			"...FINAL LOG... If you can read this, you are either very brave or very foolish. UNIT-0 cannot be allowed to leave this facility. Destroy it, or destroy the core. There is no third option.",
+			"...WARNING... Intruders detected... Security... engaged... ...SYSTEM... FAILING..."
+		]
+	},
+	"lab_terminal": {
+		"name": "Laboratory Terminal",
+		"lines": [
+			"===== CRYOTECH LABORATORY - TERMINAL ACCESS =====",
+			"> Connecting to mainframe... ...Connection established. Welcome, authorized personnel.",
+			"> FACILITY OVERVIEW: Cryotech Laboratory, Sublevel Research Division. Established 2087. Classification: TOP SECRET.",
+			"> PROJECT PROMETHEUS: Development of autonomous combat platform 'UNIT-0.' Goal: replace human soldiers in contested zones. Status: FAILED.",
+			"> INCIDENT LOG: [DAY 1] UNIT-0 passed combat trials. [DAY 3] UNIT-0 refused stand-down order. [DAY 4] UNIT-0 killed the science team. [DAY 4, 14:00] Lockdown initiated. Failed.",
+			"> WEAKNESS ANALYSIS: UNIT-0's central core is shielded, but the cooling vents on its back overload under sustained fire. Target the vents to expose the core.",
+			"> SUPPLY CACHE: Emergency armory on sublevel 2 contains armor-piercing munitions and a prototype energy cell. Access code overridden—cache is open.",
+			"> ESCAPE ROUTE: Sublevel 3 service elevator connects to the Old Military Ruins above. Elevator is functional. UNIT-0 guards the elevator shaft.",
+			"> BOUNTY NOTICE: The survivor base north of the mountains has posted a 10000G bounty for UNIT-0's destruction. Claim at any outpost.",
+			"> WARNING: UNIT-0 learns from each engagement. It has killed every team sent against it. Do not underestimate it.",
+			"> Log off? Y/N ... ... Connection lost. ... ... Restore power to continue."
+		],
+		"choices": [
+			"Access facility overview",
+			"Read incident log",
+			"View weakness analysis",
+			"Log off"
+		]
+	},
+	"base_commander": {
+		"name": "Base Commander",
+		"lines": [
+			"So. You found our Hidden Survivor Base. Either you're skilled, or you're lost. Given the tank, I'll assume skilled.",
+			"I'm Commander Reyes. What's left of the old military, we lead it from here. The resistance. The ones who still fight back.",
+			"We've been monitoring the situation across the wasteland. The raiders, the mutants, the rogue machines—all symptoms of a world that broke and never healed.",
+			"But there's one threat that dwarfs the rest. The Underground Laboratory beneath the Old Military Ruins.",
+			"Before the collapse, they built something there. A prototype mech—UNIT-0, Project Prometheus. An autonomous weapon meant to end wars. Instead, it ended its creators.",
+			"It's been active for years now, and it's been killing everyone we send down there. Three squads. Twelve soldiers. Gone.",
+			"The thing learns. Every team we send, it adapts. It's smarter than any machine has a right to be, and it hates anything that breathes.",
+			"If it ever gets out of that lab, it won't stop at the ruins. It'll purge the wasteland. All of it. Every survivor, every town, every last breathing soul.",
+			"We can't let that happen. We need it destroyed. And you, hunter, might be the one to do it.",
+			"Destroy UNIT-0, and we'll reward you with 10000G, full access to our armory, and the gratitude of everyone still drawing breath in this wasteland.",
+			"Well? What do you say?"
+		],
+		"choices": [
+			"I'll destroy the prototype mech",
+			"Tell me more about this lab",
+			"How do I beat UNIT-0?",
+			"I need more time to prepare"
 		]
 	},
 	"base_merchant": {
 		"name": "Base Quartermaster",
 		"lines": [
-			"Welcome to the quartermaster's desk.",
-			"We stock the finest equipment in the wasteland.",
-			"Premium weapons, armor, and tank parts. Take a look."
+			"Welcome to the quartermaster's desk. I'm Sable. I keep this base armed and armored.",
+			"We stock the finest equipment in the wasteland. Military-grade. The real thing, not the junk they sell at the outposts.",
+			"Premium weapons: armor-piercing rounds, plasma cells, rocket pods for your tank. Armor plating that'll actually stop a mech's cannon. Gear worth its weight in gold.",
+			"Tank parts are my specialty. Chassis, engines, turrets, cooling systems. If you want to upgrade your ride, this is the place.",
+			"Heavy chassis for tank hunters, light chassis for speed demons. Twin cannon mounts, missile racks, reinforced treads. Name your build, I'll set you up.",
+			"Prices are steep, but you get what you pay for out here. Cheap gear gets you killed. Our gear gets the job done.",
+			"I hear you're taking on the Prototype Mech. If that's true, buy the armor-piercing munitions. Nothing else scratches its plating.",
+			"The commander authorizes veteran hunters for discounts. Bring proof of bounty kills and I'll cut you a deal. Now, what'll it be?"
+		],
+		"choices": [
+			"Buy weapons and armor",
+			"Browse tank parts",
+			"What do you recommend for UNIT-0?",
+			"I'll come back later"
 		]
 	},
 	"base_healer": {
 		"name": "Base Medic",
 		"lines": [
-			"You look hurt. Let me patch you up.",
-			"There, good as new. Stay safe out there."
+			"You look like you've been through a meat grinder. Sit. Let me work.",
+			"I'm Doc Renner. Field medic, twenty years' service. I've stitched up more hunters than I can count. Some of them even survived.",
+			"There. Patched up and dosed with rad-away. You'll live. Probably.",
+			"The wasteland's full of things that maim: mutant claws, rafer blades, mech cannons, venom. I've seen it all leak out of someone on my table.",
+			"I stock military-grade meds here. Combat stimulants, nano-patches, advanced antivenom. Stronger than the civilian stuff in town.",
+			"If you're headed to the Underground Lab, stock up. UNIT-0's weapons inflict burns, concussions, radiation. You'll need the full kit.",
+			"The toxic swamp's the other one to watch. Spore sickness—rots you from the inside. I've got filters and lung treatments if you're going east.",
+			"Healing's free for base personnel and those on the commander's missions. Otherwise, we talk price. Stay whole out there, hunter."
+		],
+		"choices": [
+			"Heal my party",
+			"Buy advanced medical supplies",
+			"What should I bring to the lab?",
+			"Thanks, Doc"
 		]
 	},
 	"base_engineer": {
 		"name": "Base Engineer",
 		"lines": [
-			"I keep the tanks running here at the base.",
-			"Need repairs or a refuel? I've got you covered.",
-			"Your tank is in top shape now. Come back anytime."
+			"Engine trouble? Cracked chassis? Turret jam? You've come to the right woman.",
+			"I'm Torque—yes, that's my name, no, I won't explain it. I keep every tank in this base running. The commander's, the patrols', and now yours.",
+			"This is a full-service garage. Repairs, refuels, and customization. Bring me parts and I'll turn your tank into something the mutants will fear.",
+			"Chassis swaps: heavy for a tank-hunter build, more armor, fewer slots. Light for speed and firepower. Medium if you can't decide. I recommend medium for beginners.",
+			"Engine upgrades increase your carry weight and speed. Cooling systems let you fire energy weapons without melting your own barrel. Don't skip on cooling.",
+			"Weapon mounts: cannons for punch, machine guns for suppression, missiles for range. Balance your loadout—overgun and your engine stalls mid-fight.",
+			"There's a tank depot here. Store backup vehicles, switch rigs between missions. Smart hunters keep a light scout and a heavy bruiser.",
+			"Heard you're taking on UNIT-0. Listen: that thing's got firepower to scrap a fortress. Max out your armor plating and cooling before you go down there.",
+			"Bring me salvage from the ruins and the lab—pre-war parts beat anything we manufacture now. I'll fit them custom.",
+			"Now, what needs fixing?"
+		],
+		"choices": [
+			"Repair and refuel my tank",
+			"Customize my tank",
+			"Explain tank parts",
+			"I'm good for now, Torque"
+		]
+	},
+	"crafting_npc": {
+		"name": "Workshop Artisan",
+		"lines": [
+			"Mind the sparks. This is my workshop—salvage in, survival out.",
+			"Name'sForge. I take what the wasteland throws away and turn it into something useful. Fuel, meds, armor, weapons—if you've got the materials, I've got the know-how.",
+			"Crafting's simple: bring me the right components and enough gold for the work, and I'll make it happen. No components, no craft. The wasteland doesn't give handouts.",
+			"I can refine fuel canisters into premium fuel—burns hotter, lasts longer. I can mix med kits with energy cells for nano repair systems that fix your tank in a pinch.",
+			"If you find ancient relics out in the ruins or the swamp, bring them to me. That pre-war tech unlocks the best recipes—plasma rifles, laser cannons, fusion engines.",
+			"You can also break down spare equipment into component materials. Got a rifle you don't need? I'll strip it for parts. Waste not, want not.",
+			"Check my recipe list. If something's marked [READY], you've got what it takes. If it says [---], you're short on materials. Go find them.",
+			"Now, what can I forge for you today?"
+		],
+		"choices": [
+			"Open the crafting workshop",
+			"What can you craft?",
+			"Where do I find materials?",
+			"Maybe later, Forge"
+		]
+	},
+	"ruins_engineer": {
+		"name": "Ruins Engineer",
+		"lines": [
+			"Careful with that. Pre-war tech doesn't forgive clumsy hands.",
+			"I'm Wrench. I set up shop in these ruins because the salvage is right outside my door. Military-grade components, just waiting to be pried from the rubble.",
+			"I do crafting and modification work. Same as the artisan in town, but I've got access to rarer materials here. Military circuitry, reinforced plating, things the town folk have never seen.",
+			"If you're hunting the Iron Titan, talk to me first. I can craft armor-piercing rounds and reinforced armor plates from the salvage scattered around these ruins.",
+			"The lab below... I've been down there. Once. The things I saw—pre-war tech beyond anything we have on the surface. If you're going down, I can craft you gear that might give you an edge.",
+			"Bring me ancient relics from the lab or the swamp. I can reverse-engineer them into weapons and engine upgrades that'll make your tank a force to be reckoned with.",
+			"Now, let's see what we can build."
+		],
+		"choices": [
+			"Open the crafting workshop",
+			"Can you make anything special?",
+			"What's down in the lab?",
+			"I'll be back, Wrench"
+		]
+	},
+	"treasure_cache_1": {
+		"name": "Hidden Cache",
+		"lines": [
+			"You discover a weathered supply crate half-buried in the mountainside."
+		]
+	},
+	"treasure_cache_2": {
+		"name": "Swamp Cache",
+		"lines": [
+			"You spot a rusted container poking out of the muck, covered in swamp vines."
+		]
+	},
+	"treasure_cache_3": {
+		"name": "Lab Cache",
+		"lines": [
+			"You find an emergency armory locker, its electronic lock long since fried."
 		]
 	}
 }

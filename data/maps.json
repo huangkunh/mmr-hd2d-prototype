@@ -8,7 +8,7 @@
 			"east": "desert",
 			"south": "town"
 		},
-		"npcs": ["intro_npc", "shop_npc"],
+		"npcs": ["intro_npc", "shop_npc", "cartographer"],
 		"interactables": ["bounty_board", "save_point"],
 		"shop_id": "wasteland_shop",
 		"ambient_color": [0.3, 0.25, 0.2],
@@ -23,7 +23,7 @@
 		"connections": {
 			"north": "wasteland"
 		},
-		"npcs": ["mayor_npc", "healer_npc", "merchant_npc"],
+		"npcs": ["mayor_npc", "healer_npc", "merchant_npc", "mechanic_npc", "crafting_npc"],
 		"interactables": ["save_point", "inn"],
 		"shop_id": "wasteland_shop",
 		"ambient_color": [0.25, 0.22, 0.18],
@@ -41,7 +41,7 @@
 			"east": "desert",
 			"down": "underground_lab"
 		},
-		"npcs": ["ruins_npc"],
+		"npcs": ["ruins_npc", "ruins_engineer"],
 		"interactables": ["bounty_board", "save_point", "tank_depot"],
 		"shop_id": "ruins_shop",
 		"ambient_color": [0.20, 0.18, 0.22],
@@ -123,7 +123,7 @@
 		"connections": {
 			"south": "mountain_pass"
 		},
-		"npcs": ["base_commander", "base_merchant", "base_healer", "base_engineer"],
+		"npcs": ["base_commander", "base_merchant", "base_healer", "base_engineer", "soldier_npc"],
 		"interactables": ["save_point", "inn", "tank_depot"],
 		"shop_id": "base_shop",
 		"ambient_color": [0.18, 0.20, 0.25],

@@ -12,6 +12,7 @@ var maps: Dictionary = {}
 var skills: Dictionary = {}
 var quests: Dictionary = {}
 var shops: Dictionary = {}
+var crafting: Dictionary = {}
 
 func _ready() -> void:
 	_load_all()
@@ -26,9 +27,10 @@ func _load_all() -> void:
 	skills = _load_json("res://data/skills.json")
 	quests = _load_json("res://data/quests.json")
 	shops = _load_json("res://data/shops.json")
-	print("[DataLoader] Loaded %d enemies, %d equipment, %d encounters, %d items, %d skills, %d quests, %d shops"
+	crafting = _load_json("res://data/crafting.json")
+	print("[DataLoader] Loaded %d enemies, %d equipment, %d encounters, %d items, %d skills, %d quests, %d shops, %d recipes"
 		% [enemies.size(), equipment.size(), encounters.size(), items.size(),
-		   skills.size(), quests.size(), shops.size()])
+		   skills.size(), quests.size(), shops.size(), crafting.size()])
 
 func _load_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
@@ -147,3 +149,31 @@ func get_shop_items(shop_id: String) -> Array:
 func get_shop_equipment(shop_id: String) -> Array:
 	var shop: Dictionary = shops.get(shop_id, {})
 	return shop.get("equipment", [])
+
+# --- Crafting API ---
+func get_crafting_recipe(id: String) -> Dictionary:
+	return crafting.get(id, {})
+
+func get_crafting_list() -> Array:
+	return crafting.keys()
+
+## Checks whether the player currently meets all requirements for a recipe.
+## Returns a Dictionary: { "can_craft": bool, "missing": Dictionary, "gold_ok": bool }
+func check_craft_requirements(recipe_id: String) -> Dictionary:
+	var recipe := get_crafting_recipe(recipe_id)
+	if recipe.is_empty():
+		return {"can_craft": false, "missing": {}, "gold_ok": false}
+	var materials: Dictionary = recipe.get("materials", {})
+	var gold_cost: int = int(recipe.get("gold_cost", 0))
+	var missing: Dictionary = {}
+	for mat_id in materials:
+		var needed: int = int(materials[mat_id])
+		var have: int = int(GameState.inventory.get(mat_id, 0))
+		if have < needed:
+			missing[mat_id] = needed - have
+	var gold_ok: bool = GameState.gold >= gold_cost
+	return {
+		"can_craft": missing.is_empty() and gold_ok,
+		"missing": missing,
+		"gold_ok": gold_ok,
+	}

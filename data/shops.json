@@ -8,7 +8,9 @@
 			"potion_medium",
 			"fuel_can",
 			"repair_kit",
-			"smoke_bomb"
+			"smoke_bomb",
+			"antidote",
+			"energy_cell"
 		],
 		"equipment": [
 			"rifle",
@@ -30,7 +32,10 @@
 			"potion_large",
 			"fuel_can",
 			"repair_kit",
-			"smoke_bomb"
+			"smoke_bomb",
+			"antidote",
+			"energy_cell",
+			"armor_plate"
 		],
 		"equipment": [
 			"rifle",

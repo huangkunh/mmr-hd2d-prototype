@@ -28,9 +28,10 @@ const TAB_STATUS: int = 0
 const TAB_INVENTORY: int = 1
 const TAB_QUESTS: int = 2
 const TAB_TANK: int = 3
-const TAB_MAP: int = 4
-const TAB_SAVE: int = 5
-const TAB_LABELS: Array[String] = ["Status", "Inventory", "Quests", "Tank", "Map", "Save"]
+const TAB_CRAFT: int = 4
+const TAB_MAP: int = 5
+const TAB_SAVE: int = 6
+const TAB_LABELS: Array[String] = ["Status", "Inventory", "Quests", "Tank", "Craft", "Map", "Save"]
 
 const GARAGE_SCENE: String = "res://scenes/tank_garage.tscn"
 
@@ -56,6 +57,8 @@ var item_info_label: RichTextLabel
 var quest_label: RichTextLabel
 var tank_label: RichTextLabel
 var open_garage_button: Button
+var craft_label: RichTextLabel
+var open_craft_button: Button
 var map_label: RichTextLabel
 var save_slot_labels: Array[RichTextLabel] = []
 var save_slot_buttons: Array[Button] = []
@@ -71,6 +74,7 @@ func _ready() -> void:
 	_refresh_status()
 	_refresh_inventory()
 	_refresh_quests()
+	_refresh_craft()
 	_refresh_map()
 	_select_tab(TAB_STATUS)
 	visible = false
@@ -134,6 +138,7 @@ func open() -> void:
 	_refresh_status()
 	_refresh_inventory()
 	_refresh_quests()
+	_refresh_craft()
 	_refresh_map()
 	_select_tab(current_tab)
 	menu_opened.emit()
@@ -174,6 +179,8 @@ func _select_tab(tab: int) -> void:
 	quest_label.visible = (current_tab == TAB_QUESTS)
 	tank_label.visible = (current_tab == TAB_TANK)
 	open_garage_button.visible = (current_tab == TAB_TANK)
+	craft_label.visible = (current_tab == TAB_CRAFT)
+	open_craft_button.visible = (current_tab == TAB_CRAFT)
 	map_label.visible = (current_tab == TAB_MAP)
 	for i in save_slot_labels.size():
 		save_slot_labels[i].visible = (current_tab == TAB_SAVE)
@@ -196,6 +203,8 @@ func _confirm_tab() -> void:
 			pass
 		TAB_TANK:
 			_open_garage()
+		TAB_CRAFT:
+			_open_craft_workshop()
 		TAB_MAP:
 			pass
 		TAB_SAVE:
@@ -208,6 +217,8 @@ func _update_hint() -> void:
 			hint_label.text = "Up/Down: Select    Z: Use    Esc/X: Close"
 		TAB_TANK:
 			hint_label.text = "Z: Open Garage    Esc/X: Close"
+		TAB_CRAFT:
+			hint_label.text = "Z: Open Workshop    Esc/X: Close"
 		TAB_SAVE:
 			hint_label.text = "Up/Down: Select Slot    Z: Save    Esc/X: Close"
 		_:
@@ -349,6 +360,46 @@ func _open_garage() -> void:
 		GameState.change_scene(GARAGE_SCENE)
 	else:
 		push_warning("[MenuSystem] Garage scene not found: %s" % GARAGE_SCENE)
+
+
+# --- Craft tab --------------------------------------------------------------
+
+func _open_craft_workshop() -> void:
+	# Unpause the tree so the crafting overlay can process input.
+	if pause_tree_on_open:
+		get_tree().paused = false
+	# Close the menu first so it doesn't sit underneath the crafting overlay.
+	is_open = false
+	visible = false
+	# Instantiate the crafting overlay on the current scene.
+	var craft_scene := load("res://scenes/crafting.tscn")
+	if craft_scene:
+		var craft_ui := craft_scene.instantiate() as Control
+		get_tree().current_scene.add_child(craft_ui)
+		if craft_ui.has_method("open"):
+			craft_ui.open()
+		if craft_ui.has_signal("crafting_closed"):
+			craft_ui.crafting_closed.connect(craft_ui.queue_free)
+	else:
+		push_warning("[MenuSystem] Crafting scene not found.")
+
+
+func _refresh_craft() -> void:
+	if craft_label == null:
+		return
+	var recipe_count: int = DataLoader.get_crafting_list().size()
+	var ready_count: int = 0
+	for recipe_id in DataLoader.get_crafting_list():
+		var check := DataLoader.check_craft_requirements(String(recipe_id))
+		if bool(check.get("can_craft", false)):
+			ready_count += 1
+	craft_label.text = (
+		"[b]CRAFTING WORKSHOP[/b]\n\n"
+		"Combine salvaged materials and gold to create new items and equipment.\n\n"
+		"Available recipes: [b]%d[/b]\n" % recipe_count
+	)
+	craft_label.text += "Ready to craft: [color=green][b]%d[/b][/color]\n" % ready_count
+	craft_label.text += "\n[i]Visit a crafting NPC or press Z to open the workshop.[/i]"
 
 
 # --- Map tab ---------------------------------------------------------------
@@ -566,6 +617,28 @@ func _build_ui() -> void:
 	open_garage_button.focus_mode = Control.FOCUS_NONE
 	open_garage_button.pressed.connect(_open_garage)
 	content.add_child(open_garage_button)
+
+	# --- Craft panel ---
+	craft_label = _make_rich_label()
+	craft_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	craft_label.offset_top = 0
+	craft_label.offset_bottom = 180
+	content.add_child(craft_label)
+	craft_label.text = (
+		"[b]CRAFTING WORKSHOP[/b]\n\n"
+		"Combine salvaged materials and gold to create new items and equipment.\n\n"
+		"Press Z to open the workshop."
+	)
+
+	open_craft_button = Button.new()
+	open_craft_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	open_craft_button.offset_top = -56
+	open_craft_button.offset_bottom = -20
+	open_craft_button.text = "Open Workshop"
+	open_craft_button.custom_minimum_size = Vector2(0, 40)
+	open_craft_button.focus_mode = Control.FOCUS_NONE
+	open_craft_button.pressed.connect(_open_craft_workshop)
+	content.add_child(open_craft_button)
 
 	# --- Map panel ---
 	map_label = _make_rich_label()

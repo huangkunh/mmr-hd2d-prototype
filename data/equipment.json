@@ -142,9 +142,11 @@
 		"attack": 70,
 		"defense": 0,
 		"price": 2500,
-		"description": "Guided missiles. High damage, limited ammo.",
+		"description": "Guided missiles. High damage, multi-hit.",
 		"icon": "res://assets/ui/icon_se.png",
-		"weight": 30
+		"weight": 30,
+		"se_type": "missile",
+		"se_hits": 4
 	},
 	"se_flamethrower": {
 		"name": "Flamethrower SE",
@@ -152,9 +154,12 @@
 		"attack": 45,
 		"defense": 0,
 		"price": 1500,
-		"description": "Projectiles of fire. Hits all enemies, chance to burn.",
+		"description": "Projects fire. Chance to burn the enemy for 3 turns.",
 		"icon": "res://assets/ui/icon_se.png",
-		"weight": 20
+		"weight": 20,
+		"se_type": "flamethrower",
+		"se_burn_chance": 0.7,
+		"se_burn_duration": 3
 	},
 	"engine_v6": {
 		"name": "V6 Engine",
@@ -243,9 +248,48 @@
 		"attack": 90,
 		"defense": 0,
 		"price": 4000,
-		"description": "Directed energy weapon. Unlimited ammo, high damage.",
+		"description": "Directed energy weapon. Ignores defense, high single-hit damage.",
 		"icon": "res://assets/ui/icon_se.png",
-		"weight": 25
+		"weight": 25,
+		"se_type": "laser"
+	},
+	"se_smoke": {
+		"name": "Smoke Launcher SE",
+		"slot": "se_unit",
+		"attack": 0,
+		"defense": 5,
+		"price": 1200,
+		"description": "Deploys smoke screen. Boosts evasion by 70% for 3 turns.",
+		"icon": "res://assets/ui/icon_se.png",
+		"weight": 15,
+		"se_type": "smoke",
+		"se_evasion_amount": 0.7,
+		"se_evasion_duration": 3
+	},
+	"se_repair": {
+		"name": "Repair Drone SE",
+		"slot": "se_unit",
+		"attack": 0,
+		"defense": 0,
+		"price": 2000,
+		"description": "Automated repair drone. Restores 80 tank SP per use.",
+		"icon": "res://assets/ui/icon_se.png",
+		"weight": 20,
+		"se_type": "repair",
+		"se_repair_amount": 80
+	},
+	"se_earthquake": {
+		"name": "Earthquake Bomb SE",
+		"slot": "se_unit",
+		"attack": 100,
+		"defense": 0,
+		"price": 5000,
+		"description": "Seismic weapon. Devastating AoE damage with defense break.",
+		"icon": "res://assets/ui/icon_se.png",
+		"weight": 35,
+		"se_type": "earthquake",
+		"se_defense_break": 0.4,
+		"se_defense_break_duration": 2
 	},
 	"engine_fusion": {
 		"name": "Fusion Engine",
