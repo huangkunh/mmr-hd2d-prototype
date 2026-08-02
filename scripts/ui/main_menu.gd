@@ -7,6 +7,7 @@ extends Control
 
 
 func _ready() -> void:
+	AudioManager.play_bgm("menu_theme")
 	blink_timer.timeout.connect(_on_blink)
 
 

@@ -1,33 +1,135 @@
 {
 	"wasteland": {
-		"name": "Wasteland",
+		"name": "Wasteland Outpost",
 		"scene": "res://scenes/world.tscn",
 		"encounter_zone": "wasteland",
 		"connections": {
 			"north": "ruins",
-			"east": "desert"
+			"east": "desert",
+			"south": "town"
 		},
 		"npcs": ["intro_npc", "shop_npc"],
-		"interactables": ["bounty_board"]
+		"interactables": ["bounty_board", "save_point"],
+		"shop_id": "wasteland_shop",
+		"ambient_color": [0.3, 0.25, 0.2],
+		"ground_color": [0.35, 0.28, 0.20],
+		"is_town": true,
+		"bgm": "wasteland_theme"
+	},
+	"town": {
+		"name": "Survivor Town",
+		"scene": "res://scenes/world.tscn",
+		"encounter_zone": "",
+		"connections": {
+			"north": "wasteland"
+		},
+		"npcs": ["mayor_npc", "healer_npc", "merchant_npc"],
+		"interactables": ["save_point", "inn"],
+		"shop_id": "wasteland_shop",
+		"ambient_color": [0.25, 0.22, 0.18],
+		"ground_color": [0.30, 0.26, 0.20],
+		"is_town": true,
+		"bgm": "town_theme",
+		"no_encounters": true
 	},
 	"ruins": {
-		"name": "Old Ruins",
+		"name": "Old Military Ruins",
 		"scene": "res://scenes/world.tscn",
 		"encounter_zone": "ruins",
 		"connections": {
-			"south": "wasteland"
+			"south": "wasteland",
+			"east": "desert",
+			"down": "underground_lab"
 		},
-		"npcs": [],
-		"interactables": []
+		"npcs": ["ruins_npc"],
+		"interactables": ["bounty_board", "save_point", "tank_depot"],
+		"shop_id": "ruins_shop",
+		"ambient_color": [0.20, 0.18, 0.22],
+		"ground_color": [0.28, 0.25, 0.28],
+		"is_town": false,
+		"bgm": "ruins_theme"
 	},
 	"desert": {
 		"name": "Scorched Desert",
 		"scene": "res://scenes/world.tscn",
 		"encounter_zone": "desert",
 		"connections": {
-			"west": "wasteland"
+			"west": "wasteland",
+			"north": "mountain_pass"
 		},
-		"npcs": [],
-		"interactables": []
+		"npcs": ["desert_npc"],
+		"interactables": ["save_point"],
+		"shop_id": "desert_shop",
+		"ambient_color": [0.40, 0.30, 0.15],
+		"ground_color": [0.50, 0.38, 0.20],
+		"is_town": false,
+		"bgm": "desert_theme"
+	},
+	"mountain_pass": {
+		"name": "Mountain Pass",
+		"scene": "res://scenes/world.tscn",
+		"encounter_zone": "mountain_pass",
+		"connections": {
+			"south": "desert",
+			"east": "toxic_swamp",
+			"north": "secret_base"
+		},
+		"npcs": ["mountain_npc"],
+		"interactables": ["save_point", "treasure_cache_1"],
+		"shop_id": "",
+		"ambient_color": [0.35, 0.30, 0.28],
+		"ground_color": [0.40, 0.35, 0.30],
+		"is_town": false,
+		"bgm": "ruins_theme",
+		"treasures": ["treasure_cache_1"]
+	},
+	"toxic_swamp": {
+		"name": "Toxic Swamp",
+		"scene": "res://scenes/world.tscn",
+		"encounter_zone": "toxic_swamp",
+		"connections": {
+			"west": "mountain_pass"
+		},
+		"npcs": ["swamp_npc"],
+		"interactables": ["save_point", "treasure_cache_2"],
+		"shop_id": "swamp_shop",
+		"ambient_color": [0.15, 0.25, 0.15],
+		"ground_color": [0.20, 0.30, 0.18],
+		"is_town": false,
+		"bgm": "ruins_theme",
+		"treasures": ["treasure_cache_2"]
+	},
+	"underground_lab": {
+		"name": "Underground Laboratory",
+		"scene": "res://scenes/world.tscn",
+		"encounter_zone": "underground_lab",
+		"connections": {
+			"up": "ruins"
+		},
+		"npcs": ["lab_npc"],
+		"interactables": ["save_point", "treasure_cache_3", "lab_terminal"],
+		"shop_id": "",
+		"ambient_color": [0.10, 0.12, 0.18],
+		"ground_color": [0.15, 0.15, 0.20],
+		"is_town": false,
+		"bgm": "ruins_theme",
+		"treasures": ["treasure_cache_3"],
+		"is_dungeon": true
+	},
+	"secret_base": {
+		"name": "Hidden Survivor Base",
+		"scene": "res://scenes/world.tscn",
+		"encounter_zone": "",
+		"connections": {
+			"south": "mountain_pass"
+		},
+		"npcs": ["base_commander", "base_merchant", "base_healer", "base_engineer"],
+		"interactables": ["save_point", "inn", "tank_depot"],
+		"shop_id": "base_shop",
+		"ambient_color": [0.18, 0.20, 0.25],
+		"ground_color": [0.22, 0.22, 0.28],
+		"is_town": true,
+		"bgm": "town_theme",
+		"no_encounters": true
 	}
 }

@@ -20,6 +20,7 @@ config/icon="res://assets/ui/icon.png"
 
 GameState="*res://scripts/global/game_state.gd"
 DataLoader="*res://scripts/global/data_loader.gd"
+AudioManager="*res://scripts/global/audio_manager.gd"
 
 [display]
 

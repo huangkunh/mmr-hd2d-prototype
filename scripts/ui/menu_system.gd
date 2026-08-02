@@ -26,10 +26,11 @@ signal open_tank_requested()
 # --- Constants --------------------------------------------------------------
 const TAB_STATUS: int = 0
 const TAB_INVENTORY: int = 1
-const TAB_TANK: int = 2
-const TAB_MAP: int = 3
-const TAB_SAVE: int = 4
-const TAB_LABELS: Array[String] = ["Status", "Inventory", "Tank", "Map", "Save"]
+const TAB_QUESTS: int = 2
+const TAB_TANK: int = 3
+const TAB_MAP: int = 4
+const TAB_SAVE: int = 5
+const TAB_LABELS: Array[String] = ["Status", "Inventory", "Quests", "Tank", "Map", "Save"]
 
 const GARAGE_SCENE: String = "res://scenes/tank_garage.tscn"
 
@@ -42,6 +43,8 @@ var is_open: bool = false
 var current_tab: int = TAB_STATUS
 var inventory_index: int = 0
 var _item_ids: Array[String] = []  # parallel to the inventory ItemList rows
+var _save_slot_index: int = 0
+const SAVE_SLOT_COUNT: int = 3
 
 # --- UI handles -------------------------------------------------------------
 var dim: ColorRect
@@ -50,10 +53,12 @@ var tab_buttons: Array[Button] = []
 var status_label: RichTextLabel
 var inventory_list: ItemList
 var item_info_label: RichTextLabel
+var quest_label: RichTextLabel
 var tank_label: RichTextLabel
 var open_garage_button: Button
 var map_label: RichTextLabel
-var save_button: Button
+var save_slot_labels: Array[RichTextLabel] = []
+var save_slot_buttons: Array[Button] = []
 var save_status_label: Label
 var hint_label: Label
 
@@ -65,6 +70,7 @@ func _ready() -> void:
 	_build_ui()
 	_refresh_status()
 	_refresh_inventory()
+	_refresh_quests()
 	_refresh_map()
 	_select_tab(TAB_STATUS)
 	visible = false
@@ -99,7 +105,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_confirm_tab()
 		get_viewport().set_input_as_handled()
 	else:
-		# Per-tab vertical navigation (currently only Inventory uses it).
+		# Per-tab vertical navigation.
 		if current_tab == TAB_INVENTORY:
 			if event.is_action_pressed("move_up"):
 				_move_inventory(-1)
@@ -107,11 +113,19 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif event.is_action_pressed("move_down"):
 				_move_inventory(1)
 				get_viewport().set_input_as_handled()
+		elif current_tab == TAB_SAVE:
+			if event.is_action_pressed("move_up"):
+				_move_save_slot(-1)
+				get_viewport().set_input_as_handled()
+			elif event.is_action_pressed("move_down"):
+				_move_save_slot(1)
+				get_viewport().set_input_as_handled()
 
 
 # --- Open / close -----------------------------------------------------------
 
 func open() -> void:
+	AudioManager.play_sfx("select")
 	is_open = true
 	visible = true
 	if pause_tree_on_open:
@@ -119,12 +133,14 @@ func open() -> void:
 	# Refresh dynamic tabs in case the state changed since last open.
 	_refresh_status()
 	_refresh_inventory()
+	_refresh_quests()
 	_refresh_map()
 	_select_tab(current_tab)
 	menu_opened.emit()
 
 
 func close() -> void:
+	AudioManager.play_sfx("cancel")
 	is_open = false
 	visible = false
 	if pause_tree_on_open:
@@ -135,6 +151,7 @@ func close() -> void:
 # --- Tab navigation ---------------------------------------------------------
 
 func _change_tab(direction: int) -> void:
+	AudioManager.play_sfx("cursor")
 	var count: int = TAB_LABELS.size()
 	current_tab = posmod(current_tab + direction, count)
 	_select_tab(current_tab)
@@ -154,20 +171,29 @@ func _select_tab(tab: int) -> void:
 	status_label.visible = (current_tab == TAB_STATUS)
 	inventory_list.visible = (current_tab == TAB_INVENTORY)
 	item_info_label.visible = (current_tab == TAB_INVENTORY)
+	quest_label.visible = (current_tab == TAB_QUESTS)
 	tank_label.visible = (current_tab == TAB_TANK)
 	open_garage_button.visible = (current_tab == TAB_TANK)
 	map_label.visible = (current_tab == TAB_MAP)
-	save_button.visible = (current_tab == TAB_SAVE)
+	for i in save_slot_labels.size():
+		save_slot_labels[i].visible = (current_tab == TAB_SAVE)
+	for i in save_slot_buttons.size():
+		save_slot_buttons[i].visible = (current_tab == TAB_SAVE)
 	save_status_label.visible = (current_tab == TAB_SAVE)
+	if current_tab == TAB_SAVE:
+		_refresh_save_slots()
 	_update_hint()
 
 
 func _confirm_tab() -> void:
+	AudioManager.play_sfx("confirm")
 	match current_tab:
 		TAB_STATUS:
 			pass  # nothing to confirm
 		TAB_INVENTORY:
 			_use_selected_item()
+		TAB_QUESTS:
+			pass
 		TAB_TANK:
 			_open_garage()
 		TAB_MAP:
@@ -183,7 +209,7 @@ func _update_hint() -> void:
 		TAB_TANK:
 			hint_label.text = "Z: Open Garage    Esc/X: Close"
 		TAB_SAVE:
-			hint_label.text = "Z: Save Game    Esc/X: Close"
+			hint_label.text = "Up/Down: Select Slot    Z: Save    Esc/X: Close"
 		_:
 			hint_label.text = "<-/->: Switch Tab    Esc/X: Close"
 
@@ -238,6 +264,7 @@ func _refresh_inventory() -> void:
 func _move_inventory(direction: int) -> void:
 	if _item_ids.is_empty():
 		return
+	AudioManager.play_sfx("cursor")
 	inventory_index = posmod(inventory_index + direction, _item_ids.size())
 	inventory_list.select(inventory_index)
 	inventory_list.ensure_current_is_visible()
@@ -347,12 +374,84 @@ func _refresh_map() -> void:
 	map_label.text = text
 
 
+# --- Quest tab --------------------------------------------------------------
+
+func _refresh_quests() -> void:
+	if quest_label == null:
+		return
+	var text := "[b]QUEST LOG[/b]\n\n"
+
+	# Active quests
+	if not GameState.active_quests.is_empty():
+		text += "[color=yellow]--- Active Quests ---[/color]\n\n"
+		for quest_id in GameState.active_quests:
+			var quest: Dictionary = DataLoader.get_quest(quest_id)
+			if quest.is_empty():
+				continue
+			var q_name: String = String(quest.get("name", quest_id))
+			var q_desc: String = String(quest.get("description", ""))
+			var q_type: String = String(quest.get("type", "side"))
+			text += "[b]%s[/b]  (%s)\n" % [q_name, q_type]
+			text += "  %s\n" % q_desc
+			var progress_text: String = GameState.get_quest_progress_text(quest_id)
+			if not progress_text.is_empty():
+				text += "  [color=green]Progress:[/color] %s\n" % progress_text.replace("\n", "\n  ")
+			text += "\n"
+	else:
+		text += "[i]No active quests. Visit a bounty board or talk to NPCs.[/i]\n\n"
+
+	# Completed quests
+	if not GameState.completed_quests.is_empty():
+		text += "[color=gray]--- Completed ---[/color]\n\n"
+		for quest_id in GameState.completed_quests:
+			var quest: Dictionary = DataLoader.get_quest(quest_id)
+			if quest.is_empty():
+				continue
+			var q_name: String = String(quest.get("name", quest_id))
+			text += "  [color=gray]%s[/color]\n" % q_name
+
+	quest_label.text = text
+
+
 # --- Save tab --------------------------------------------------------------
 
+func _refresh_save_slots() -> void:
+	for i in SAVE_SLOT_COUNT:
+		if i >= save_slot_labels.size():
+			break
+		var info: Dictionary = GameState.get_save_info(i)
+		var text: String = ""
+		if info.is_empty():
+			text = "Slot %d: [color=gray][ Empty ][/color]" % (i + 1)
+		else:
+			text = "Slot %d: [b]%s[/b]  Lv.%d  %s  %d G" % [
+				i + 1,
+				String(info.get("name", "???")),
+				int(info.get("level", 1)),
+				String(info.get("map", "???")),
+				int(info.get("gold", 0))
+			]
+		# Highlight the selected slot.
+		if i == _save_slot_index:
+			text = "[color=yellow]>> %s[/color]" % text
+		save_slot_labels[i].text = text
+
+func _move_save_slot(direction: int) -> void:
+	AudioManager.play_sfx("cursor")
+	_save_slot_index = posmod(_save_slot_index + direction, SAVE_SLOT_COUNT)
+	_refresh_save_slots()
+
 func _do_save() -> void:
-	GameState.save_game()
-	save_status_label.text = "Game saved successfully!"
+	AudioManager.play_sfx("save")
+	GameState.save_game(_save_slot_index)
+	save_status_label.text = "Slot %d saved successfully!" % (_save_slot_index + 1)
 	save_status_label.add_theme_color_override("font_color", Color(0.45, 1.0, 0.45))
+	_refresh_save_slots()
+
+## Called when a specific slot button is clicked with the mouse.
+func _save_to_slot(slot: int) -> void:
+	_save_slot_index = slot
+	_do_save()
 
 
 # --- UI construction --------------------------------------------------------
@@ -441,6 +540,11 @@ func _build_ui() -> void:
 	item_info_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	inv_hbox.add_child(item_info_label)
 
+	# --- Quest panel ---
+	quest_label = _make_rich_label()
+	quest_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.add_child(quest_label)
+
 	# --- Tank panel ---
 	tank_label = _make_rich_label()
 	tank_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
@@ -468,26 +572,34 @@ func _build_ui() -> void:
 	map_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	content.add_child(map_label)
 
-	# --- Save panel ---
+	# --- Save panel (multi-slot) ---
 	var save_vbox := VBoxContainer.new()
 	save_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	save_vbox.add_theme_constant_override("separation", 12)
+	save_vbox.add_theme_constant_override("separation", 8)
 	content.add_child(save_vbox)
 
 	var save_desc := _make_rich_label()
 	save_desc.text = (
 		"[b]SAVE[/b]\n\n"
-		"Write your progress to user://savegame.json.\n"
-		"This overwrites the previous save file."
+		"Select a slot with Up/Down, then press Z to save your progress."
 	)
 	save_vbox.add_child(save_desc)
 
-	save_button = Button.new()
-	save_button.text = "Save Game"
-	save_button.custom_minimum_size = Vector2(0, 44)
-	save_button.focus_mode = Control.FOCUS_NONE
-	save_button.pressed.connect(_do_save)
-	save_vbox.add_child(save_button)
+	save_slot_labels.clear()
+	save_slot_buttons.clear()
+	for i in SAVE_SLOT_COUNT:
+		var slot_label := _make_rich_label()
+		slot_label.custom_minimum_size = Vector2(0, 36)
+		save_vbox.add_child(slot_label)
+		save_slot_labels.append(slot_label)
+
+		var slot_btn := Button.new()
+		slot_btn.text = "Save to Slot %d" % (i + 1)
+		slot_btn.custom_minimum_size = Vector2(0, 36)
+		slot_btn.focus_mode = Control.FOCUS_NONE
+		slot_btn.pressed.connect(_save_to_slot.bind(i))
+		save_vbox.add_child(slot_btn)
+		save_slot_buttons.append(slot_btn)
 
 	save_status_label = _make_label("", 16)
 	save_vbox.add_child(save_status_label)

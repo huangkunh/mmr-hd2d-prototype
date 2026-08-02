@@ -64,8 +64,16 @@ enum State { INTRO, PLAYER_TURN, ENEMY_TURN, VICTORY, DEFEAT, OUTRO }
 # Player command identifiers (also used as the `action` in action_selected).
 const ACTION_ATTACK := "attack"
 const ACTION_DEFEND := "defend"
+const ACTION_SKILL := "skill"
 const ACTION_ITEM := "item"
 const ACTION_FLEE := "flee"
+
+## Enemy AI skill use chance (per turn when a skill is available).
+const ENEMY_SKILL_CHANCE := 0.30
+## When enemy HP drops below this ratio, it gets more aggressive with skills.
+const ENEMY_LOW_HP_RATIO := 0.30
+## Skill use chance when the enemy is low on HP.
+const ENEMY_LOW_HP_SKILL_CHANCE := 0.50
 
 # --- Combat tuning constants -------------------------------------------------
 
@@ -130,6 +138,12 @@ func _start_battle() -> void:
 	enemy_actor = BattleActor.create_from_enemy(enemy_data)
 	actors_ready.emit(player_actor, enemy_actor)
 
+	# Pick the battle BGM: boss encounters get their own theme.
+	if bool(enemy_data.get("is_bounty", false)):
+		AudioManager.play_bgm("boss_theme")
+	else:
+		AudioManager.play_bgm("battle_theme")
+
 	_log("A wild %s appeared!" % enemy_actor.name)
 
 	_set_state(State.INTRO)
@@ -141,8 +155,32 @@ func _start_battle() -> void:
 # --- Round / turn orchestration ----------------------------------------------
 
 ## Begins a fresh round: the faster combatant acts first.
+## Ticks status effects and skill cooldowns at the start of each round.
 func _begin_round() -> void:
-	if player_actor.speed >= enemy_actor.speed:
+	# Tick status effects (poison damage, duration decrements).
+	if player_actor.is_alive():
+		var p_result := player_actor.tick_status_effects()
+		if p_result.damage > 0:
+			_log("%s takes %d poison/burn damage." % [player_actor.name, p_result.damage])
+			GameState.take_damage(p_result.damage)
+			AudioManager.play_sfx("hit")
+			await get_tree().create_timer(0.3).timeout
+		if not player_actor.is_alive():
+			_enter_defeat()
+			return
+	if enemy_actor.is_alive():
+		var e_result := enemy_actor.tick_status_effects()
+		if e_result.damage > 0:
+			_log("%s takes %d poison/burn damage." % [enemy_actor.name, e_result.damage])
+			AudioManager.play_sfx("hit")
+			await get_tree().create_timer(0.3).timeout
+		if not enemy_actor.is_alive():
+			_enter_victory()
+			return
+	# Tick player skill cooldowns.
+	GameState.tick_cooldowns()
+
+	if player_actor.get_effective_speed() >= enemy_actor.get_effective_speed():
 		_begin_player_turn()
 	else:
 		await _do_enemy_turn()
@@ -156,7 +194,8 @@ func _begin_player_turn() -> void:
 
 ## Called by the BattleUI when the player confirms a command.
 ## `item_id` is only used for the "item" action.
-func select_action(action: String, item_id: String = "") -> void:
+## `skill_id` is only used for the "skill" action.
+func select_action(action: String, item_id: String = "", skill_id: String = "") -> void:
 	if current_state != State.PLAYER_TURN or _busy:
 		return
 	action_selected.emit(action)
@@ -168,6 +207,8 @@ func select_action(action: String, item_id: String = "") -> void:
 		ACTION_DEFEND:
 			_execute_defend()
 			await get_tree().create_timer(action_delay).timeout
+		ACTION_SKILL:
+			await _execute_skill(skill_id)
 		ACTION_ITEM:
 			await _execute_item(item_id)
 		ACTION_FLEE:
@@ -201,11 +242,16 @@ func _execute_player_attack() -> void:
 	var result := _compute_damage(player_actor, enemy_actor)
 	if not result.hit:
 		attack_missed.emit(enemy_actor)
+		AudioManager.play_sfx("miss")
 		_log("...but missed!")
 		await get_tree().create_timer(action_delay).timeout
 		return
 
 	enemy_actor.take_damage(result.amount)
+	if result.crit:
+		AudioManager.play_sfx("critical")
+	else:
+		AudioManager.play_sfx("hit")
 	_emit_hit(enemy_actor, result)
 	_log_damage(enemy_actor, result.crit, result.amount)
 	await get_tree().create_timer(action_delay).timeout
@@ -235,6 +281,7 @@ func _execute_item(item_id: String) -> void:
 		var restore: int = int(item.get("hp_restore", 0))
 		var healed_amount: int = player_actor.heal(restore)
 		GameState.heal(healed_amount)
+		AudioManager.play_sfx("heal")
 		healed.emit(player_actor, healed_amount)
 		_log("Used %s! Restored %d HP." % [item_name, healed_amount])
 		_consume_item(item_id)
@@ -260,6 +307,128 @@ func _execute_flee() -> void:
 		_log("Couldn't escape!")
 		await get_tree().create_timer(action_delay).timeout
 
+# --- Skill execution ---------------------------------------------------------
+
+func _execute_skill(skill_id: String) -> void:
+	if skill_id.is_empty() or not player_actor.skills.has(skill_id):
+		_log("No usable skills!")
+		await get_tree().create_timer(action_delay).timeout
+		return
+	if not GameState.can_use_skill(skill_id):
+		_log("Skill is on cooldown!")
+		await get_tree().create_timer(action_delay).timeout
+		return
+
+	var skill: Dictionary = DataLoader.get_skill(skill_id)
+	if skill.is_empty():
+		_log("Unknown skill!")
+		await get_tree().create_timer(action_delay).timeout
+		return
+
+	var skill_name: String = String(skill.get("name", skill_id))
+	var power_mult: float = float(skill.get("power_multiplier", 1.0))
+	var hit_count: int = int(skill.get("hit_count", 1))
+	var effect: String = String(skill.get("effect", ""))
+	var cooldown: int = int(skill.get("cooldown", 1))
+
+	AudioManager.play_sfx("skill")
+	_log("%s uses %s!" % [player_actor.name, skill_name])
+	GameState.use_skill(skill_id)
+	await get_tree().create_timer(turn_delay).timeout
+
+	match effect:
+		"multi_hit":
+			await _execute_multi_hit(player_actor, enemy_actor, power_mult, hit_count)
+		"burst":
+			await _execute_burst(player_actor, enemy_actor, power_mult)
+		"debuff_defense":
+			var debuff_amount: float = float(skill.get("debuff_amount", 0.5))
+			var debuff_duration: int = int(skill.get("debuff_duration", 3))
+			enemy_actor.apply_status(BattleActor.STATUS_DEFENSE_DOWN, debuff_duration, debuff_amount)
+			_log("%s's defense reduced!" % enemy_actor.name)
+			await get_tree().create_timer(action_delay).timeout
+			# Also deal normal damage.
+			await _execute_burst(player_actor, enemy_actor, 1.0)
+		"buff_evasion":
+			var buff_amount: float = float(skill.get("buff_amount", 0.5))
+			var buff_duration: int = int(skill.get("buff_duration", 3))
+			player_actor.apply_status(BattleActor.STATUS_EVASION_UP, buff_duration, buff_amount)
+			_log("%s's evasion increased!" % player_actor.name)
+			await get_tree().create_timer(action_delay).timeout
+		"heal_self":
+			var heal_percent: float = float(skill.get("heal_percent", 0.0))
+			var heal_amount: int = int(player_actor.max_hp * heal_percent)
+			var healed_amount: int = player_actor.heal(heal_amount)
+			GameState.heal(healed_amount)
+			healed.emit(player_actor, healed_amount)
+			_log("%s recovered %d HP!" % [player_actor.name, healed_amount])
+			await get_tree().create_timer(action_delay).timeout
+		"poison_target":
+			var poison_duration: int = int(skill.get("poison_duration", 3))
+			enemy_actor.apply_status(BattleActor.STATUS_POISON, poison_duration)
+			_log("%s is poisoned!" % enemy_actor.name)
+			await get_tree().create_timer(action_delay).timeout
+			# Also deal normal burst damage at power_mult.
+			await _execute_burst(player_actor, enemy_actor, power_mult)
+		"burn_target":
+			var burn_duration: int = int(skill.get("burn_duration", 3))
+			enemy_actor.apply_status(BattleActor.STATUS_BURN, burn_duration)
+			_log("%s is burning!" % enemy_actor.name)
+			await get_tree().create_timer(action_delay).timeout
+			# Also deal normal burst damage at power_mult.
+			await _execute_burst(player_actor, enemy_actor, power_mult)
+		"buff_attack":
+			var atk_buff_amount: float = float(skill.get("buff_amount", 0.5))
+			var atk_buff_duration: int = int(skill.get("buff_duration", 3))
+			player_actor.apply_status(BattleActor.STATUS_ATTACK_UP, atk_buff_duration, atk_buff_amount)
+			_log("%s's attack increased!" % player_actor.name)
+			await get_tree().create_timer(action_delay).timeout
+		"buff_defense":
+			var def_buff_amount: float = float(skill.get("buff_amount", 0.5))
+			var def_buff_duration: int = int(skill.get("buff_duration", 3))
+			player_actor.apply_status(BattleActor.STATUS_DEFENSE_UP, def_buff_duration, def_buff_amount)
+			_log("%s's defense increased!" % player_actor.name)
+			await get_tree().create_timer(action_delay).timeout
+		_:
+			await _execute_burst(player_actor, enemy_actor, power_mult)
+
+	if not enemy_actor.is_alive():
+		_enter_victory()
+
+func _execute_multi_hit(attacker: BattleActor, defender: BattleActor, power_mult: float, hit_count: int) -> void:
+	for i in range(hit_count):
+		if not defender.is_alive():
+			break
+		var result := _compute_skill_damage(attacker, defender, power_mult)
+		if not result.hit:
+			attack_missed.emit(defender)
+			_log("Hit %d: missed!" % (i + 1))
+		else:
+			defender.take_damage(result.amount)
+			_emit_hit(defender, result)
+			_log("Hit %d: %d damage." % [(i + 1), result.amount])
+		await get_tree().create_timer(0.3).timeout
+		if not defender.is_alive():
+			break
+
+func _execute_burst(attacker: BattleActor, defender: BattleActor, power_mult: float) -> void:
+	var result := _compute_skill_damage(attacker, defender, power_mult)
+	if not result.hit:
+		attack_missed.emit(defender)
+		_log("...but missed!")
+	else:
+		defender.take_damage(result.amount)
+		_emit_hit(defender, result)
+		_log_damage(defender, result.crit, result.amount)
+	await get_tree().create_timer(action_delay).timeout
+
+## Computes skill damage with a power multiplier applied to the base damage.
+func _compute_skill_damage(attacker: BattleActor, defender: BattleActor, power_mult: float) -> Dictionary:
+	var result := _compute_damage(attacker, defender)
+	if result.hit:
+		result.amount = int(result.amount * power_mult)
+	return result
+
 func _consume_item(item_id: String) -> void:
 	if not GameState.inventory.has(item_id):
 		return
@@ -278,6 +447,139 @@ func _do_enemy_turn() -> void:
 		_begin_player_turn()
 		return
 
+	# Enemy AI: randomly decide whether to use a skill (if available).
+	# When wounded (HP below ENEMY_LOW_HP_RATIO), the enemy uses skills more
+	# often and prioritises healing skills to stay alive.
+	var use_skill: bool = false
+	var skill_id: String = ""
+	var low_hp: bool = enemy_actor.hp_ratio() < ENEMY_LOW_HP_RATIO
+	var skill_chance: float = ENEMY_LOW_HP_SKILL_CHANCE if low_hp else ENEMY_SKILL_CHANCE
+	if not enemy_actor.skills.is_empty() and randf() < skill_chance:
+		if low_hp:
+			# Prefer healing skills when HP is low.
+			var healing_skills: Array[String] = []
+			for sid in enemy_actor.skills:
+				var sdata: Dictionary = DataLoader.get_skill(sid)
+				if String(sdata.get("effect", "")) == "heal_self":
+					healing_skills.append(sid)
+			if not healing_skills.is_empty():
+				skill_id = healing_skills[randi() % healing_skills.size()]
+			else:
+				skill_id = enemy_actor.skills[randi() % enemy_actor.skills.size()]
+		else:
+			skill_id = enemy_actor.skills[randi() % enemy_actor.skills.size()]
+		use_skill = not skill_id.is_empty()
+
+	if use_skill:
+		var skill: Dictionary = DataLoader.get_skill(skill_id)
+		if not skill.is_empty():
+			var skill_name: String = String(skill.get("name", skill_id))
+			var power_mult: float = float(skill.get("power_multiplier", 1.0))
+			var hit_count: int = int(skill.get("hit_count", 1))
+			var effect: String = String(skill.get("effect", ""))
+			_log("%s uses %s!" % [enemy_actor.name, skill_name])
+			await get_tree().create_timer(turn_delay).timeout
+
+			if effect == "multi_hit":
+				for i in range(hit_count):
+					if not player_actor.is_alive():
+						break
+					var result := _compute_skill_damage(enemy_actor, player_actor, power_mult)
+					if not result.hit:
+						attack_missed.emit(player_actor)
+						_log("Hit %d: missed!" % (i + 1))
+					else:
+						var amount: int = result.amount
+						if player_actor.defending:
+							amount = int(amount / 2.0)
+						var actual: int = player_actor.take_damage(amount)
+						GameState.take_damage(actual)
+						_emit_hit(player_actor, {"crit": result.crit, "amount": actual})
+						_log("Hit %d: %d damage." % [(i + 1), actual])
+					await get_tree().create_timer(0.3).timeout
+			elif effect == "debuff_defense":
+				var debuff_amount: float = float(skill.get("debuff_amount", 0.5))
+				var debuff_duration: int = int(skill.get("debuff_duration", 3))
+				player_actor.apply_status(BattleActor.STATUS_DEFENSE_DOWN, debuff_duration, debuff_amount)
+				_log("%s's defense reduced!" % player_actor.name)
+				await get_tree().create_timer(action_delay).timeout
+			elif effect == "heal_self":
+				var heal_percent: float = float(skill.get("heal_percent", 0.0))
+				var heal_amount: int = int(enemy_actor.max_hp * heal_percent)
+				var healed_amount: int = enemy_actor.heal(heal_amount)
+				healed.emit(enemy_actor, healed_amount)
+				_log("%s recovered %d HP!" % [enemy_actor.name, healed_amount])
+				await get_tree().create_timer(action_delay).timeout
+			elif effect == "poison_target":
+				var poison_duration: int = int(skill.get("poison_duration", 3))
+				player_actor.apply_status(BattleActor.STATUS_POISON, poison_duration)
+				_log("%s is poisoned!" % player_actor.name)
+				await get_tree().create_timer(action_delay).timeout
+				# Also deal normal burst damage at power_mult.
+				var presult := _compute_skill_damage(enemy_actor, player_actor, power_mult)
+				if not presult.hit:
+					attack_missed.emit(player_actor)
+					_log("...but missed!")
+				else:
+					var pamount: int = presult.amount
+					if player_actor.defending:
+						pamount = int(pamount / 2.0)
+					var pactual: int = player_actor.take_damage(pamount)
+					GameState.take_damage(pactual)
+					_emit_hit(player_actor, {"crit": presult.crit, "amount": pactual})
+					_log_damage(player_actor, presult.crit, pactual)
+			elif effect == "burn_target":
+				var burn_duration: int = int(skill.get("burn_duration", 3))
+				player_actor.apply_status(BattleActor.STATUS_BURN, burn_duration)
+				_log("%s is burning!" % player_actor.name)
+				await get_tree().create_timer(action_delay).timeout
+				# Also deal normal burst damage at power_mult.
+				var bresult := _compute_skill_damage(enemy_actor, player_actor, power_mult)
+				if not bresult.hit:
+					attack_missed.emit(player_actor)
+					_log("...but missed!")
+				else:
+					var bamount: int = bresult.amount
+					if player_actor.defending:
+						bamount = int(bamount / 2.0)
+					var bactual: int = player_actor.take_damage(bamount)
+					GameState.take_damage(bactual)
+					_emit_hit(player_actor, {"crit": bresult.crit, "amount": bactual})
+					_log_damage(player_actor, bresult.crit, bactual)
+			elif effect == "buff_attack":
+				var atk_buff_amount: float = float(skill.get("buff_amount", 0.5))
+				var atk_buff_duration: int = int(skill.get("buff_duration", 3))
+				enemy_actor.apply_status(BattleActor.STATUS_ATTACK_UP, atk_buff_duration, atk_buff_amount)
+				_log("%s's attack increased!" % enemy_actor.name)
+				await get_tree().create_timer(action_delay).timeout
+			elif effect == "buff_defense":
+				var def_buff_amount: float = float(skill.get("buff_amount", 0.5))
+				var def_buff_duration: int = int(skill.get("buff_duration", 3))
+				enemy_actor.apply_status(BattleActor.STATUS_DEFENSE_UP, def_buff_duration, def_buff_amount)
+				_log("%s's defense increased!" % enemy_actor.name)
+				await get_tree().create_timer(action_delay).timeout
+			else:
+				var result := _compute_skill_damage(enemy_actor, player_actor, power_mult)
+				if not result.hit:
+					attack_missed.emit(player_actor)
+					_log("...but missed!")
+				else:
+					var amount: int = result.amount
+					if player_actor.defending:
+						amount = int(amount / 2.0)
+					var actual: int = player_actor.take_damage(amount)
+					GameState.take_damage(actual)
+					_emit_hit(player_actor, {"crit": result.crit, "amount": actual})
+					_log_damage(player_actor, result.crit, actual)
+			await get_tree().create_timer(action_delay).timeout
+			player_actor.defending = false
+			if not player_actor.is_alive():
+				_enter_defeat()
+				return
+			_begin_player_turn()
+			return
+
+	# Normal attack.
 	_log("%s attacks!" % enemy_actor.name)
 	await get_tree().create_timer(turn_delay).timeout
 
@@ -292,6 +594,7 @@ func _do_enemy_turn() -> void:
 			amount = int(amount / 2.0)
 		var actual: int = player_actor.take_damage(amount)
 		GameState.take_damage(actual)  # keep global state in sync
+		AudioManager.play_sfx("hit")
 		# Re-emit with the (possibly halved) actual amount for the UI popup.
 		if result.crit:
 			critical_hit.emit(player_actor, actual)
@@ -314,15 +617,18 @@ func _do_enemy_turn() -> void:
 ##   { hit: bool, crit: bool, amount: int }
 func _compute_damage(attacker: BattleActor, defender: BattleActor) -> Dictionary:
 	# Miss chance: base 5% nudged by the speed gap (faster defenders dodge more).
+	# Also add evasion bonus from status effects (e.g. smokescreen).
 	var miss_chance: float = clampf(
-		BASE_MISS_CHANCE + (defender.speed - attacker.speed) * MISS_SPEED_FACTOR,
+		BASE_MISS_CHANCE + (defender.get_effective_speed() - attacker.get_effective_speed()) * MISS_SPEED_FACTOR,
 		MISS_CHANCE_MIN, MISS_CHANCE_MAX
 	)
+	miss_chance += defender.get_evasion_bonus()
 	if randf() < miss_chance:
 		return {"hit": false, "crit": false, "amount": 0}
 
 	# Core formula: atk - def +/- a small random variance, never below 1.
-	var base: int = maxi(1, attacker.attack - defender.defense + randi_range(-DMG_VARIANCE, DMG_VARIANCE))
+	# Uses effective stats (with status modifiers like defense_down).
+	var base: int = maxi(1, attacker.get_effective_attack() - defender.get_effective_defense() + randi_range(-DMG_VARIANCE, DMG_VARIANCE))
 
 	var crit: bool = randf() < CRIT_CHANCE
 	if crit:
@@ -333,7 +639,7 @@ func _compute_damage(attacker: BattleActor, defender: BattleActor) -> Dictionary
 ## Flee success chance: 60% base, +/- 2% per point of speed difference.
 func _flee_chance() -> float:
 	return clampf(
-		FLEE_BASE_CHANCE + (player_actor.speed - enemy_actor.speed) * FLEE_SPEED_FACTOR,
+		FLEE_BASE_CHANCE + (player_actor.get_effective_speed() - enemy_actor.get_effective_speed()) * FLEE_SPEED_FACTOR,
 		FLEE_CHANCE_MIN, FLEE_CHANCE_MAX
 	)
 
@@ -341,6 +647,8 @@ func _flee_chance() -> float:
 
 func _enter_victory() -> void:
 	_set_state(State.VICTORY)
+	AudioManager.play_bgm("victory_theme")
+	AudioManager.play_sfx("victory")
 	var exp_gained: int = int(enemy_data.get("exp", 0))
 	var gold_gained: int = int(enemy_data.get("gold", 0))
 	var is_bounty: bool = bool(enemy_data.get("is_bounty", false))
@@ -353,11 +661,14 @@ func _enter_victory() -> void:
 
 func _enter_defeat() -> void:
 	_set_state(State.DEFEAT)
+	AudioManager.play_bgm("game_over_theme")
+	AudioManager.play_sfx("defeat")
 	_log("You have been defeated...")
 	defeat.emit()
 
 func _enter_fled(used_item: bool) -> void:
 	_set_state(State.OUTRO)
+	AudioManager.play_sfx("flee")
 	fled.emit()
 	await get_tree().create_timer(action_delay).timeout
 	GameState.end_battle(GameState.BattleResult.FLED)

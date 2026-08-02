@@ -1,11 +1,12 @@
 {
 	"wasteland": {
 		"table": [
-			{ "enemy_id": "slime", "weight": 40 },
-			{ "enemy_id": "scavenger", "weight": 30 },
+			{ "enemy_id": "slime", "weight": 35 },
+			{ "enemy_id": "scavenger", "weight": 25 },
+			{ "enemy_id": "toxic_bloom", "weight": 15 },
 			{ "enemy_id": "bandit", "weight": 15 },
-			{ "enemy_id": "mutant_bear", "weight": 10 },
-			{ "enemy_id": "mech_drone", "weight": 5 }
+			{ "enemy_id": "mutant_bear", "weight": 7 },
+			{ "enemy_id": "mech_drone", "weight": 3 }
 		],
 		"encounter_rate": 0.08,
 		"min_steps": 5,
@@ -13,11 +14,13 @@
 	},
 	"ruins": {
 		"table": [
-			{ "enemy_id": "scavenger", "weight": 25 },
-			{ "enemy_id": "bandit", "weight": 25 },
-			{ "enemy_id": "mech_drone", "weight": 30 },
-			{ "enemy_id": "mutant_bear", "weight": 15 },
-			{ "enemy_id": "desert_worm", "weight": 5 }
+			{ "enemy_id": "scavenger", "weight": 20 },
+			{ "enemy_id": "toxic_bloom", "weight": 10 },
+			{ "enemy_id": "bandit", "weight": 20 },
+			{ "enemy_id": "raider_elite", "weight": 15 },
+			{ "enemy_id": "mech_drone", "weight": 20 },
+			{ "enemy_id": "sentry_bot", "weight": 10 },
+			{ "enemy_id": "mutant_bear", "weight": 5 }
 		],
 		"encounter_rate": 0.12,
 		"min_steps": 3,
@@ -25,14 +28,55 @@
 	},
 	"desert": {
 		"table": [
-			{ "enemy_id": "scavenger", "weight": 30 },
-			{ "enemy_id": "mutant_bear", "weight": 25 },
+			{ "enemy_id": "scavenger", "weight": 20 },
+			{ "enemy_id": "raider_elite", "weight": 15 },
+			{ "enemy_id": "mutant_bear", "weight": 20 },
 			{ "enemy_id": "desert_worm", "weight": 15 },
-			{ "enemy_id": "mech_drone", "weight": 20 },
-			{ "enemy_id": "iron_titan", "weight": 10 }
+			{ "enemy_id": "sentry_bot", "weight": 15 },
+			{ "enemy_id": "mech_drone", "weight": 10 },
+			{ "enemy_id": "iron_titan", "weight": 5 }
 		],
 		"encounter_rate": 0.10,
 		"min_steps": 4,
 		"max_steps": 18
+	},
+	"mountain_pass": {
+		"table": [
+			{ "enemy_id": "mutant_bear", "weight": 25 },
+			{ "enemy_id": "raider_elite", "weight": 20 },
+			{ "enemy_id": "sentry_bot", "weight": 20 },
+			{ "enemy_id": "mech_drone", "weight": 15 },
+			{ "enemy_id": "iron_titan", "weight": 10 },
+			{ "enemy_id": "steel_golem", "weight": 10 }
+		],
+		"encounter_rate": 0.12,
+		"min_steps": 3,
+		"max_steps": 12
+	},
+	"toxic_swamp": {
+		"table": [
+			{ "enemy_id": "toxic_bloom", "weight": 30 },
+			{ "enemy_id": "slime", "weight": 20 },
+			{ "enemy_id": "swamp_lurker", "weight": 20 },
+			{ "enemy_id": "scavenger", "weight": 15 },
+			{ "enemy_id": "mutant_bear", "weight": 10 },
+			{ "enemy_id": "desert_worm", "weight": 5 }
+		],
+		"encounter_rate": 0.14,
+		"min_steps": 2,
+		"max_steps": 10
+	},
+	"underground_lab": {
+		"table": [
+			{ "enemy_id": "mech_drone", "weight": 25 },
+			{ "enemy_id": "sentry_bot", "weight": 25 },
+			{ "enemy_id": "lab_security", "weight": 20 },
+			{ "enemy_id": "raider_elite", "weight": 15 },
+			{ "enemy_id": "iron_titan", "weight": 10 },
+			{ "enemy_id": "prototype_mech", "weight": 5 }
+		],
+		"encounter_rate": 0.15,
+		"min_steps": 2,
+		"max_steps": 8
 	}
 }

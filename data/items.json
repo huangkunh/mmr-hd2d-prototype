@@ -45,5 +45,79 @@
 		"price": 30,
 		"description": "Creates a smoke screen. Allows escaping from battle.",
 		"icon": "res://assets/ui/icon_smoke.png"
+	},
+	"antidote": {
+		"name": "Antidote",
+		"type": "cure",
+		"cures": ["poison"],
+		"price": 40,
+		"description": "Cures poison and toxic status effects.",
+		"icon": "res://assets/ui/icon_potion.png"
+	},
+	"energy_cell": {
+		"name": "Energy Cell",
+		"type": "buff",
+		"buff": "attack",
+		"buff_amount": 10,
+		"buff_duration": 5,
+		"price": 100,
+		"description": "Boosts attack power by 10 for 5 turns.",
+		"icon": "res://assets/ui/icon_potion.png"
+	},
+	"armor_plate": {
+		"name": "Temp Armor Plate",
+		"type": "buff",
+		"buff": "defense",
+		"buff_amount": 15,
+		"buff_duration": 5,
+		"price": 120,
+		"description": "Temporary armor reinforcement. +15 DEF for 5 turns.",
+		"icon": "res://assets/ui/icon_armor.png"
+	},
+	"tank_repair_kit_large": {
+		"name": "Heavy Repair Kit",
+		"type": "repair",
+		"repair_amount": 250,
+		"price": 250,
+		"description": "Industrial repair kit. Restores 250 tank SP.",
+		"icon": "res://assets/ui/icon_repair.png"
+	},
+	"potion_full": {
+		"name": "Nano Med Kit",
+		"type": "heal",
+		"hp_restore": 999,
+		"price": 500,
+		"description": "Advanced nanotech medical kit. Fully restores HP.",
+		"icon": "res://assets/ui/icon_potion.png"
+	},
+	"premium_fuel": {
+		"name": "Premium Fuel",
+		"type": "fuel",
+		"fuel_restore": 100,
+		"price": 100,
+		"description": "High-octane fuel. Refuels your tank to full.",
+		"icon": "res://assets/ui/icon_fuel.png"
+	},
+	"mega_repair_kit": {
+		"name": "Nano Repair Kit",
+		"type": "repair",
+		"repair_amount": 500,
+		"price": 400,
+		"description": "Nanotechnology repair system. Fully restores tank SP.",
+		"icon": "res://assets/ui/icon_repair.png"
+	},
+	"ancient_relic": {
+		"name": "Ancient Relic",
+		"type": "key",
+		"price": 0,
+		"description": "A mysterious artifact from the old world. May unlock hidden areas.",
+		"icon": "res://assets/ui/icon_potion.png"
+	},
+	"lab_keycard": {
+		"name": "Lab Keycard",
+		"type": "key",
+		"price": 0,
+		"description": "Security keycard for the underground laboratory.",
+		"icon": "res://assets/ui/icon_potion.png"
 	}
 }

@@ -26,6 +26,25 @@
 		"description": "Military-grade automatic weapon. High damage output.",
 		"icon": "res://assets/ui/icon_rifle.png"
 	},
+	"shotgun": {
+		"name": "Combat Shotgun",
+		"slot": "weapon",
+		"attack": 35,
+		"defense": 0,
+		"price": 600,
+		"description": "Devastating at close range. Spread damage ignores some defense.",
+		"icon": "res://assets/ui/icon_rifle.png"
+	},
+	"sniper_rifle": {
+		"name": "Sniper Rifle",
+		"slot": "weapon",
+		"attack": 55,
+		"defense": 0,
+		"price": 1500,
+		"description": "Precision long-range rifle. High crit chance, ignores defense.",
+		"icon": "res://assets/ui/icon_rifle.png",
+		"crit_bonus": 0.15
+	},
 	"leather_armor": {
 		"name": "Leather Jacket",
 		"slot": "armor",
@@ -42,6 +61,15 @@
 		"defense": 20,
 		"price": 600,
 		"description": "Pre-war military body armor. Sturdy and reliable.",
+		"icon": "res://assets/ui/icon_armor.png"
+	},
+	"power_armor": {
+		"name": "Power Armor",
+		"slot": "armor",
+		"attack": 5,
+		"defense": 35,
+		"price": 2500,
+		"description": "Experimental powered exoskeleton. Massive defense, slight attack boost.",
 		"icon": "res://assets/ui/icon_armor.png"
 	},
 	"tank_chassis_basic": {
@@ -98,6 +126,16 @@
 		"icon": "res://assets/ui/icon_subcannon.png",
 		"weight": 15
 	},
+	"subcannon_autocannon": {
+		"name": "Auto Cannon",
+		"slot": "sub_cannon",
+		"attack": 40,
+		"defense": 0,
+		"price": 1200,
+		"description": "Heavy autocannon. Fires explosive rounds. High single-target damage.",
+		"icon": "res://assets/ui/icon_subcannon.png",
+		"weight": 25
+	},
 	"se_missile": {
 		"name": "Missile Pod SE",
 		"slot": "se_unit",
@@ -107,6 +145,16 @@
 		"description": "Guided missiles. High damage, limited ammo.",
 		"icon": "res://assets/ui/icon_se.png",
 		"weight": 30
+	},
+	"se_flamethrower": {
+		"name": "Flamethrower SE",
+		"slot": "se_unit",
+		"attack": 45,
+		"defense": 0,
+		"price": 1500,
+		"description": "Projectiles of fire. Hits all enemies, chance to burn.",
+		"icon": "res://assets/ui/icon_se.png",
+		"weight": 20
 	},
 	"engine_v6": {
 		"name": "V6 Engine",
@@ -137,5 +185,86 @@
 		"description": "Control unit. Improves targeting accuracy.",
 		"icon": "res://assets/ui/icon_cunit.png",
 		"accuracy_bonus": 10
+	},
+	"c_unit_advanced": {
+		"name": "Advanced C-Unit",
+		"slot": "c_unit",
+		"attack": 5,
+		"defense": 10,
+		"price": 1500,
+		"description": "Military targeting computer. Boosts accuracy and fire control.",
+		"icon": "res://assets/ui/icon_cunit.png",
+		"accuracy_bonus": 20
+	},
+	"plasma_rifle": {
+		"name": "Plasma Rifle",
+		"slot": "weapon",
+		"attack": 70,
+		"defense": 0,
+		"price": 3000,
+		"description": "Energy weapon that fires superheated plasma. Ignores most defense.",
+		"icon": "res://assets/ui/icon_rifle.png",
+		"crit_bonus": 0.10
+	},
+	"tactical_armor": {
+		"name": "Tactical Armor",
+		"slot": "armor",
+		"attack": 3,
+		"defense": 28,
+		"price": 1200,
+		"description": "Advanced tactical gear. Balanced protection and mobility.",
+		"icon": "res://assets/ui/icon_armor.png"
+	},
+	"tank_chassis_stealth": {
+		"name": "Stealth Chassis",
+		"slot": "chassis",
+		"attack": 10,
+		"defense": 25,
+		"price": 3500,
+		"description": "Lightweight frame with stealth capabilities. High evasion.",
+		"icon": "res://assets/ui/icon_chassis.png",
+		"weight_cap": 80,
+		"slot_count": 5
+	},
+	"cannon_railgun": {
+		"name": "Railgun",
+		"slot": "main_cannon",
+		"attack": 120,
+		"defense": 0,
+		"price": 5000,
+		"description": "Electromagnetic accelerator. Fires projectiles at hypersonic speed.",
+		"icon": "res://assets/ui/icon_cannon.png",
+		"weight": 50,
+		"ammo_type": "AP"
+	},
+	"se_laser": {
+		"name": "Laser Cannon SE",
+		"slot": "se_unit",
+		"attack": 90,
+		"defense": 0,
+		"price": 4000,
+		"description": "Directed energy weapon. Unlimited ammo, high damage.",
+		"icon": "res://assets/ui/icon_se.png",
+		"weight": 25
+	},
+	"engine_fusion": {
+		"name": "Fusion Engine",
+		"slot": "engine",
+		"attack": 0,
+		"defense": 0,
+		"price": 6000,
+		"description": "Experimental fusion reactor. Provides 500 power.",
+		"icon": "res://assets/ui/icon_engine.png",
+		"power": 500
+	},
+	"c_unit_military": {
+		"name": "Military C-Unit",
+		"slot": "c_unit",
+		"attack": 10,
+		"defense": 15,
+		"price": 3000,
+		"description": "Top-grade targeting system. Maximizes combat effectiveness.",
+		"icon": "res://assets/ui/icon_cunit.png",
+		"accuracy_bonus": 30
 	}
 }

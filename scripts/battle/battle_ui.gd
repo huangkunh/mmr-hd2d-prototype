@@ -18,7 +18,7 @@ class_name BattleUI
 extends Control
 
 # --- UI interaction mode -----------------------------------------------------
-enum UIMode { NONE, COMMAND, ITEM, VICTORY, DEFEAT }
+enum UIMode { NONE, COMMAND, ITEM, SKILL, VICTORY, DEFEAT }
 
 # --- Palette (HD-2D dark / amber) -------------------------------------------
 const COL_PANEL_BG := Color(0.06, 0.05, 0.09, 0.86)
@@ -71,6 +71,12 @@ var _item_labels: Array = []
 var _item_ids: Array = []          # [item_id, ...]
 var _item_index: int = 0
 
+# Skill submenu
+var _skill_menu: Panel
+var _skill_labels: Array = []
+var _skill_ids: Array = []          # [skill_id, ...]
+var _skill_index: int = 0
+
 # HP bars
 var _player_hp_bar: Dictionary
 var _enemy_hp_bar: Dictionary
@@ -113,6 +119,7 @@ func _ready() -> void:
 
 	_commands = [
 		{id = BattleManager.ACTION_ATTACK, label = "Attack"},
+		{id = BattleManager.ACTION_SKILL, label = "Skill"},
 		{id = BattleManager.ACTION_DEFEND, label = "Defend"},
 		{id = BattleManager.ACTION_ITEM, label = "Item"},
 		{id = BattleManager.ACTION_FLEE, label = "Flee"},
@@ -150,6 +157,7 @@ func _build_ui() -> void:
 	_build_player_info()
 	_build_command_menu()
 	_build_item_menu()
+	_build_skill_menu()
 	_build_victory_screen()
 	_build_defeat_screen()
 
@@ -264,8 +272,8 @@ func _build_player_info() -> void:
 	_player_hp_bar.root.position = Vector2(16, 66)
 	panel.add_child(_player_hp_bar.root)
 
-	# Show a compact stat line under the bar.
-	var stats := _make_label("ATK %d   DEF %d   SPD %d" % [GameState.player_attack, GameState.player_defense, GameState.player_speed], COL_TEXT_DIM, 14, HORIZONTAL_ALIGNMENT_LEFT)
+	# Show a compact stat line under the bar (effective stats with equipment).
+	var stats := _make_label("ATK %d   DEF %d   SPD %d" % [GameState.get_effective_attack(), GameState.get_effective_defense(), GameState.get_effective_speed()], COL_TEXT_DIM, 14, HORIZONTAL_ALIGNMENT_LEFT)
 	stats.position = Vector2(16, 98)
 	stats.size = Vector2(w - 32, 22)
 	panel.add_child(stats)
@@ -328,6 +336,62 @@ func _build_item_menu() -> void:
 	var h: float = 240.0
 	_item_menu = _add_panel(_vp_size.x - w - 24.0, _vp_size.y - h - 24.0, w, h, _make_style(COL_PANEL_BG, COL_ACCENT, 2, 8))
 	_item_menu.visible = false
+
+func _build_skill_menu() -> void:
+	var w: float = 400.0
+	var h: float = 280.0
+	_skill_menu = _add_panel(_vp_size.x - w - 24.0, _vp_size.y - h - 24.0, w, h, _make_style(COL_PANEL_BG, COL_ACCENT, 2, 8))
+	_skill_menu.visible = false
+
+func _rebuild_skill_menu() -> void:
+	for child in _skill_menu.get_children():
+		child.queue_free()
+	_skill_labels.clear()
+	_skill_ids.clear()
+
+	var title := _make_label("SKILLS", COL_ACCENT, 16, HORIZONTAL_ALIGNMENT_CENTER)
+	title.position = Vector2(0, 8)
+	title.size = Vector2(_skill_menu.size.x, 22)
+	_skill_menu.add_child(title)
+
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	vbox.offset_left = 16
+	vbox.offset_top = 36
+	vbox.offset_right = -16
+	vbox.offset_bottom = -12
+	vbox.alignment = BoxContainer.ALIGNMENT_BEGIN
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skill_menu.add_child(vbox)
+
+	# Gather usable skills from the player actor.
+	if _player_actor and not _player_actor.skills.is_empty():
+		for skill_id in _player_actor.skills:
+			var skill: Dictionary = DataLoader.get_skill(String(skill_id))
+			if skill.is_empty():
+				continue
+			var skill_name: String = String(skill.get("name", skill_id))
+			var cooldown: int = 0
+			if GameState.skill_cooldowns.has(String(skill_id)):
+				cooldown = int(GameState.skill_cooldowns[String(skill_id)])
+			var detail: String = ""
+			if cooldown > 0:
+				detail = "  (CD: %d)" % cooldown
+			else:
+				var power_mult: float = float(skill.get("power_multiplier", 1.0))
+				var hits: int = int(skill.get("hit_count", 1))
+				detail = "  x%.1f, %d hits" % [power_mult, hits]
+			var l := _make_label("%s%s" % [skill_name, detail], COL_TEXT, 18, HORIZONTAL_ALIGNMENT_LEFT)
+			l.custom_minimum_size = Vector2(0, 32)
+			vbox.add_child(l)
+			_skill_labels.append(l)
+			_skill_ids.append(String(skill_id))
+	else:
+		var l := _make_label("(No skills available)", COL_TEXT_DIM, 16, HORIZONTAL_ALIGNMENT_LEFT)
+		l.custom_minimum_size = Vector2(0, 32)
+		vbox.add_child(l)
+
+	_skill_index = 0
 
 func _rebuild_item_menu() -> void:
 	for child in _item_menu.get_children():
@@ -464,6 +528,11 @@ func _navigate(dir: int) -> void:
 				return
 			_item_index = posmod(_item_index + dir, _item_ids.size())
 			_refresh_item_highlight()
+		UIMode.SKILL:
+			if _skill_ids.is_empty():
+				return
+			_skill_index = posmod(_skill_index + dir, _skill_ids.size())
+			_refresh_skill_highlight()
 
 func _on_confirm() -> void:
 	match _ui_mode:
@@ -471,6 +540,8 @@ func _on_confirm() -> void:
 			var action: String = _commands[_cmd_index].id
 			if action == BattleManager.ACTION_ITEM:
 				_open_item_menu()
+			elif action == BattleManager.ACTION_SKILL:
+				_open_skill_menu()
 			else:
 				_close_command_menu()
 				_ui_mode = UIMode.NONE
@@ -484,6 +555,19 @@ func _on_confirm() -> void:
 				_close_item_menu()
 				_ui_mode = UIMode.NONE
 				_manager.select_action(BattleManager.ACTION_ITEM, item_id)
+		UIMode.SKILL:
+			if _skill_ids.is_empty():
+				_close_skill_menu()
+				_open_command_menu()
+			else:
+				var skill_id: String = _skill_ids[_skill_index]
+				# Check if skill is on cooldown.
+				if not GameState.can_use_skill(skill_id):
+					_append_log("Skill is on cooldown!")
+					return
+				_close_skill_menu()
+				_ui_mode = UIMode.NONE
+				_manager.select_action(BattleManager.ACTION_SKILL, "", skill_id)
 		UIMode.VICTORY, UIMode.DEFEAT:
 			_ui_mode = UIMode.NONE
 			_manager.confirm_proceed()
@@ -492,6 +576,9 @@ func _on_cancel() -> void:
 	match _ui_mode:
 		UIMode.ITEM:
 			_close_item_menu()
+			_open_command_menu()
+		UIMode.SKILL:
+			_close_skill_menu()
 			_open_command_menu()
 
 # --- Command / item menu control --------------------------------------------
@@ -539,6 +626,43 @@ func _close_item_menu() -> void:
 	if is_instance_valid(_item_menu):
 		_item_menu.visible = false
 
+func _open_skill_menu() -> void:
+	_rebuild_skill_menu()
+	_skill_menu.visible = true
+	_skill_menu.modulate.a = 0.0
+	var tw := create_tween()
+	tw.tween_property(_skill_menu, "modulate:a", 1.0, 0.15)
+	if _skill_ids.is_empty():
+		_append_log("You have no usable skills.")
+	_refresh_skill_highlight()
+	_command_menu.visible = false
+	_ui_mode = UIMode.SKILL
+
+func _close_skill_menu() -> void:
+	if not is_instance_valid(_skill_menu):
+		return
+	var tw := create_tween()
+	tw.tween_property(_skill_menu, "modulate:a", 0.0, 0.10)
+	await tw.finished
+	if is_instance_valid(_skill_menu):
+		_skill_menu.visible = false
+
+func _refresh_skill_highlight() -> void:
+	for i in range(_skill_labels.size()):
+		var l: Label = _skill_labels[i]
+		if not l.has_meta("raw"):
+			l.set_meta("raw", l.text)
+		var selected: bool = (i == _skill_index)
+		l.text = ("> " if selected else "  ") + String(l.get_meta("raw"))
+		# Grey out skills on cooldown.
+		var on_cd: bool = false
+		if i < _skill_ids.size():
+			on_cd = not GameState.can_use_skill(_skill_ids[i])
+		if on_cd:
+			l.add_theme_color_override("font_color", COL_TEXT_DIM)
+		else:
+			l.add_theme_color_override("font_color", COL_ACCENT if selected else COL_TEXT)
+
 func _refresh_command_highlight() -> void:
 	for i in range(_command_labels.size()):
 		var l: Label = _command_labels[i]
@@ -581,13 +705,15 @@ func _on_actors_ready(p_actor: BattleActor, e_actor: BattleActor) -> void:
 func _on_state_changed(state: int) -> void:
 	# Close menus whenever we leave the player's turn.
 	if state != BattleManager.State.PLAYER_TURN:
-		if _ui_mode == UIMode.COMMAND or _ui_mode == UIMode.ITEM:
+		if _ui_mode == UIMode.COMMAND or _ui_mode == UIMode.ITEM or _ui_mode == UIMode.SKILL:
 			_ui_mode = UIMode.NONE
 		# Hide menus (without animation) during processing / enemy turn.
 		if is_instance_valid(_command_menu):
 			_command_menu.visible = false
 		if is_instance_valid(_item_menu):
 			_item_menu.visible = false
+		if is_instance_valid(_skill_menu):
+			_skill_menu.visible = false
 
 func _on_battle_log(message: String) -> void:
 	_append_log(message)
@@ -638,6 +764,8 @@ func _on_fled() -> void:
 		_command_menu.visible = false
 	if is_instance_valid(_item_menu):
 		_item_menu.visible = false
+	if is_instance_valid(_skill_menu):
+		_skill_menu.visible = false
 
 # --- Helpers: sprites, popups, bars, log ------------------------------------
 

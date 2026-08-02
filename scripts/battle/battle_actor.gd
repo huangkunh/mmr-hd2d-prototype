@@ -8,6 +8,11 @@
 ## damage formulas, or the global GameState. The BattleManager computes final
 ## damage (applying crits, misses and defend modifiers) and feeds the result
 ## into `take_damage()`.
+##
+## Status Effects:
+##   The actor tracks temporary status effects (poison, defense_down,
+##   evasion_up, attack_up, defense_up) that modify combat behaviour.
+##   The manager calls tick_status_effects() at the start of each round.
 class_name BattleActor
 extends RefCounted
 
@@ -18,6 +23,17 @@ signal hp_changed(current: int, maximum: int)
 
 ## Emitted once when HP reaches 0.
 signal died()
+
+## Emitted when a status effect is applied or removed.
+signal status_changed()
+
+# --- Status effect identifiers -----------------------------------------------
+const STATUS_POISON := "poison"
+const STATUS_DEFENSE_DOWN := "defense_down"
+const STATUS_EVASION_UP := "evasion_up"
+const STATUS_ATTACK_UP := "attack_up"
+const STATUS_DEFENSE_UP := "defense_up"
+const STATUS_BURN := "burn"
 
 # --- Properties --------------------------------------------------------------
 
@@ -34,6 +50,12 @@ var sprite_path: String = ""
 ## Transient combat flag set by the BattleManager when the actor chose to
 ## defend. The manager reads it back to halve the next incoming hit.
 var defending: bool = false
+
+## Status effects: { effect_id: { "duration": int, "amount": float } }
+var status_effects: Dictionary = {}
+
+## Skill IDs this actor can use (populated from data or learned skills).
+var skills: Array[String] = []
 
 # --- Constructor -------------------------------------------------------------
 
@@ -84,20 +106,116 @@ func hp_ratio() -> float:
 		return 0.0
 	return float(hp) / float(max_hp)
 
+# --- Effective stats (with status modifiers) ---------------------------------
+
+## Returns the effective attack, applying attack_up buff if active.
+func get_effective_attack() -> int:
+	var total := attack
+	if status_effects.has(STATUS_ATTACK_UP):
+		var amount: float = float(status_effects[STATUS_ATTACK_UP].get("amount", 0.0))
+		total = int(total * (1.0 + amount))
+	return total
+
+## Returns the effective defense, applying defense_up/defense_down modifiers.
+func get_effective_defense() -> int:
+	var total := defense
+	if status_effects.has(STATUS_DEFENSE_UP):
+		var amount: float = float(status_effects[STATUS_DEFENSE_UP].get("amount", 0.0))
+		total = int(total * (1.0 + amount))
+	if status_effects.has(STATUS_DEFENSE_DOWN):
+		var amount: float = float(status_effects[STATUS_DEFENSE_DOWN].get("amount", 0.0))
+		total = int(total * (1.0 - amount))
+	return maxi(0, total)
+
+## Returns the effective speed (currently no speed modifiers).
+func get_effective_speed() -> int:
+	return speed
+
+## Returns the evasion bonus from evasion_up status (0.0 to 1.0).
+func get_evasion_bonus() -> float:
+	if status_effects.has(STATUS_EVASION_UP):
+		return float(status_effects[STATUS_EVASION_UP].get("amount", 0.0))
+	return 0.0
+
+# --- Status effects ----------------------------------------------------------
+
+## Applies a status effect with the given duration and amount.
+## amount is a multiplier (e.g. 0.5 for 50% defense down).
+func apply_status(effect_id: String, duration: int, amount: float = 0.0) -> void:
+	status_effects[effect_id] = {"duration": duration, "amount": amount}
+	status_changed.emit()
+
+## Returns true if the actor has the given status effect.
+func has_status(effect_id: String) -> bool:
+	return status_effects.has(effect_id)
+
+## Removes a status effect immediately.
+func remove_status(effect_id: String) -> void:
+	if status_effects.has(effect_id):
+		status_effects.erase(effect_id)
+		status_changed.emit()
+
+## Ticks all status effects at the start of a round. Returns a dictionary of
+## effects that expired this tick: { effect_id: true }
+## Also applies poison/burn damage and returns it in the dict.
+func tick_status_effects() -> Dictionary:
+	var expired: Dictionary = {}
+	var damage_taken: int = 0
+
+	# Apply damage from poison/burn first.
+	if status_effects.has(STATUS_POISON):
+		var poison_dmg: int = maxi(1, int(max_hp * 0.05))  # 5% max HP per turn
+		damage_taken += poison_dmg
+	if status_effects.has(STATUS_BURN):
+		var burn_dmg: int = maxi(1, int(max_hp * 0.08))  # 8% max HP per turn
+		damage_taken += burn_dmg
+
+	if damage_taken > 0:
+		take_damage(damage_taken)
+
+	# Decrement durations.
+	for effect_id in status_effects.keys():
+		status_effects[effect_id]["duration"] = int(status_effects[effect_id]["duration"]) - 1
+		if int(status_effects[effect_id]["duration"]) <= 0:
+			expired[effect_id] = true
+
+	# Remove expired effects.
+	for effect_id in expired:
+		status_effects.erase(effect_id)
+
+	if not expired.is_empty():
+		status_changed.emit()
+
+	return {"expired": expired, "damage": damage_taken}
+
+## Returns a human-readable summary of active status effects.
+func get_status_summary() -> String:
+	if status_effects.is_empty():
+		return ""
+	var parts: Array[String] = []
+	for effect_id in status_effects:
+		var duration: int = int(status_effects[effect_id].get("duration", 0))
+		var label: String = effect_id.replace("_", " ").capitalize()
+		parts.append("%s(%d)" % [label, duration])
+	return ", ".join(parts)
+
 # --- Factory helpers ---------------------------------------------------------
 
 ## Build a BattleActor initialised from the global GameState player stats.
+## Uses effective stats (including equipment bonuses).
 static func create_from_player() -> BattleActor:
 	var actor := BattleActor.new()
 	actor.name = GameState.player_name
 	actor.is_player = true
 	actor.max_hp = GameState.player_max_hp
 	actor.hp = GameState.player_hp
-	actor.attack = GameState.player_attack
-	actor.defense = GameState.player_defense
-	actor.speed = GameState.player_speed
-	# Placeholder battle sprite path; the user can drop the real asset in later.
+	# Use effective stats that include weapon/armor bonuses.
+	actor.attack = GameState.get_effective_attack()
+	actor.defense = GameState.get_effective_defense()
+	actor.speed = GameState.get_effective_speed()
 	actor.sprite_path = "res://assets/sprites/player_battle.png"
+	# Populate learned skills.
+	actor.skills = GameState.learned_skills.duplicate()
 	return actor
 
 ## Build a BattleActor initialised from an enemy data dictionary returned by
@@ -112,4 +230,8 @@ static func create_from_enemy(enemy_data: Dictionary) -> BattleActor:
 	actor.defense = int(enemy_data.get("defense", 0))
 	actor.speed = int(enemy_data.get("speed", 1))
 	actor.sprite_path = String(enemy_data.get("sprite", ""))
+	# Populate enemy skills from data.
+	var enemy_skills: Array = enemy_data.get("skills", [])
+	for skill_id in enemy_skills:
+		actor.skills.append(String(skill_id))
 	return actor

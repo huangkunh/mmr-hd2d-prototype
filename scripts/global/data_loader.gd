@@ -9,6 +9,9 @@ var encounters: Dictionary = {}
 var dialogues: Dictionary = {}
 var items: Dictionary = {}
 var maps: Dictionary = {}
+var skills: Dictionary = {}
+var quests: Dictionary = {}
+var shops: Dictionary = {}
 
 func _ready() -> void:
 	_load_all()
@@ -20,8 +23,12 @@ func _load_all() -> void:
 	dialogues = _load_json("res://data/dialogues.json")
 	items = _load_json("res://data/items.json")
 	maps = _load_json("res://data/maps.json")
-	print("[DataLoader] Loaded %d enemies, %d equipment, %d encounters, %d items"
-		% [enemies.size(), equipment.size(), encounters.size(), items.size()])
+	skills = _load_json("res://data/skills.json")
+	quests = _load_json("res://data/quests.json")
+	shops = _load_json("res://data/shops.json")
+	print("[DataLoader] Loaded %d enemies, %d equipment, %d encounters, %d items, %d skills, %d quests, %d shops"
+		% [enemies.size(), equipment.size(), encounters.size(), items.size(),
+		   skills.size(), quests.size(), shops.size()])
 
 func _load_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
@@ -96,3 +103,47 @@ func get_dialogue(id: String) -> Dictionary:
 # --- Map API ---
 func get_map_data(map_id: String) -> Dictionary:
 	return maps.get(map_id, {})
+
+func get_map_list() -> Array:
+	return maps.keys()
+
+# --- Skill API ---
+func get_skill(id: String) -> Dictionary:
+	return skills.get(id, {})
+
+func get_skill_list() -> Array:
+	return skills.keys()
+
+func get_skills_by_type(type: String) -> Array:
+	var result := []
+	for id in skills:
+		if String(skills[id].get("type", "")) == type:
+			result.append(id)
+	return result
+
+# --- Quest API ---
+func get_quest(id: String) -> Dictionary:
+	return quests.get(id, {})
+
+func get_quest_list() -> Array:
+	return quests.keys()
+
+func get_bounty_quests() -> Array:
+	var result := []
+	for id in quests:
+		var q: Dictionary = quests[id]
+		if String(q.get("type", "")) == "bounty":
+			result.append(id)
+	return result
+
+# --- Shop API ---
+func get_shop(id: String) -> Dictionary:
+	return shops.get(id, {})
+
+func get_shop_items(shop_id: String) -> Array:
+	var shop: Dictionary = shops.get(shop_id, {})
+	return shop.get("items", [])
+
+func get_shop_equipment(shop_id: String) -> Array:
+	var shop: Dictionary = shops.get(shop_id, {})
+	return shop.get("equipment", [])
