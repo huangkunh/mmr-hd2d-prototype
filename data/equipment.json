@@ -1,314 +1,314 @@
 {
-	"pistol": {
-		"name": "Rusty Pistol",
-		"slot": "weapon",
-		"attack": 10,
-		"defense": 0,
-		"price": 0,
-		"description": "A battered sidearm. Better than bare fists.",
-		"icon": "res://assets/ui/icon_pistol.png"
-	},
-	"rifle": {
-		"name": "Hunting Rifle",
-		"slot": "weapon",
-		"attack": 25,
-		"defense": 0,
-		"price": 300,
-		"description": "Reliable long-range weapon. Popular among hunters.",
-		"icon": "res://assets/ui/icon_rifle.png"
-	},
-	"assault_rifle": {
-		"name": "Assault Rifle",
-		"slot": "weapon",
-		"attack": 40,
-		"defense": 0,
-		"price": 800,
-		"description": "Military-grade automatic weapon. High damage output.",
-		"icon": "res://assets/ui/icon_rifle.png"
-	},
-	"shotgun": {
-		"name": "Combat Shotgun",
-		"slot": "weapon",
-		"attack": 35,
-		"defense": 0,
-		"price": 600,
-		"description": "Devastating at close range. Spread damage ignores some defense.",
-		"icon": "res://assets/ui/icon_rifle.png"
-	},
-	"sniper_rifle": {
-		"name": "Sniper Rifle",
-		"slot": "weapon",
-		"attack": 55,
-		"defense": 0,
-		"price": 1500,
-		"description": "Precision long-range rifle. High crit chance, ignores defense.",
-		"icon": "res://assets/ui/icon_rifle.png",
-		"crit_bonus": 0.15
-	},
-	"leather_armor": {
-		"name": "Leather Jacket",
-		"slot": "armor",
-		"attack": 0,
-		"defense": 8,
-		"price": 150,
-		"description": "Reinforced leather. Offers basic protection.",
-		"icon": "res://assets/ui/icon_armor.png"
-	},
-	"combat_armor": {
-		"name": "Combat Armor",
-		"slot": "armor",
-		"attack": 0,
-		"defense": 20,
-		"price": 600,
-		"description": "Pre-war military body armor. Sturdy and reliable.",
-		"icon": "res://assets/ui/icon_armor.png"
-	},
-	"power_armor": {
-		"name": "Power Armor",
-		"slot": "armor",
-		"attack": 5,
-		"defense": 35,
-		"price": 2500,
-		"description": "Experimental powered exoskeleton. Massive defense, slight attack boost.",
-		"icon": "res://assets/ui/icon_armor.png"
-	},
-	"tank_chassis_basic": {
-		"name": "Standard Chassis",
-		"slot": "chassis",
-		"attack": 0,
-		"defense": 30,
-		"price": 0,
-		"description": "Basic tank frame. Balanced stats.",
-		"icon": "res://assets/ui/icon_chassis.png",
-		"weight_cap": 100,
-		"slot_count": 4
-	},
-	"tank_chassis_heavy": {
-		"name": "Heavy Chassis",
-		"slot": "chassis",
-		"attack": 0,
-		"defense": 50,
-		"price": 2000,
-		"description": "Reinforced frame. Slow but very durable.",
-		"icon": "res://assets/ui/icon_chassis.png",
-		"weight_cap": 150,
-		"slot_count": 3
-	},
-	"cannon_105mm": {
-		"name": "105mm Cannon",
-		"slot": "main_cannon",
-		"attack": 60,
-		"defense": 0,
-		"price": 1200,
-		"description": "Standard main gun. Good all-around damage.",
-		"icon": "res://assets/ui/icon_cannon.png",
-		"weight": 40,
-		"ammo_type": "AP"
-	},
-	"cannon_155mm": {
-		"name": "155mm Howitzer",
-		"slot": "main_cannon",
-		"attack": 90,
-		"defense": 0,
-		"price": 3000,
-		"description": "Massive gun. Devastating but heavy.",
-		"icon": "res://assets/ui/icon_cannon.png",
-		"weight": 60,
-		"ammo_type": "HE"
-	},
-	"subcannon_machinegun": {
-		"name": "Twin Machine Gun",
-		"slot": "sub_cannon",
-		"attack": 25,
-		"defense": 0,
-		"price": 500,
-		"description": "Rapid-fire anti-personnel weapon. Hits multiple times.",
-		"icon": "res://assets/ui/icon_subcannon.png",
-		"weight": 15
-	},
-	"subcannon_autocannon": {
-		"name": "Auto Cannon",
-		"slot": "sub_cannon",
-		"attack": 40,
-		"defense": 0,
-		"price": 1200,
-		"description": "Heavy autocannon. Fires explosive rounds. High single-target damage.",
-		"icon": "res://assets/ui/icon_subcannon.png",
-		"weight": 25
-	},
-	"se_missile": {
-		"name": "Missile Pod SE",
-		"slot": "se_unit",
-		"attack": 70,
-		"defense": 0,
-		"price": 2500,
-		"description": "Guided missiles. High damage, multi-hit.",
-		"icon": "res://assets/ui/icon_se.png",
-		"weight": 30,
-		"se_type": "missile",
-		"se_hits": 4
-	},
-	"se_flamethrower": {
-		"name": "Flamethrower SE",
-		"slot": "se_unit",
-		"attack": 45,
-		"defense": 0,
-		"price": 1500,
-		"description": "Projects fire. Chance to burn the enemy for 3 turns.",
-		"icon": "res://assets/ui/icon_se.png",
-		"weight": 20,
-		"se_type": "flamethrower",
-		"se_burn_chance": 0.7,
-		"se_burn_duration": 3
-	},
-	"engine_v6": {
-		"name": "V6 Engine",
-		"slot": "engine",
-		"attack": 0,
-		"defense": 0,
-		"price": 800,
-		"description": "Standard engine. Provides 150 power.",
-		"icon": "res://assets/ui/icon_engine.png",
-		"power": 150
-	},
-	"engine_v12": {
-		"name": "V12 Turbo Engine",
-		"slot": "engine",
-		"attack": 0,
-		"defense": 0,
-		"price": 3000,
-		"description": "High-performance engine. Provides 300 power.",
-		"icon": "res://assets/ui/icon_engine.png",
-		"power": 300
-	},
-	"c_unit_basic": {
-		"name": "Basic C-Unit",
-		"slot": "c_unit",
-		"attack": 0,
-		"defense": 5,
-		"price": 400,
-		"description": "Control unit. Improves targeting accuracy.",
-		"icon": "res://assets/ui/icon_cunit.png",
-		"accuracy_bonus": 10
-	},
-	"c_unit_advanced": {
-		"name": "Advanced C-Unit",
-		"slot": "c_unit",
-		"attack": 5,
-		"defense": 10,
-		"price": 1500,
-		"description": "Military targeting computer. Boosts accuracy and fire control.",
-		"icon": "res://assets/ui/icon_cunit.png",
-		"accuracy_bonus": 20
-	},
-	"plasma_rifle": {
-		"name": "Plasma Rifle",
-		"slot": "weapon",
-		"attack": 70,
-		"defense": 0,
-		"price": 3000,
-		"description": "Energy weapon that fires superheated plasma. Ignores most defense.",
-		"icon": "res://assets/ui/icon_rifle.png",
-		"crit_bonus": 0.10
-	},
-	"tactical_armor": {
-		"name": "Tactical Armor",
-		"slot": "armor",
-		"attack": 3,
-		"defense": 28,
-		"price": 1200,
-		"description": "Advanced tactical gear. Balanced protection and mobility.",
-		"icon": "res://assets/ui/icon_armor.png"
-	},
-	"tank_chassis_stealth": {
-		"name": "Stealth Chassis",
-		"slot": "chassis",
-		"attack": 10,
-		"defense": 25,
-		"price": 3500,
-		"description": "Lightweight frame with stealth capabilities. High evasion.",
-		"icon": "res://assets/ui/icon_chassis.png",
-		"weight_cap": 80,
-		"slot_count": 5
-	},
-	"cannon_railgun": {
-		"name": "Railgun",
-		"slot": "main_cannon",
-		"attack": 120,
-		"defense": 0,
-		"price": 5000,
-		"description": "Electromagnetic accelerator. Fires projectiles at hypersonic speed.",
-		"icon": "res://assets/ui/icon_cannon.png",
-		"weight": 50,
-		"ammo_type": "AP"
-	},
-	"se_laser": {
-		"name": "Laser Cannon SE",
-		"slot": "se_unit",
-		"attack": 90,
-		"defense": 0,
-		"price": 4000,
-		"description": "Directed energy weapon. Ignores defense, high single-hit damage.",
-		"icon": "res://assets/ui/icon_se.png",
-		"weight": 25,
-		"se_type": "laser"
-	},
-	"se_smoke": {
-		"name": "Smoke Launcher SE",
-		"slot": "se_unit",
-		"attack": 0,
-		"defense": 5,
-		"price": 1200,
-		"description": "Deploys smoke screen. Boosts evasion by 70% for 3 turns.",
-		"icon": "res://assets/ui/icon_se.png",
-		"weight": 15,
-		"se_type": "smoke",
-		"se_evasion_amount": 0.7,
-		"se_evasion_duration": 3
-	},
-	"se_repair": {
-		"name": "Repair Drone SE",
-		"slot": "se_unit",
-		"attack": 0,
-		"defense": 0,
-		"price": 2000,
-		"description": "Automated repair drone. Restores 80 tank SP per use.",
-		"icon": "res://assets/ui/icon_se.png",
-		"weight": 20,
-		"se_type": "repair",
-		"se_repair_amount": 80
-	},
-	"se_earthquake": {
-		"name": "Earthquake Bomb SE",
-		"slot": "se_unit",
-		"attack": 100,
-		"defense": 0,
-		"price": 5000,
-		"description": "Seismic weapon. Devastating AoE damage with defense break.",
-		"icon": "res://assets/ui/icon_se.png",
-		"weight": 35,
-		"se_type": "earthquake",
-		"se_defense_break": 0.4,
-		"se_defense_break_duration": 2
-	},
-	"engine_fusion": {
-		"name": "Fusion Engine",
-		"slot": "engine",
-		"attack": 0,
-		"defense": 0,
-		"price": 6000,
-		"description": "Experimental fusion reactor. Provides 500 power.",
-		"icon": "res://assets/ui/icon_engine.png",
-		"power": 500
-	},
-	"c_unit_military": {
-		"name": "Military C-Unit",
-		"slot": "c_unit",
-		"attack": 10,
-		"defense": 15,
-		"price": 3000,
-		"description": "Top-grade targeting system. Maximizes combat effectiveness.",
-		"icon": "res://assets/ui/icon_cunit.png",
-		"accuracy_bonus": 30
-	}
+        "pistol": {
+                "name": "Rusty Pistol",
+                "slot": "weapon",
+                "attack": 10,
+                "defense": 0,
+                "price": 0,
+                "description": "A battered sidearm. Better than bare fists.",
+                "icon": "res://assets/ui/icon_pistol.png"
+        },
+        "rifle": {
+                "name": "Hunting Rifle",
+                "slot": "weapon",
+                "attack": 25,
+                "defense": 0,
+                "price": 300,
+                "description": "Reliable long-range weapon. Popular among hunters.",
+                "icon": "res://assets/ui/icon_rifle.png"
+        },
+        "assault_rifle": {
+                "name": "Assault Rifle",
+                "slot": "weapon",
+                "attack": 40,
+                "defense": 0,
+                "price": 800,
+                "description": "Military-grade automatic weapon. High damage output.",
+                "icon": "res://assets/ui/icon_rifle.png"
+        },
+        "shotgun": {
+                "name": "Combat Shotgun",
+                "slot": "weapon",
+                "attack": 35,
+                "defense": 0,
+                "price": 600,
+                "description": "Devastating at close range. Spread damage ignores some defense.",
+                "icon": "res://assets/ui/icon_rifle.png"
+        },
+        "sniper_rifle": {
+                "name": "狙击枪",
+                "slot": "weapon",
+                "attack": 55,
+                "defense": 0,
+                "price": 1500,
+                "description": "Precision long-range rifle. High crit chance, ignores defense.",
+                "icon": "res://assets/ui/icon_rifle.png",
+                "crit_bonus": 0.15
+        },
+        "leather_armor": {
+                "name": "Leather Jacket",
+                "slot": "armor",
+                "attack": 0,
+                "defense": 8,
+                "price": 150,
+                "description": "Reinforced leather. Offers basic protection.",
+                "icon": "res://assets/ui/icon_armor.png"
+        },
+        "combat_armor": {
+                "name": "Combat Armor",
+                "slot": "armor",
+                "attack": 0,
+                "defense": 20,
+                "price": 600,
+                "description": "Pre-war military body armor. Sturdy and reliable.",
+                "icon": "res://assets/ui/icon_armor.png"
+        },
+        "power_armor": {
+                "name": "动力装甲",
+                "slot": "armor",
+                "attack": 5,
+                "defense": 35,
+                "price": 2500,
+                "description": "Experimental powered exoskeleton. Massive defense, slight attack boost.",
+                "icon": "res://assets/ui/icon_armor.png"
+        },
+        "tank_chassis_basic": {
+                "name": "Standard Chassis",
+                "slot": "chassis",
+                "attack": 0,
+                "defense": 30,
+                "price": 0,
+                "description": "Basic tank frame. Balanced stats.",
+                "icon": "res://assets/ui/icon_chassis.png",
+                "weight_cap": 100,
+                "slot_count": 4
+        },
+        "tank_chassis_heavy": {
+                "name": "重型底盘",
+                "slot": "chassis",
+                "attack": 0,
+                "defense": 50,
+                "price": 2000,
+                "description": "Reinforced frame. Slow but very durable.",
+                "icon": "res://assets/ui/icon_chassis.png",
+                "weight_cap": 150,
+                "slot_count": 3
+        },
+        "cannon_105mm": {
+                "name": "105mm Cannon",
+                "slot": "main_cannon",
+                "attack": 60,
+                "defense": 0,
+                "price": 1200,
+                "description": "Standard main gun. Good all-around damage.",
+                "icon": "res://assets/ui/icon_cannon.png",
+                "weight": 40,
+                "ammo_type": "AP"
+        },
+        "cannon_155mm": {
+                "name": "155mm Howitzer",
+                "slot": "main_cannon",
+                "attack": 90,
+                "defense": 0,
+                "price": 3000,
+                "description": "Massive gun. Devastating but heavy.",
+                "icon": "res://assets/ui/icon_cannon.png",
+                "weight": 60,
+                "ammo_type": "HE"
+        },
+        "subcannon_machinegun": {
+                "name": "Twin Machine Gun",
+                "slot": "sub_cannon",
+                "attack": 25,
+                "defense": 0,
+                "price": 500,
+                "description": "Rapid-fire anti-personnel weapon. Hits multiple times.",
+                "icon": "res://assets/ui/icon_subcannon.png",
+                "weight": 15
+        },
+        "subcannon_autocannon": {
+                "name": "Auto Cannon",
+                "slot": "sub_cannon",
+                "attack": 40,
+                "defense": 0,
+                "price": 1200,
+                "description": "Heavy autocannon. Fires explosive rounds. High single-target damage.",
+                "icon": "res://assets/ui/icon_subcannon.png",
+                "weight": 25
+        },
+        "se_missile": {
+                "name": "Missile Pod SE",
+                "slot": "se_unit",
+                "attack": 70,
+                "defense": 0,
+                "price": 2500,
+                "description": "Guided missiles. High damage, multi-hit.",
+                "icon": "res://assets/ui/icon_se.png",
+                "weight": 30,
+                "se_type": "missile",
+                "se_hits": 4
+        },
+        "se_flamethrower": {
+                "name": "Flamethrower SE",
+                "slot": "se_unit",
+                "attack": 45,
+                "defense": 0,
+                "price": 1500,
+                "description": "Projects fire. Chance to burn the enemy for 3 turns.",
+                "icon": "res://assets/ui/icon_se.png",
+                "weight": 20,
+                "se_type": "flamethrower",
+                "se_burn_chance": 0.7,
+                "se_burn_duration": 3
+        },
+        "engine_v6": {
+                "name": "V6 Engine",
+                "slot": "engine",
+                "attack": 0,
+                "defense": 0,
+                "price": 800,
+                "description": "Standard engine. Provides 150 power.",
+                "icon": "res://assets/ui/icon_engine.png",
+                "power": 150
+        },
+        "engine_v12": {
+                "name": "V12 Turbo Engine",
+                "slot": "engine",
+                "attack": 0,
+                "defense": 0,
+                "price": 3000,
+                "description": "High-performance engine. Provides 300 power.",
+                "icon": "res://assets/ui/icon_engine.png",
+                "power": 300
+        },
+        "c_unit_basic": {
+                "name": "Basic C-Unit",
+                "slot": "c_unit",
+                "attack": 0,
+                "defense": 5,
+                "price": 400,
+                "description": "Control unit. Improves targeting accuracy.",
+                "icon": "res://assets/ui/icon_cunit.png",
+                "accuracy_bonus": 10
+        },
+        "c_unit_advanced": {
+                "name": "Advanced C-Unit",
+                "slot": "c_unit",
+                "attack": 5,
+                "defense": 10,
+                "price": 1500,
+                "description": "Military targeting computer. Boosts accuracy and fire control.",
+                "icon": "res://assets/ui/icon_cunit.png",
+                "accuracy_bonus": 20
+        },
+        "plasma_rifle": {
+                "name": "Plasma Rifle",
+                "slot": "weapon",
+                "attack": 70,
+                "defense": 0,
+                "price": 3000,
+                "description": "Energy weapon that fires superheated plasma. Ignores most defense.",
+                "icon": "res://assets/ui/icon_rifle.png",
+                "crit_bonus": 0.1
+        },
+        "tactical_armor": {
+                "name": "Tactical Armor",
+                "slot": "armor",
+                "attack": 3,
+                "defense": 28,
+                "price": 1200,
+                "description": "Advanced tactical gear. Balanced protection and mobility.",
+                "icon": "res://assets/ui/icon_armor.png"
+        },
+        "tank_chassis_stealth": {
+                "name": "Stealth Chassis",
+                "slot": "chassis",
+                "attack": 10,
+                "defense": 25,
+                "price": 3500,
+                "description": "Lightweight frame with stealth capabilities. High evasion.",
+                "icon": "res://assets/ui/icon_chassis.png",
+                "weight_cap": 80,
+                "slot_count": 5
+        },
+        "cannon_railgun": {
+                "name": "Railgun",
+                "slot": "main_cannon",
+                "attack": 120,
+                "defense": 0,
+                "price": 5000,
+                "description": "Electromagnetic accelerator. Fires projectiles at hypersonic speed.",
+                "icon": "res://assets/ui/icon_cannon.png",
+                "weight": 50,
+                "ammo_type": "AP"
+        },
+        "se_laser": {
+                "name": "Laser Cannon SE",
+                "slot": "se_unit",
+                "attack": 90,
+                "defense": 0,
+                "price": 4000,
+                "description": "Directed energy weapon. Ignores defense, high single-hit damage.",
+                "icon": "res://assets/ui/icon_se.png",
+                "weight": 25,
+                "se_type": "laser"
+        },
+        "se_smoke": {
+                "name": "Smoke Launcher SE",
+                "slot": "se_unit",
+                "attack": 0,
+                "defense": 5,
+                "price": 1200,
+                "description": "Deploys smoke screen. Boosts evasion by 70% for 3 turns.",
+                "icon": "res://assets/ui/icon_se.png",
+                "weight": 15,
+                "se_type": "smoke",
+                "se_evasion_amount": 0.7,
+                "se_evasion_duration": 3
+        },
+        "se_repair": {
+                "name": "Repair Drone SE",
+                "slot": "se_unit",
+                "attack": 0,
+                "defense": 0,
+                "price": 2000,
+                "description": "Automated repair drone. Restores 80 tank SP per use.",
+                "icon": "res://assets/ui/icon_se.png",
+                "weight": 20,
+                "se_type": "repair",
+                "se_repair_amount": 80
+        },
+        "se_earthquake": {
+                "name": "Earthquake Bomb SE",
+                "slot": "se_unit",
+                "attack": 100,
+                "defense": 0,
+                "price": 5000,
+                "description": "Seismic weapon. Devastating AoE damage with defense break.",
+                "icon": "res://assets/ui/icon_se.png",
+                "weight": 35,
+                "se_type": "earthquake",
+                "se_defense_break": 0.4,
+                "se_defense_break_duration": 2
+        },
+        "engine_fusion": {
+                "name": "Fusion Engine",
+                "slot": "engine",
+                "attack": 0,
+                "defense": 0,
+                "price": 6000,
+                "description": "Experimental fusion reactor. Provides 500 power.",
+                "icon": "res://assets/ui/icon_engine.png",
+                "power": 500
+        },
+        "c_unit_military": {
+                "name": "Military C-Unit",
+                "slot": "c_unit",
+                "attack": 10,
+                "defense": 15,
+                "price": 3000,
+                "description": "Top-grade targeting system. Maximizes combat effectiveness.",
+                "icon": "res://assets/ui/icon_cunit.png",
+                "accuracy_bonus": 30
+        }
 }

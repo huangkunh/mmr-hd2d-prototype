@@ -1,90 +1,123 @@
 {
-	"wasteland_shop": {
-		"name": "Wasteland Outpost Shop",
-		"map_id": "wasteland",
-		"npc_id": "shop_npc",
-		"items": [
-			"potion_small",
-			"potion_medium",
-			"fuel_can",
-			"repair_kit",
-			"smoke_bomb",
-			"antidote",
-			"energy_cell"
-		],
-		"equipment": [
-			"rifle",
-			"leather_armor",
-			"engine_v6",
-			"subcannon_machinegun",
-			"cannon_105mm",
-			"c_unit_basic"
-		],
-		"buy_multiplier": 1.0,
-		"sell_multiplier": 0.5
-	},
-	"ruins_shop": {
-		"name": "Ruin Scavenger Shop",
-		"map_id": "ruins",
-		"npc_id": "ruins_npc",
-		"items": [
-			"potion_medium",
-			"potion_large",
-			"fuel_can",
-			"repair_kit",
-			"smoke_bomb",
-			"antidote",
-			"energy_cell",
-			"armor_plate"
-		],
-		"equipment": [
-			"rifle",
-			"assault_rifle",
-			"leather_armor",
-			"combat_armor",
-			"engine_v6",
-			"engine_v12",
-			"cannon_105mm",
-			"cannon_155mm",
-			"subcannon_machinegun",
-			"se_missile",
-			"c_unit_basic"
-		],
-		"buy_multiplier": 1.15,
-		"sell_multiplier": 0.5
-	},
-	"desert_shop": {
-		"name": "Desert Nomad Shop",
-		"map_id": "desert",
-		"npc_id": "desert_npc",
-		"items": [
-			"potion_large",
-			"fuel_can",
-			"repair_kit",
-			"smoke_bomb"
-		],
-		"equipment": [
-			"assault_rifle",
-			"combat_armor",
-			"tank_chassis_heavy",
-			"engine_v12",
-			"cannon_155mm",
-			"se_missile",
-			"c_unit_basic"
-		],
-		"buy_multiplier": 1.25,
-		"sell_multiplier": 0.4
-	},
-	"swamp_shop": {
-		"name": "Swamp Trader",
-		"npc_id": "swamp_npc",
-		"items": ["potion_small", "potion_medium", "antidote", "smoke_bomb", "fuel_can"],
-		"equipment": ["rifle", "leather_armor"]
-	},
-	"base_shop": {
-		"name": "Base Quartermaster",
-		"npc_id": "base_merchant",
-		"items": ["potion_medium", "potion_large", "potion_full", "fuel_can", "premium_fuel", "repair_kit", "mega_repair_kit", "antidote", "smoke_bomb", "energy_cell", "armor_plate"],
-		"equipment": ["assault_rifle", "sniper_rifle", "plasma_rifle", "combat_armor", "tactical_armor", "power_armor", "tank_chassis_stealth", "cannon_railgun", "se_laser", "engine_fusion", "c_unit_military"]
-	}
+        "wasteland_shop": {
+                "name": "废土前哨商店",
+                "map_id": "wasteland",
+                "npc_id": "shop_npc",
+                "items": [
+                        "potion_small",
+                        "potion_medium",
+                        "fuel_can",
+                        "repair_kit",
+                        "smoke_bomb",
+                        "antidote",
+                        "energy_cell"
+                ],
+                "equipment": [
+                        "rifle",
+                        "leather_armor",
+                        "engine_v6",
+                        "subcannon_machinegun",
+                        "cannon_105mm",
+                        "c_unit_basic"
+                ],
+                "buy_multiplier": 1.0,
+                "sell_multiplier": 0.5
+        },
+        "ruins_shop": {
+                "name": "废墟拾荒商店",
+                "map_id": "ruins",
+                "npc_id": "ruins_npc",
+                "items": [
+                        "potion_medium",
+                        "potion_large",
+                        "fuel_can",
+                        "repair_kit",
+                        "smoke_bomb",
+                        "antidote",
+                        "energy_cell",
+                        "armor_plate"
+                ],
+                "equipment": [
+                        "rifle",
+                        "assault_rifle",
+                        "leather_armor",
+                        "combat_armor",
+                        "engine_v6",
+                        "engine_v12",
+                        "cannon_105mm",
+                        "cannon_155mm",
+                        "subcannon_machinegun",
+                        "se_missile",
+                        "c_unit_basic"
+                ],
+                "buy_multiplier": 1.15,
+                "sell_multiplier": 0.5
+        },
+        "desert_shop": {
+                "name": "沙漠游商",
+                "map_id": "desert",
+                "npc_id": "desert_npc",
+                "items": [
+                        "potion_large",
+                        "fuel_can",
+                        "repair_kit",
+                        "smoke_bomb"
+                ],
+                "equipment": [
+                        "assault_rifle",
+                        "combat_armor",
+                        "tank_chassis_heavy",
+                        "engine_v12",
+                        "cannon_155mm",
+                        "se_missile",
+                        "c_unit_basic"
+                ],
+                "buy_multiplier": 1.25,
+                "sell_multiplier": 0.4
+        },
+        "swamp_shop": {
+                "name": "沼泽商人",
+                "npc_id": "swamp_npc",
+                "items": [
+                        "potion_small",
+                        "potion_medium",
+                        "antidote",
+                        "smoke_bomb",
+                        "fuel_can"
+                ],
+                "equipment": [
+                        "rifle",
+                        "leather_armor"
+                ]
+        },
+        "base_shop": {
+                "name": "基地军需官",
+                "npc_id": "base_merchant",
+                "items": [
+                        "potion_medium",
+                        "potion_large",
+                        "potion_full",
+                        "fuel_can",
+                        "premium_fuel",
+                        "repair_kit",
+                        "mega_repair_kit",
+                        "antidote",
+                        "smoke_bomb",
+                        "energy_cell",
+                        "armor_plate"
+                ],
+                "equipment": [
+                        "assault_rifle",
+                        "sniper_rifle",
+                        "plasma_rifle",
+                        "combat_armor",
+                        "tactical_armor",
+                        "power_armor",
+                        "tank_chassis_stealth",
+                        "cannon_railgun",
+                        "se_laser",
+                        "engine_fusion",
+                        "c_unit_military"
+                ]
+        }
 }

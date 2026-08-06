@@ -6,7 +6,7 @@
 ## but a minimal crafting.tscn wraps this script as a Control node.
 ##
 ## Layout:
-##   - Title bar with "CRAFTING WORKSHOP" and current gold.
+##   - Title bar with "合成工坊" and current gold.
 ##   - Left panel: scrollable ItemList of all recipes from crafting.json.
 ##     Each row shows the recipe name and a [READY] / [LOCKED] tag.
 ##   - Right panel: RichTextLabel showing the selected recipe's description,
@@ -106,7 +106,7 @@ func _build_ui() -> void:
 	add_child(_panel)
 
 	# Title
-	_title_label = _make_label("CRAFTING WORKSHOP", 26)
+	_title_label = _make_label("合成工坊", 26)
 	_title_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_title_label.offset_top = 14
 	_title_label.offset_bottom = 46

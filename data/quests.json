@@ -1,171 +1,223 @@
 {
-	"bounty_desert_worm": {
-		"name": "The Sand Worm Menace",
-		"type": "bounty",
-		"description": "A giant sand worm has been terrorizing the desert roads. Eliminate it.",
-		"objectives": [
-			{ "type": "kill", "target": "desert_worm", "count": 1 }
-		],
-		"reward_gold": 1500,
-		"reward_exp": 150,
-		"reward_item": "",
-		"prerequisite": "",
-		"npc_origin": "bounty_board"
-	},
-	"bounty_iron_titan": {
-		"name": "The Iron Titan",
-		"type": "bounty",
-		"description": "An ancient walking fortress still roams the desert. Only the bravest dare challenge it.",
-		"objectives": [
-			{ "type": "kill", "target": "iron_titan", "count": 1 }
-		],
-		"reward_gold": 6000,
-		"reward_exp": 500,
-		"reward_item": "engine_v12",
-		"prerequisite": "bounty_desert_worm",
-		"npc_origin": "bounty_board"
-	},
-	"quest_first_steps": {
-		"name": "First Steps in the Wasteland",
-		"type": "story",
-		"description": "Survive your first few battles in the wasteland. Defeat 3 enemies.",
-		"objectives": [
-			{ "type": "kill", "target": "slime", "count": 3 }
-		],
-		"reward_gold": 100,
-		"reward_exp": 50,
-		"reward_item": "potion_medium",
-		"prerequisite": "",
-		"npc_origin": "intro_npc"
-	},
-	"quest_rat_problem": {
-		"name": "Rat Infestation",
-		"type": "side",
-		"description": "Scavenger rats have been raiding the supply caches. Thin their numbers.",
-		"objectives": [
-			{ "type": "kill", "target": "scavenger", "count": 5 }
-		],
-		"reward_gold": 200,
-		"reward_exp": 80,
-		"reward_item": "repair_kit",
-		"prerequisite": "",
-		"npc_origin": "shop_npc"
-	},
-	"quest_drone_hunt": {
-		"name": "Patrol Drone Hunt",
-		"type": "side",
-		"description": "Old security drones are attacking travelers in the ruins. Destroy 3 of them.",
-		"objectives": [
-			{ "type": "kill", "target": "mech_drone", "count": 3 }
-		],
-		"reward_gold": 400,
-		"reward_exp": 120,
-		"reward_item": "assault_rifle",
-		"prerequisite": "quest_rat_problem",
-		"npc_origin": "ruins_npc"
-	},
-	"quest_bandit_sweep": {
-		"name": "Bandit Sweep",
-		"type": "side",
-		"description": "Road bandits have set up camp near the ruins. Clear them out.",
-		"objectives": [
-			{ "type": "kill", "target": "bandit", "count": 5 }
-		],
-		"reward_gold": 500,
-		"reward_exp": 150,
-		"reward_item": "combat_armor",
-		"prerequisite": "quest_first_steps",
-		"npc_origin": "ruins_npc"
-	},
-	"quest_tank_recovery": {
-		"name": "Tank Recovery",
-		"type": "story",
-		"description": "Find and recover a tank chassis from the old military depot in the ruins.",
-		"objectives": [
-			{ "type": "collect", "target": "tank_chassis_basic", "count": 1 }
-		],
-		"reward_gold": 300,
-		"reward_exp": 100,
-		"reward_item": "",
-		"prerequisite": "quest_first_steps",
-		"npc_origin": "intro_npc"
-	},
-	"quest_swamp_exploration": {
-		"name": "Into the Toxic Swamp",
-		"type": "side",
-		"description": "Explore the toxic swamp and defeat 3 swamp lurkers.",
-		"objectives": [
-			{ "type": "kill", "target": "swamp_lurker", "count": 3 }
-		],
-		"reward_gold": 350,
-		"reward_exp": 100,
-		"reward_item": "antidote",
-		"prerequisite": "quest_first_steps",
-		"npc_origin": "mountain_npc"
-	},
-	"quest_lab_investigation": {
-		"name": "Secret Laboratory",
-		"type": "story",
-		"description": "Find the underground lab beneath the ruins and investigate it. Defeat the prototype mech.",
-		"objectives": [
-			{ "type": "kill", "target": "prototype_mech", "count": 1 }
-		],
-		"reward_gold": 10000,
-		"reward_exp": 800,
-		"reward_item": "plasma_rifle",
-		"prerequisite": "bounty_iron_titan",
-		"npc_origin": "base_commander"
-	},
-	"quest_steel_guardian": {
-		"name": "The Steel Guardian",
-		"type": "bounty",
-		"description": "A steel golem blocks the mountain pass. Destroy it to secure the route.",
-		"objectives": [
-			{ "type": "kill", "target": "steel_golem", "count": 1 }
-		],
-		"reward_gold": 2500,
-		"reward_exp": 200,
-		"reward_item": "tactical_armor",
-		"prerequisite": "bounty_desert_worm",
-		"npc_origin": "mountain_npc"
-	},
-	"quest_secret_base": {
-		"name": "The Hidden Base",
-		"type": "story",
-		"description": "Reach the hidden survivor base in the mountains.",
-		"objectives": [
-			{ "type": "collect", "target": "ancient_relic", "count": 1 }
-		],
-		"reward_gold": 500,
-		"reward_exp": 150,
-		"reward_item": "lab_keycard",
-		"prerequisite": "quest_swamp_exploration",
-		"npc_origin": "swamp_npc"
-	},
-	"bounty_mad_maxer": {
-		"name": "The Desert Reaver",
-		"type": "bounty",
-		"description": "A notorious raider warlord known as Mad Maxer terrorizes the mountain routes with his custom battle tank. Stop him.",
-		"objectives": [
-			{ "type": "kill", "target": "mad_maxer", "count": 1 }
-		],
-		"reward_gold": 4000,
-		"reward_exp": 300,
-		"reward_item": "cannon_155mm",
-		"prerequisite": "bounty_desert_worm",
-		"npc_origin": "bounty_board"
-	},
-	"bounty_prototype_mech": {
-		"name": "The Ultimate Weapon",
-		"type": "bounty",
-		"description": "An experimental prototype mech still guards the underground laboratory. It's the most dangerous target on the continent.",
-		"objectives": [
-			{ "type": "kill", "target": "prototype_mech", "count": 1 }
-		],
-		"reward_gold": 10000,
-		"reward_exp": 600,
-		"reward_item": "engine_fusion",
-		"prerequisite": "bounty_iron_titan",
-		"npc_origin": "bounty_board"
-	}
+        "bounty_desert_worm": {
+                "name": "The Sand Worm Menace",
+                "type": "bounty",
+                "description": "A giant sand worm has been terrorizing the desert roads. Eliminate it.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "desert_worm",
+                                "count": 1
+                        }
+                ],
+                "reward_gold": 1500,
+                "reward_exp": 150,
+                "reward_item": "",
+                "prerequisite": "",
+                "npc_origin": "bounty_board"
+        },
+        "bounty_iron_titan": {
+                "name": "The Iron Titan",
+                "type": "bounty",
+                "description": "An ancient walking fortress still roams the desert. Only the bravest dare challenge it.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "iron_titan",
+                                "count": 1
+                        }
+                ],
+                "reward_gold": 6000,
+                "reward_exp": 500,
+                "reward_item": "engine_v12",
+                "prerequisite": "bounty_desert_worm",
+                "npc_origin": "bounty_board"
+        },
+        "quest_first_steps": {
+                "name": "First Steps in the Wasteland",
+                "type": "story",
+                "description": "Survive your first few battles in the wasteland. Defeat 3 enemies.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "slime",
+                                "count": 3
+                        }
+                ],
+                "reward_gold": 100,
+                "reward_exp": 50,
+                "reward_item": "potion_medium",
+                "prerequisite": "",
+                "npc_origin": "intro_npc"
+        },
+        "quest_rat_problem": {
+                "name": "Rat Infestation",
+                "type": "side",
+                "description": "Scavenger rats have been raiding the supply caches. Thin their numbers.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "scavenger",
+                                "count": 5
+                        }
+                ],
+                "reward_gold": 200,
+                "reward_exp": 80,
+                "reward_item": "repair_kit",
+                "prerequisite": "",
+                "npc_origin": "shop_npc"
+        },
+        "quest_drone_hunt": {
+                "name": "Patrol Drone Hunt",
+                "type": "side",
+                "description": "Old security drones are attacking travelers in the ruins. Destroy 3 of them.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "mech_drone",
+                                "count": 3
+                        }
+                ],
+                "reward_gold": 400,
+                "reward_exp": 120,
+                "reward_item": "assault_rifle",
+                "prerequisite": "quest_rat_problem",
+                "npc_origin": "ruins_npc"
+        },
+        "quest_bandit_sweep": {
+                "name": "Bandit Sweep",
+                "type": "side",
+                "description": "Road bandits have set up camp near the ruins. Clear them out.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "bandit",
+                                "count": 5
+                        }
+                ],
+                "reward_gold": 500,
+                "reward_exp": 150,
+                "reward_item": "combat_armor",
+                "prerequisite": "quest_first_steps",
+                "npc_origin": "ruins_npc"
+        },
+        "quest_tank_recovery": {
+                "name": "战车回收",
+                "type": "story",
+                "description": "Find and recover a tank chassis from the old military depot in the ruins.",
+                "objectives": [
+                        {
+                                "type": "collect",
+                                "target": "tank_chassis_basic",
+                                "count": 1
+                        }
+                ],
+                "reward_gold": 300,
+                "reward_exp": 100,
+                "reward_item": "",
+                "prerequisite": "quest_first_steps",
+                "npc_origin": "intro_npc"
+        },
+        "quest_swamp_exploration": {
+                "name": "Into the Toxic Swamp",
+                "type": "side",
+                "description": "Explore the toxic swamp and defeat 3 swamp lurkers.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "swamp_lurker",
+                                "count": 3
+                        }
+                ],
+                "reward_gold": 350,
+                "reward_exp": 100,
+                "reward_item": "antidote",
+                "prerequisite": "quest_first_steps",
+                "npc_origin": "mountain_npc"
+        },
+        "quest_lab_investigation": {
+                "name": "Secret Laboratory",
+                "type": "story",
+                "description": "Find the underground lab beneath the ruins and investigate it. Defeat the prototype mech.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "prototype_mech",
+                                "count": 1
+                        }
+                ],
+                "reward_gold": 10000,
+                "reward_exp": 800,
+                "reward_item": "plasma_rifle",
+                "prerequisite": "bounty_iron_titan",
+                "npc_origin": "base_commander"
+        },
+        "quest_steel_guardian": {
+                "name": "The Steel Guardian",
+                "type": "bounty",
+                "description": "A steel golem blocks the mountain pass. Destroy it to secure the route.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "steel_golem",
+                                "count": 1
+                        }
+                ],
+                "reward_gold": 2500,
+                "reward_exp": 200,
+                "reward_item": "tactical_armor",
+                "prerequisite": "bounty_desert_worm",
+                "npc_origin": "mountain_npc"
+        },
+        "quest_secret_base": {
+                "name": "The Hidden Base",
+                "type": "story",
+                "description": "Reach the hidden survivor base in the mountains.",
+                "objectives": [
+                        {
+                                "type": "collect",
+                                "target": "ancient_relic",
+                                "count": 1
+                        }
+                ],
+                "reward_gold": 500,
+                "reward_exp": 150,
+                "reward_item": "lab_keycard",
+                "prerequisite": "quest_swamp_exploration",
+                "npc_origin": "swamp_npc"
+        },
+        "bounty_mad_maxer": {
+                "name": "The Desert Reaver",
+                "type": "bounty",
+                "description": "A notorious raider warlord known as Mad Maxer terrorizes the mountain routes with his custom battle tank. Stop him.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "mad_maxer",
+                                "count": 1
+                        }
+                ],
+                "reward_gold": 4000,
+                "reward_exp": 300,
+                "reward_item": "cannon_155mm",
+                "prerequisite": "bounty_desert_worm",
+                "npc_origin": "bounty_board"
+        },
+        "bounty_prototype_mech": {
+                "name": "The Ultimate Weapon",
+                "type": "bounty",
+                "description": "An experimental prototype mech still guards the underground laboratory. It's the most dangerous target on the continent.",
+                "objectives": [
+                        {
+                                "type": "kill",
+                                "target": "prototype_mech",
+                                "count": 1
+                        }
+                ],
+                "reward_gold": 10000,
+                "reward_exp": 600,
+                "reward_item": "engine_fusion",
+                "prerequisite": "bounty_iron_titan",
+                "npc_origin": "bounty_board"
+        }
 }
