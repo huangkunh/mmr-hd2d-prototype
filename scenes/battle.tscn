@@ -1,24 +1,21 @@
-; Battle scene (HD-2D style)
-; A wild enemy encounter. On load the BattleManager reads
-; GameState.current_enemy_id, loads the enemy data via DataLoader and runs the
-; turn-based loop. The BattleUI overlay (built in code) handles presentation.
+; Battle scene (HD-2D style) — 重装机兵R风格战斗场景
+; 遇敌战斗场景。加载时 BattleManager 读取 GameState.current_enemy_id，
+; 通过 DataLoader 加载敌人数据并运行回合制循环。BattleUI 覆盖层负责呈现。
 ;
-; HD-2D notes:
-;   * Background is a vertical GradientTexture2D (no external asset required).
-;   * Sprites get an HDR modulate (>1.0) in battle_ui.gd so they bloom. For the
-;     glow to actually show on 2D sprites, enable "HDR for 2D" under
-;     Project Settings > Rendering > Viewport (the project already uses
-;     Forward+, which supports it since Godot 4.2).
-;   * A vignette + the WorldEnvironment glow below add the atmospheric look.
-[gd_scene load_steps=6 format=3]
+; HD-2D 特性:
+;   * 背景：暖色调废土黄昏渐变（从地平线暖光到深色底部）
+;   * 精灵在 battle_ui.gd 中使用 HDR modulate (>1.0) 产生 Bloom 发光
+;   * WorldEnvironment 的 glow + 暗角营造氛围感
+;   * 地面阴影渐变增加层次感
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/battle/battle_manager.gd" id="1_battle_manager"]
 [ext_resource type="Script" path="res://scripts/battle/battle_ui.gd" id="2_battle_ui"]
 
-; Dark vertical gradient: lighter horizon at the top, fading to near-black.
+; 暖色调废土黄昏渐变：顶部地平线暖光，底部深色
 [sub_resource type="Gradient" id="Gradient_bg"]
-offsets = PackedFloat32Array(0, 1)
-colors = PackedColorArray(0.10, 0.08, 0.13, 1, 0.03, 0.02, 0.05, 1)
+offsets = PackedFloat32Array(0, 0.35, 0.65, 1)
+colors = PackedColorArray(0.18, 0.12, 0.08, 1, 0.35, 0.20, 0.10, 1, 0.12, 0.08, 0.06, 1, 0.04, 0.03, 0.05, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_bg"]
 gradient = SubResource("Gradient_bg")
@@ -27,16 +24,35 @@ height = 256
 fill_from = Vector2(0.5, 0)
 fill_to = Vector2(0.5, 1)
 
-; Environment used for the HD-2D glow/bloom pass.
-[sub_resource type="Environment" id="Environment_hd2d"]
-glow_enabled = true
-glow_intensity = 0.9
-glow_strength = 1.1
+; 地面阴影渐变（底部暗化，增加层次感）
+[sub_resource type="Gradient" id="Gradient_ground"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.3, 0, 0, 0, 0.6)
 
-; --- Root ---------------------------------------------------------------------
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ground"]
+gradient = SubResource("Gradient_ground")
+width = 4
+height = 128
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+; HD-2D 环境：增强 Bloom 发光 + 暖色调
+[sub_resource type="Environment" id="Environment_hd2d"]
+background_mode = 1
+background_color = Color(0.08, 0.06, 0.04, 1)
+glow_enabled = true
+glow_intensity = 1.2
+glow_strength = 1.3
+glow_bloom = 0.4
+glow_blend_mode = 0
+glow_hdr_threshold = 0.8
+tonemap_mode = 3
+tonemap_exposure = 1.05
+
+; --- 根节点 --------------------------------------------------------------------
 [node name="Battle" type="Node2D"]
 
-; --- Background ---------------------------------------------------------------
+; --- 背景 ---------------------------------------------------------------------
 [node name="Background" type="TextureRect" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -45,23 +61,35 @@ texture = SubResource("GradientTexture2D_bg")
 expand_mode = 1
 mouse_filter = 2
 
-; --- Enemy display (center-top) ----------------------------------------------
+; --- 地面阴影（底部渐变，增加层次感）-----------------------------------------
+[node name="GroundShadow" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 0.0
+texture = SubResource("GradientTexture2D_ground")
+expand_mode = 1
+mouse_filter = 2
+
+; --- 敌人显示（中上）----------------------------------------------------------
 [node name="EnemyDisplay" type="Node2D" parent="."]
 position = Vector2(640, 230)
 
 [node name="EnemySprite" type="Sprite2D" parent="EnemyDisplay"]
 
-; --- Player display (center-bottom) ------------------------------------------
+; --- 玩家显示（中下）----------------------------------------------------------
 [node name="PlayerDisplay" type="Node2D" parent="."]
 position = Vector2(640, 560)
 
 [node name="PlayerSprite" type="Sprite2D" parent="PlayerDisplay"]
 
-; --- HD-2D post-processing ---------------------------------------------------
+; --- HD-2D 后处理环境 ---------------------------------------------------------
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_hd2d")
 
-; --- Battle UI overlay (command menu, HP bars, battle log, popups, end screens)
+; --- 战斗UI覆盖层（命令菜单、HP条、战斗日志、弹窗、结算画面）-------------------
 [node name="BattleUI" type="Control" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,7 +97,7 @@ anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource("2_battle_ui")
 
-; --- Battle manager (drives the turn loop) -----------------------------------
+; --- 战斗管理器（驱动回合循环）------------------------------------------------
 [node name="BattleManager" type="Node" parent="."]
 script = ExtResource("1_battle_manager")
 battle_ui_path = NodePath("../BattleUI")

@@ -4,7 +4,7 @@
                 "type": "heal",
                 "hp_restore": 30,
                 "price": 20,
-                "description": "A simple medical bandage. Restores 30 HP.",
+                "description": "简易医疗绷带。恢复30点生命值。",
                 "icon": "res://assets/ui/icon_potion.png"
         },
         "potion_medium": {

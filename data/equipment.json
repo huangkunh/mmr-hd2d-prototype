@@ -1,6 +1,6 @@
 {
         "pistol": {
-                "name": "Rusty Pistol",
+                "name": "生锈的手枪",
                 "slot": "weapon",
                 "attack": 10,
                 "defense": 0,
@@ -9,7 +9,7 @@
                 "icon": "res://assets/ui/icon_pistol.png"
         },
         "rifle": {
-                "name": "Hunting Rifle",
+                "name": "猎枪",
                 "slot": "weapon",
                 "attack": 25,
                 "defense": 0,
@@ -27,7 +27,7 @@
                 "icon": "res://assets/ui/icon_rifle.png"
         },
         "shotgun": {
-                "name": "Combat Shotgun",
+                "name": "战斗霰弹枪",
                 "slot": "weapon",
                 "attack": 35,
                 "defense": 0,
@@ -292,7 +292,7 @@
                 "se_defense_break_duration": 2
         },
         "engine_fusion": {
-                "name": "Fusion Engine",
+                "name": "聚变引擎",
                 "slot": "engine",
                 "attack": 0,
                 "defense": 0,

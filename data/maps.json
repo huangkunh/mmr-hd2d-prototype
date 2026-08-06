@@ -65,7 +65,7 @@
                 "no_encounters": true
         },
         "ruins": {
-                "name": "Old Military Ruins",
+                "name": "旧军事废墟",
                 "scene": "res://scenes/world.tscn",
                 "encounter_zone": "ruins",
                 "connections": {
