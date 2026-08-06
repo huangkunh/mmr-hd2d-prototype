@@ -77,14 +77,14 @@ theme_override_colors/font_shadow_color = Color(0.2, 0.1, 0.03, 1)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 4
 theme_override_constants/shadow_outline_size = 2
-text = "METAL MAX R"
+text = "重装机兵R"
 horizontal_alignment = 1
 
 [node name="Subtitle2" type="Label" parent="TitleContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(0.8, 0.65, 0.3, 1)
-text = "HD-2D PROTOTYPE"
+text = "HD-2D 原型"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="TitleContainer"]
@@ -95,7 +95,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
-text = "▶  Press Z / Enter to Start"
+text = "▶  按 Z / 回车 开始游戏"
 horizontal_alignment = 1
 
 [node name="BlinkTimer" type="Timer" parent="TitleContainer/PressStart"]
@@ -106,12 +106,12 @@ autostart = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
-text = "WASD/Arrows: Move  |  Z: Confirm  |  X: Cancel  |  E: Interact  |  Esc: Menu"
+text = "WASD/方向键:移动  |  Z:确认  |  X:取消  |  E:交互  |  Esc:菜单"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="TitleContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.45, 0.42, 0.38, 1)
-text = "A post-apocalyptic RPG prototype — wasteland edition"
+text = "末世废土RPG原型 — 荒野版"
 horizontal_alignment = 1

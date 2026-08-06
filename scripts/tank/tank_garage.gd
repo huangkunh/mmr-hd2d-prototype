@@ -98,11 +98,11 @@ func _ready() -> void:
 	compare_label.bbcode_enabled = true
 
 	# Title is static, but we set it here so it survives scene reloads / tweaks.
-	title_label.text = "TANK GARAGE"
+	title_label.text = "战车车库"
 
 	# Seed the right panel with an idle message.
-	part_list_title.text = "Select a slot (Up/Down) then press Z"
-	hint_label.text = "Z: Select slot   X: Back"
+	part_list_title.text = "选择一个槽位(↑↓)然后按Z"
+	hint_label.text = "Z:选择槽位  X:返回"
 
 	_refresh_all()
 
@@ -226,8 +226,8 @@ func _open_part_list() -> void:
 	part_list.ensure_current_is_visible()
 
 	in_part_list = true
-	part_list_title.text = "Select %s" % slot_label
-	hint_label.text = "Z: Buy/Equip   X: Back"
+	part_list_title.text = "选择%s" % slot_label
+	hint_label.text = "Z:购买/装备  X:返回"
 	_update_slot_highlight()
 	_update_comparison()
 
@@ -236,8 +236,8 @@ func _close_part_list() -> void:
 	in_part_list = false
 	part_list.clear()
 	part_ids.clear()
-	part_list_title.text = "Select a slot (Up/Down) then press Z"
-	hint_label.text = "Z: Select slot   X: Back"
+	part_list_title.text = "选择一个槽位(↑↓)然后按Z"
+	hint_label.text = "Z:选择槽位  X:返回"
 	compare_label.text = ""
 	_update_slot_highlight()
 
@@ -288,10 +288,10 @@ func _select_part() -> void:
 	# --- Need to own it ------------------------------------------------------
 	if not _is_owned(part_id):
 		if price > GameState.gold:
-			hint_label.text = "Not enough gold! (need %d G)" % price
+			hint_label.text = "金币不足！(需%dG)" % price
 			return
 		if not GameState.spend_gold(price):
-			hint_label.text = "Purchase failed!"
+			hint_label.text = "购买失败！"
 			return
 		# Record the purchase so it persists (saved with GameState.inventory).
 		if price > 0:
@@ -465,19 +465,19 @@ func _update_stats() -> void:
 	weight_power_bar.value = clampi(weight, 0, cap)
 
 	if tank.is_overweight():
-		weight_power_label.text = "WEIGHT %d / POWER %d   OVERWEIGHT!" % [weight, power]
+		weight_power_label.text = "重量 %d / 动力 %d   超重！" % [weight, power]
 		weight_power_label.add_theme_color_override("font_color", COLOR_BAD)
 		weight_power_bar.modulate = COLOR_BAD
 	else:
-		weight_power_label.text = "WEIGHT %d / POWER %d" % [weight, power]
+		weight_power_label.text = "重量 %d / 动力 %d" % [weight, power]
 		weight_power_label.add_theme_color_override("font_color", COLOR_NORMAL)
 		weight_power_bar.modulate = Color.WHITE
 
-	stats_label.text = "ATK %d   |   DEF %d" % [tank.get_total_attack(), tank.get_total_defense()]
+	stats_label.text = "攻击 %d   |   防御 %d" % [tank.get_total_attack(), tank.get_total_defense()]
 
 
 func _update_gold(amount: int) -> void:
-	gold_label.text = "GOLD: %d G" % amount
+	gold_label.text = "金币: %dG" % amount
 
 
 func _refresh_all() -> void:

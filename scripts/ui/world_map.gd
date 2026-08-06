@@ -91,7 +91,7 @@ func _build_ui() -> void:
 
     # Title
     var title := Label.new()
-    title.text = "WORLD MAP"
+    title.text = "世界地图"
     title.set_anchors_preset(Control.PRESET_TOP_WIDE)
     title.offset_top = 10
     title.offset_bottom = 38
@@ -142,7 +142,7 @@ func _build_ui() -> void:
     _main_panel.add_child(btn_row)
 
     _travel_button = Button.new()
-    _travel_button.text = "Travel"
+    _travel_button.text = "前往"
     _travel_button.custom_minimum_size = Vector2(140, 36)
     _travel_button.focus_mode = Control.FOCUS_NONE
     _travel_button.disabled = true
@@ -150,7 +150,7 @@ func _build_ui() -> void:
     btn_row.add_child(_travel_button)
 
     _close_button = Button.new()
-    _close_button.text = "Close"
+    _close_button.text = "关闭"
     _close_button.custom_minimum_size = Vector2(140, 36)
     _close_button.focus_mode = Control.FOCUS_NONE
     _close_button.pressed.connect(close)
@@ -166,7 +166,7 @@ func _build_ui() -> void:
 
     # Hint
     _hint_label = Label.new()
-    _hint_label.text = "Click a location to select  Z: Travel  Esc: Close"
+    _hint_label.text = "点击地点选择  Z:前往  Esc:关闭"
     _hint_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
     _hint_label.offset_top = -22
     _hint_label.offset_bottom = -4
@@ -257,8 +257,8 @@ func _show_detail(map_id: String) -> void:
     else:
         text += "Wilderness\n"
 
-    text += "[b]Encounters:[/b] %s\n" % ("None" if no_enc else "Active")
-    text += "[b]Shop:[/b] %s\n" % ("Yes" if not String(data.get("shop_id", "")).is_empty() else "No")
+    text += "[b]遭遇区:[/b] %s\n" % ("无" if no_enc else "有")
+    text += "[b]商店:[/b] %s\n" % ("有" if not String(data.get("shop_id", "")).is_empty() else "无")
 
     # Show connections
     var connections: Dictionary = data.get("connections", {})
@@ -286,13 +286,13 @@ func _travel_to_selected() -> void:
         return
     var can_travel := _is_connected(GameState.current_map, _selected_map)
     if not can_travel:
-        _status_label.text = "Cannot travel there!"
+        _status_label.text = "无法前往该地点！"
         _status_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
         AudioManager.play_sfx("cancel")
         return
 
     AudioManager.play_sfx("door")
-    _status_label.text = "Traveling to %s..." % _selected_map
+    _status_label.text = "正在前往%s..." % _selected_map
     _status_label.add_theme_color_override("font_color", Color(0.5, 1.0, 0.5))
     destination_selected.emit(_selected_map)
     GameState.current_map = _selected_map

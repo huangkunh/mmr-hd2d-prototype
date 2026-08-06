@@ -293,18 +293,18 @@ func _craft_selected() -> void:
 			if mat_data.is_empty():
 				mat_data = DataLoader.get_equipment(first_mat)
 			var mat_name: String = String(mat_data.get("name", first_mat))
-			_status_label.text = "Not enough %s! (need %d more)" % [mat_name, int(missing[first_mat])]
+			_status_label.text = "%s不足！(还需%d)" % [mat_name, int(missing[first_mat])]
 		elif not bool(check.get("gold_ok", false)):
-			_status_label.text = "Not enough gold! (need %d G)" % int(recipe.get("gold_cost", 0))
+			_status_label.text = "金币不足！(需%dG)" % int(recipe.get("gold_cost", 0))
 		else:
-			_status_label.text = "Cannot craft this item."
+			_status_label.text = "无法合成此物品。"
 		_status_label.add_theme_color_override("font_color", COLOR_BAD)
 		AudioManager.play_sfx("cancel")
 		return
 
 	# Perform the craft.
 	if GameState.craft_item(recipe_id):
-		_status_label.text = "Crafted %s!" % name
+		_status_label.text = "合成%s成功！" % name
 		_status_label.add_theme_color_override("font_color", COLOR_GOOD)
 		# Refresh the list (tags may have changed) and detail.
 		_refresh_gold()
@@ -314,14 +314,14 @@ func _craft_selected() -> void:
 		_recipe_list.select(_selected_index)
 		_show_detail(_selected_index)
 	else:
-		_status_label.text = "Crafting failed!"
+		_status_label.text = "合成失败！"
 		_status_label.add_theme_color_override("font_color", COLOR_BAD)
 
 
 # --- Helpers ----------------------------------------------------------------
 
 func _refresh_gold() -> void:
-	_gold_label.text = "Gold: %d G" % GameState.gold
+	_gold_label.text = "金币: %dG" % GameState.gold
 
 
 func _make_panel(bg: Color) -> Panel:

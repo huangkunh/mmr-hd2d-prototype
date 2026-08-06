@@ -68,7 +68,7 @@ func _build_ui() -> void:
 
 	# Title
 	var title := Label.new()
-	title.text = "VEHICLE GARAGE"
+	title.text = "载具车库"
 	title.add_theme_font_size_override("font_size", 36)
 	title.add_theme_color_override("font_color", COL_ACCENT)
 	title.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -97,7 +97,7 @@ func _build_ui() -> void:
 	add_child(list_panel)
 
 	var list_title := Label.new()
-	list_title.text = "VEHICLES"
+	list_title.text = "载具列表"
 	list_title.add_theme_font_size_override("font_size", 18)
 	list_title.add_theme_color_override("font_color", COL_ACCENT)
 	list_title.position = Vector2(16, 10)
@@ -151,7 +151,7 @@ func _build_ui() -> void:
 	var btn_gap: float = 12
 
 	_switch_button = Button.new()
-	_switch_button.text = "Switch (Z)"
+	_switch_button.text = "切换 (Z)"
 	_switch_button.position = Vector2(detail_x, btn_y)
 	_switch_button.size = Vector2(btn_w, btn_h)
 	_switch_button.add_theme_font_size_override("font_size", 18)
@@ -159,7 +159,7 @@ func _build_ui() -> void:
 	add_child(_switch_button)
 
 	_buy_button = Button.new()
-	_buy_button.text = "Buy New (%dG)" % VEHICLE_PRICE
+	_buy_button.text = "购买新车 (%dG)" % VEHICLE_PRICE
 	_buy_button.position = Vector2(detail_x + btn_w + btn_gap, btn_y)
 	_buy_button.size = Vector2(btn_w + 40, btn_h)
 	_buy_button.add_theme_font_size_override("font_size", 18)
@@ -167,7 +167,7 @@ func _build_ui() -> void:
 	add_child(_buy_button)
 
 	_close_button = Button.new()
-	_close_button.text = "Close (X)"
+	_close_button.text = "关闭 (X)"
 	_close_button.position = Vector2(detail_x + (btn_w + btn_gap) * 2 + btn_gap, btn_y)
 	_close_button.size = Vector2(btn_w, btn_h)
 	_close_button.add_theme_font_size_override("font_size", 18)
@@ -186,7 +186,7 @@ func _build_ui() -> void:
 
 	# Hint
 	var hint := Label.new()
-	hint.text = "Up/Down: Select   Z: Switch   X: Close"
+	hint.text = "↑↓:选择  Z:切换  X:关闭"
 	hint.add_theme_font_size_override("font_size", 14)
 	hint.add_theme_color_override("font_color", COL_TEXT_DIM)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -217,7 +217,7 @@ func _refresh() -> void:
 	var summary := GameState.get_garage_summary()
 	if summary.is_empty():
 		var empty_label := Label.new()
-		empty_label.text = "No vehicles in garage."
+		empty_label.text = "车库中没有载具。"
 		empty_label.add_theme_color_override("font_color", COL_TEXT_DIM)
 		empty_label.add_theme_font_size_override("font_size", 18)
 		vbox.add_child(empty_label)
@@ -276,7 +276,7 @@ func _make_vehicle_entry(v: Dictionary, index: int) -> Panel:
 	var parts: int = int(v.get("parts_count", 0))
 
 	var stats_label := Label.new()
-	stats_label.text = "HP %d/%d  |  SP %d/%d  |  Fuel %d/%d  |  Parts %d/6" % [hp, max_hp, sp, max_sp, fuel, max_fuel, parts]
+	stats_label.text = "HP %d/%d  |  SP %d/%d  |  燃料 %d/%d  |  部件 %d/6" % [hp, max_hp, sp, max_sp, fuel, max_fuel, parts]
 	stats_label.add_theme_font_size_override("font_size", 14)
 	stats_label.add_theme_color_override("font_color", COL_TEXT_DIM)
 	stats_label.position = Vector2(12, 38)
@@ -359,35 +359,35 @@ func _switch_to_selected() -> void:
 	if _selected_index < 0 or _selected_index >= GameState.get_vehicle_count():
 		return
 	if _selected_index == GameState.active_vehicle_index:
-		_status_label.text = "This vehicle is already active."
+		_status_label.text = "该载具已是当前载具。"
 		_status_label.add_theme_color_override("font_color", COL_TEXT_DIM)
 		return
 	# Save current state, switch, and load the new one
 	GameState._save_active_to_garage()
 	if GameState.switch_vehicle(_selected_index):
-		_status_label.text = "Switched to %s!" % GameState.get_active_vehicle_name()
+		_status_label.text = "已切换到%s！" % GameState.get_active_vehicle_name()
 		_status_label.add_theme_color_override("font_color", COL_ACTIVE)
 		AudioManager.play_sfx("confirm")
 		vehicle_switched.emit(_selected_index)
 		_refresh()
 	else:
-		_status_label.text = "Cannot switch vehicles."
+		_status_label.text = "无法切换载具。"
 		_status_label.add_theme_color_override("font_color", COL_BAD)
 
 func _buy_new_vehicle() -> void:
 	if GameState.get_vehicle_count() >= GameState.MAX_VEHICLES:
-		_status_label.text = "Garage is full! (max %d)" % GameState.MAX_VEHICLES
+		_status_label.text = "车库已满！(上限%d)" % GameState.MAX_VEHICLES
 		_status_label.add_theme_color_override("font_color", COL_BAD)
 		AudioManager.play_sfx("cancel")
 		return
 	if GameState.gold < VEHICLE_PRICE:
-		_status_label.text = "Not enough gold! (need %d G)" % VEHICLE_PRICE
+		_status_label.text = "金币不足！(需%dG)" % VEHICLE_PRICE
 		_status_label.add_theme_color_override("font_color", COL_BAD)
 		AudioManager.play_sfx("cancel")
 		return
 	GameState.spend_gold(VEHICLE_PRICE)
 	GameState.add_vehicle()
-	_status_label.text = "Purchased a new vehicle!"
+	_status_label.text = "成功购买新载具！"
 	_status_label.add_theme_color_override("font_color", COL_ACTIVE)
 	AudioManager.play_sfx("coin")
 	_refresh()

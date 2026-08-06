@@ -185,7 +185,7 @@ func _refresh_list() -> void:
 			_add_quest_row(String(qid), GROUP_ACTIVE)
 
 	# --- Available bounty quests --------------------------------------------
-	_add_header("BOUNTY")
+	_add_header("赏金")
 	var bounty_found: bool = false
 	for qid in DataLoader.get_bounty_quests():
 		var sid: String = String(qid)

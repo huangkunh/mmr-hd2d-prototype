@@ -31,7 +31,7 @@ const TAB_TANK: int = 3
 const TAB_CRAFT: int = 4
 const TAB_MAP: int = 5
 const TAB_SAVE: int = 6
-const TAB_LABELS: Array[String] = ["Status", "Inventory", "Quests", "Tank", "Craft", "Map", "Save"]
+const TAB_LABELS: Array[String] = ["状态", "背包", "任务", "战车", "合成", "地图", "存档"]
 
 const GARAGE_SCENE: String = "res://scenes/tank_garage.tscn"
 
@@ -214,13 +214,13 @@ func _confirm_tab() -> void:
 func _update_hint() -> void:
 	match current_tab:
 		TAB_INVENTORY:
-			hint_label.text = "Up/Down: Select    Z: Use    Esc/X: Close"
+			hint_label.text = "↑↓:选择  Z:使用  Esc/X:关闭"
 		TAB_TANK:
-			hint_label.text = "Z: Open Garage    Esc/X: Close"
+			hint_label.text = "Z:打开车库  Esc/X:关闭"
 		TAB_CRAFT:
-			hint_label.text = "Z: Open Workshop    Esc/X: Close"
+			hint_label.text = "Z:打开工坊  Esc/X:关闭"
 		TAB_SAVE:
-			hint_label.text = "Up/Down: Select Slot    Z: Save    Esc/X: Close"
+			hint_label.text = "↑↓:选择存档  Z:保存  Esc/X:关闭"
 		_:
 			hint_label.text = "<-/->: Switch Tab    Esc/X: Close"
 
@@ -240,7 +240,7 @@ func _refresh_status() -> void:
 	text += "Speed    : %d\n" % s.player_speed
 	text += "EXP      : %d / %d\n" % [s.player_exp, s.player_exp_next]
 	text += "Gold     : %d G\n" % s.gold
-	text += "\nTank owned : %s" % ("Yes" if s.tank_owned else "No")
+	text += "\n拥有战车: %s" % ("是" if s.tank_owned else "否")
 	status_label.text = text
 
 
@@ -473,9 +473,9 @@ func _refresh_save_slots() -> void:
 		var info: Dictionary = GameState.get_save_info(i)
 		var text: String = ""
 		if info.is_empty():
-			text = "Slot %d: [color=gray][ Empty ][/color]" % (i + 1)
+			text = "存档 %d: [color=gray][ 空 ][/color]" % (i + 1)
 		else:
-			text = "Slot %d: [b]%s[/b]  Lv.%d  %s  %d G" % [
+			text = "存档 %d: [b]%s[/b]  等级%d  %s  %dG" % [
 				i + 1,
 				String(info.get("name", "???")),
 				int(info.get("level", 1)),
@@ -495,7 +495,7 @@ func _move_save_slot(direction: int) -> void:
 func _do_save() -> void:
 	AudioManager.play_sfx("save")
 	GameState.save_game(_save_slot_index)
-	save_status_label.text = "Slot %d saved successfully!" % (_save_slot_index + 1)
+	save_status_label.text = "存档 %d 保存成功！" % (_save_slot_index + 1)
 	save_status_label.add_theme_color_override("font_color", Color(0.45, 1.0, 0.45))
 	_refresh_save_slots()
 
@@ -612,7 +612,7 @@ func _build_ui() -> void:
 	open_garage_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	open_garage_button.offset_top = -56
 	open_garage_button.offset_bottom = -20
-	open_garage_button.text = "Open Garage"
+	open_garage_button.text = "打开车库"
 	open_garage_button.custom_minimum_size = Vector2(0, 40)
 	open_garage_button.focus_mode = Control.FOCUS_NONE
 	open_garage_button.pressed.connect(_open_garage)
@@ -634,7 +634,7 @@ func _build_ui() -> void:
 	open_craft_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	open_craft_button.offset_top = -56
 	open_craft_button.offset_bottom = -20
-	open_craft_button.text = "Open Workshop"
+	open_craft_button.text = "打开工坊"
 	open_craft_button.custom_minimum_size = Vector2(0, 40)
 	open_craft_button.focus_mode = Control.FOCUS_NONE
 	open_craft_button.pressed.connect(_open_craft_workshop)
@@ -667,7 +667,7 @@ func _build_ui() -> void:
 		save_slot_labels.append(slot_label)
 
 		var slot_btn := Button.new()
-		slot_btn.text = "Save to Slot %d" % (i + 1)
+		slot_btn.text = "保存到存档 %d" % (i + 1)
 		slot_btn.custom_minimum_size = Vector2(0, 36)
 		slot_btn.focus_mode = Control.FOCUS_NONE
 		slot_btn.pressed.connect(_save_to_slot.bind(i))

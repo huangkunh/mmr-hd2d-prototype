@@ -37,7 +37,7 @@ const BACK_SCENE: String = "res://scenes/world.tscn"
 ## Tab indices.
 const TAB_BUY: int = 0
 const TAB_SELL: int = 1
-const TAB_LABELS: Array[String] = ["Buy", "Sell"]
+const TAB_LABELS: Array[String] = ["购买", "出售"]
 
 ## HD-2D dark panel colour palette.
 const COL_PANEL_BG := Color(0.06, 0.05, 0.09, 0.86)
@@ -444,7 +444,7 @@ func _refresh_after_trade(message: String) -> void:
 
 func _update_gold(amount: int) -> void:
         if _gold_label:
-                _gold_label.text = "GOLD: %d G" % amount
+                _gold_label.text = "金币: %dG" % amount
         # On the Buy tab the "Not enough gold" hint depends on the current gold, so
         # refresh the info panel whenever gold changes.
         if _current_tab == TAB_BUY and _selected_index >= 0 and _selected_index < _entries.size():
@@ -481,7 +481,7 @@ func _build_ui() -> void:
 
         # Title (shop name).
         var shop_name: String = String(_shop_data.get("name", shop_id))
-        _title_label = _make_label("SHOP  -  %s" % shop_name, 22)
+        _title_label = _make_label("商店  -  %s" % shop_name, 22)
         _title_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
         _title_label.offset_left = 16
         _title_label.offset_top = 12

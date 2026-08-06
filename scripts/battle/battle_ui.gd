@@ -155,18 +155,18 @@ func _refresh_commands() -> void:
 			se_label = "SE: %s" % _player_actor.se_type.capitalize()
 		_commands = [
 			{id = BattleManager.ACTION_TANK_ATTACK, label = "Cannon"},
-			{id = BattleManager.ACTION_SKILL, label = "Skill"},
+			{id = BattleManager.ACTION_SKILL, label = "技能"},
 			{id = BattleManager.ACTION_TANK_SE, label = se_label},
-			{id = BattleManager.ACTION_ITEM, label = "Item"},
-			{id = BattleManager.ACTION_FLEE, label = "Flee"},
+			{id = BattleManager.ACTION_ITEM, label = "道具"},
+			{id = BattleManager.ACTION_FLEE, label = "逃跑"},
 		]
 	else:
 		_commands = [
-			{id = BattleManager.ACTION_ATTACK, label = "Attack"},
-			{id = BattleManager.ACTION_SKILL, label = "Skill"},
-			{id = BattleManager.ACTION_DEFEND, label = "Defend"},
-			{id = BattleManager.ACTION_ITEM, label = "Item"},
-			{id = BattleManager.ACTION_FLEE, label = "Flee"},
+			{id = BattleManager.ACTION_ATTACK, label = "攻击"},
+			{id = BattleManager.ACTION_SKILL, label = "技能"},
+			{id = BattleManager.ACTION_DEFEND, label = "防御"},
+			{id = BattleManager.ACTION_ITEM, label = "道具"},
+			{id = BattleManager.ACTION_FLEE, label = "逃跑"},
 		]
 
 # --- UI construction ---------------------------------------------------------
@@ -267,7 +267,7 @@ func _build_enemy_info() -> void:
 	var y: float = 24.0
 	var panel := _add_panel(x, y, w, h, _make_style(COL_PANEL_BG, COL_PANEL_BORDER, 2, 8))
 
-	_enemy_name_label = _make_label("Enemy", COL_TEXT, 22, HORIZONTAL_ALIGNMENT_LEFT)
+	_enemy_name_label = _make_label("敌人", COL_TEXT, 22, HORIZONTAL_ALIGNMENT_LEFT)
 	_enemy_name_label.position = Vector2(16, 8)
 	_enemy_name_label.size = Vector2(w - 32, 30)
 	panel.add_child(_enemy_name_label)
@@ -296,7 +296,7 @@ func _build_player_info() -> void:
 	_player_name_label.size = Vector2(w - 32, 30)
 	panel.add_child(_player_name_label)
 
-	_player_status_label = _make_label("Lv. %d" % GameState.player_level, COL_ACCENT, 16, HORIZONTAL_ALIGNMENT_LEFT)
+	_player_status_label = _make_label("等级 %d" % GameState.player_level, COL_ACCENT, 16, HORIZONTAL_ALIGNMENT_LEFT)
 	_player_status_label.position = Vector2(16, 38)
 	_player_status_label.size = Vector2(w - 32, 22)
 	panel.add_child(_player_status_label)
@@ -528,7 +528,7 @@ func _build_victory_screen() -> void:
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_victory_screen.add_child(vbox)
 
-	var title := _make_label("VICTORY!", COL_ACCENT, 64, HORIZONTAL_ALIGNMENT_CENTER)
+	var title := _make_label("胜利！", COL_ACCENT, 64, HORIZONTAL_ALIGNMENT_CENTER)
 	title.add_theme_color_override("font_outline_color", Color(0.2, 0.12, 0.0))
 	title.add_theme_constant_override("outline_size", 8)
 	vbox.add_child(title)
@@ -562,7 +562,7 @@ func _build_defeat_screen() -> void:
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_defeat_screen.add_child(vbox)
 
-	var title := _make_label("GAME OVER", COL_HP_RED, 72, HORIZONTAL_ALIGNMENT_CENTER)
+	var title := _make_label("游戏结束", COL_HP_RED, 72, HORIZONTAL_ALIGNMENT_CENTER)
 	title.add_theme_color_override("font_outline_color", Color(0.2, 0.0, 0.0))
 	title.add_theme_constant_override("outline_size", 8)
 	vbox.add_child(title)
@@ -858,12 +858,12 @@ func _on_victory(exp_gained: int, gold_gained: int, is_bounty: bool, bounty_rewa
 	var exp_label := _victory_screen.get_meta("exp_label") as Label
 	var gold_label := _victory_screen.get_meta("gold_label") as Label
 	if exp_label:
-		exp_label.text = "EXP gained: %d" % exp_gained
+		exp_label.text = "获得经验: %d" % exp_gained
 	if gold_label:
-		gold_label.text = "Gold gained: %d" % gold_gained
+		gold_label.text = "获得金币: %d" % gold_gained
 	_victory_bounty_label.visible = is_bounty
 	if is_bounty:
-		_victory_bounty_label.text = "BOUNTY REWARD: %d gold!" % bounty_reward
+		_victory_bounty_label.text = "赏金奖励: %d金币！" % bounty_reward
 	_animate_end_screen(_victory_screen)
 
 func _on_defeat() -> void:
@@ -986,7 +986,7 @@ func _update_sp_bar() -> void:
 	var fill: ColorRect = _player_sp_bar.fill
 	var width: float = _player_sp_bar.width
 	var height: float = _player_sp_bar.height
-	_player_sp_bar.label.text = "SP %s" % _player_actor.sp_text()
+	_player_sp_bar.label.text = "护盾 %s" % _player_actor.sp_text()
 	var r := clampf(_player_actor.sp_ratio(), 0.0, 1.0)
 	fill.size = Vector2(width * r, height)
 
@@ -1005,22 +1005,22 @@ func _update_status_display(target: BattleActor, container: HBoxContainer) -> vo
 		var label_color: Color = Color.WHITE
 		match effect_id:
 			BattleActor.STATUS_POISON:
-				label_text = "PSN"
+				label_text = "毒"
 				label_color = Color(0.5, 1.0, 0.3)
 			BattleActor.STATUS_BURN:
-				label_text = "BRN"
+				label_text = "燃"
 				label_color = Color(1.0, 0.5, 0.2)
 			BattleActor.STATUS_DEFENSE_DOWN:
-				label_text = "DEF-"
+				label_text = "防降"
 				label_color = Color(1.0, 0.5, 0.5)
 			BattleActor.STATUS_DEFENSE_UP:
-				label_text = "DEF+"
+				label_text = "防升"
 				label_color = Color(0.5, 0.8, 1.0)
 			BattleActor.STATUS_ATTACK_UP:
-				label_text = "ATK+"
+				label_text = "攻升"
 				label_color = Color(1.0, 0.8, 0.3)
 			BattleActor.STATUS_EVASION_UP:
-				label_text = "EVA+"
+				label_text = "闪升"
 				label_color = Color(0.7, 0.7, 1.0)
 			_:
 				label_text = effect_id.substr(0, 3).to_upper()

@@ -485,7 +485,7 @@ func _execute_item(item_id: String) -> void:
 		_log("No usable items!")
 		return
 
-	var item_name: String = item.get("name", "Item")
+	var item_name: String = item.get("name", "道具")
 	var type: String = item.get("type", "")
 
 	if type == "heal":

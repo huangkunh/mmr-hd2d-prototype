@@ -252,7 +252,7 @@ func _on_hp_changed(current: int, maximum: int) -> void:
 		# Tint the bar red when critical, otherwise a healthy green.
 		hp_bar.modulate = hp_color_low if ratio < 0.33 else hp_color_full
 	if hp_label:
-		hp_label.text = "HP %d / %d" % [current, maximum]
+		hp_label.text = "生命 %d / %d" % [current, maximum]
 
 
 func _on_gold_changed(amount: int) -> void:
@@ -265,7 +265,7 @@ func _on_exp_changed(current: int, next: int) -> void:
 		exp_bar.max_value = maxi(next, 1)
 		exp_bar.value = clampi(current, 0, next)
 	if exp_label:
-		exp_label.text = "EXP %d / %d" % [current, next]
+		exp_label.text = "经验 %d / %d" % [current, next]
 
 
 func _on_fuel_changed(current: int, maximum: int) -> void:
@@ -276,7 +276,7 @@ func _on_fuel_changed(current: int, maximum: int) -> void:
 		var ratio := float(current) / float(maxi(maximum, 1))
 		fuel_bar.modulate = Color(0.9, 0.25, 0.25) if ratio < 0.25 else Color(0.35, 0.85, 0.35)
 	if fuel_label:
-		fuel_label.text = "Fuel %d / %d" % [current, maximum]
+		fuel_label.text = "燃料 %d / %d" % [current, maximum]
 
 
 func _on_tank_hp_changed(current: int, maximum: int) -> void:
@@ -285,7 +285,7 @@ func _on_tank_hp_changed(current: int, maximum: int) -> void:
 		tank_hp_bar.value = clampi(current, 0, maximum)
 		tank_hp_bar.visible = GameState.tank_owned
 	if tank_hp_label:
-		tank_hp_label.text = "Tank HP %d / %d" % [current, maximum]
+		tank_hp_label.text = "战车HP %d / %d" % [current, maximum]
 		tank_hp_label.visible = GameState.tank_owned
 
 
@@ -295,13 +295,13 @@ func _on_tank_sp_changed(current: int, maximum: int) -> void:
 		tank_sp_bar.value = clampi(current, 0, maximum)
 		tank_sp_bar.visible = GameState.tank_owned
 	if tank_sp_label:
-		tank_sp_label.text = "Tank SP %d / %d" % [current, maximum]
+		tank_sp_label.text = "战车SP %d / %d" % [current, maximum]
 		tank_sp_label.visible = GameState.tank_owned
 
 
 func _on_level_up(new_level: int) -> void:
 	if level_label:
-		level_label.text = "Lv. %d" % new_level
+		level_label.text = "等级 %d" % new_level
 
 
 func _on_quest_updated(_quest_id: String, _status: String) -> void:
@@ -312,7 +312,7 @@ func _refresh_quest_count() -> void:
 	if quest_label:
 		var active: int = GameState.active_quests.size()
 		var completed: int = GameState.completed_quests.size()
-		quest_label.text = "Quests: %d active / %d done" % [active, completed]
+		quest_label.text = "任务: %d个进行中 / %d个已完成" % [active, completed]
 
 
 func _refresh_mode() -> void:
@@ -423,7 +423,7 @@ func _build_top_left() -> void:
 	vbox.add_child(gold_label)
 
 	# Map name
-	map_label = _make_label("Map", 12)
+	map_label = _make_label("地图", 12)
 	map_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.7))
 	vbox.add_child(map_label)
 
@@ -589,7 +589,7 @@ func _build_pause_overlay() -> void:
 	vbox.add_theme_constant_override("separation", 8)
 	pause_panel.add_child(vbox)
 
-	var labels: Array[String] = ["Resume", "Save", "Load", "Settings", "Quit"]
+	var labels: Array[String] = ["继续游戏", "保存进度", "读取存档", "设置", "退出游戏"]
 	pause_buttons.clear()
 	for i in labels.size():
 		var btn := Button.new()

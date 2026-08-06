@@ -86,7 +86,7 @@ func _build_ui() -> void:
     
     # Title
     var title := Label.new()
-    title.text = "WANTED"
+    title.text = "通缉令"
     title.set_anchors_preset(Control.PRESET_TOP_WIDE)
     title.offset_top = 12
     title.offset_bottom = 44
@@ -98,7 +98,7 @@ func _build_ui() -> void:
     _main_panel.add_child(title)
     
     var subtitle := Label.new()
-    subtitle.text = "BOUNTY BOARD"
+    subtitle.text = "赏金榜"
     subtitle.set_anchors_preset(Control.PRESET_TOP_WIDE)
     subtitle.offset_top = 44
     subtitle.offset_bottom = 64
@@ -143,14 +143,14 @@ func _build_ui() -> void:
     _main_panel.add_child(btn_row)
     
     _track_button = Button.new()
-    _track_button.text = "Track Bounty"
+    _track_button.text = "追踪赏金"
     _track_button.custom_minimum_size = Vector2(0, 36)
     _track_button.focus_mode = Control.FOCUS_NONE
     _track_button.pressed.connect(_track_selected)
     btn_row.add_child(_track_button)
     
     _close_button = Button.new()
-    _close_button.text = "Close"
+    _close_button.text = "关闭"
     _close_button.custom_minimum_size = Vector2(0, 36)
     _close_button.focus_mode = Control.FOCUS_NONE
     _close_button.pressed.connect(close)
@@ -165,7 +165,7 @@ func _build_ui() -> void:
     
     # Hint
     var hint := Label.new()
-    hint.text = "Up/Down: Select  Z: Track  Esc: Close"
+    hint.text = "↑↓:选择  Z:追踪  Esc:关闭"
     hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
     hint.offset_top = -24
     hint.offset_bottom = -6
@@ -217,7 +217,7 @@ func _show_bounty_detail(idx: int) -> void:
     var bounty_id = _bounty_ids[idx]
     var enemy = DataLoader.get_enemy(bounty_id)
     if enemy.is_empty():
-        _detail_label.text = "No data."
+        _detail_label.text = "暂无数据。"
         return
     
     var name = String(enemy.get("name", bounty_id))
@@ -255,14 +255,14 @@ func _show_bounty_detail(idx: int) -> void:
     if defeated:
         text += "[center][color=green]*** BOUNTY CLAIMED ***[/color][/center]\n"
         _track_button.disabled = true
-        _track_button.text = "Already Defeated"
+        _track_button.text = "已击败"
     elif tracking:
         text += "[center][color=yellow]*** CURRENTLY TRACKING ***[/color][/center]\n"
         _track_button.disabled = false
-        _track_button.text = "Untrack"
+        _track_button.text = "取消追踪"
     else:
         _track_button.disabled = false
-        _track_button.text = "Track Bounty"
+        _track_button.text = "追踪赏金"
     
     _detail_label.text = text
 
@@ -271,7 +271,7 @@ func _track_selected() -> void:
         return
     var bounty_id = _bounty_ids[_selected_index]
     if GameState.defeated_bounties.has(bounty_id):
-        _status_label.text = "This bounty is already claimed."
+        _status_label.text = "该赏金已领取。"
         return
     
     var quest_id = "bounty_" + bounty_id
@@ -279,12 +279,12 @@ func _track_selected() -> void:
         # Untrack
         GameState.active_quests.erase(quest_id)
         GameState.quest_progress.erase(quest_id)
-        _status_label.text = "Bounty untracked."
+        _status_label.text = "已取消追踪。"
         AudioManager.play_sfx("cancel")
     else:
         # Track
         GameState.start_quest(quest_id)
-        _status_label.text = "Now tracking: %s" % bounty_id
+        _status_label.text = "正在追踪: %s" % bounty_id
         AudioManager.play_sfx("confirm")
         bounty_tracked.emit(bounty_id)
     
