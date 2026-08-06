@@ -9,7 +9,7 @@
                 "gold": 15,
                 "sprite": "res://assets/sprites/enemy_slime.jpg",
                 "is_bounty": false,
-                "description": "A gelatinous blob that absorbs radiation. Weak but annoying.",
+                "description": "吸收辐射的凝胶状生物。弱小但烦人。",
                 "skills": [],
                 "weakness": "fire"
         },
@@ -23,7 +23,7 @@
                 "gold": 25,
                 "sprite": "res://assets/sprites/enemy_rat.jpg",
                 "is_bounty": false,
-                "description": "Mutated rodent with razor teeth. Fast and aggressive.",
+                "description": "长着剃刀般牙齿的变异啮齿动物。快速而凶猛。",
                 "skills": [],
                 "weakness": "ice"
         },
@@ -37,7 +37,7 @@
                 "gold": 80,
                 "sprite": "res://assets/sprites/enemy_bandit.jpg",
                 "is_bounty": false,
-                "description": "A survivor who preys on travelers. Armed with a rusty rifle.",
+                "description": "以旅行者为猎物的幸存者。手持生锈的步枪。",
                 "skills": [
                         "rapid_fire"
                 ],
@@ -53,7 +53,7 @@
                 "gold": 120,
                 "sprite": "res://assets/sprites/enemy_drone.jpg",
                 "is_bounty": false,
-                "description": "Pre-war security drone still guarding ruins. Fires laser beams.",
+                "description": "仍在守卫废墟的战前安保无人机。发射激光束。",
                 "skills": [
                         "rapid_fire"
                 ],
@@ -79,7 +79,7 @@
                 "weakness": "fire"
         },
         "iron_titan": {
-                "name": "Iron Titan",
+                "name": "钢铁泰坦",
                 "hp": 500,
                 "attack": 50,
                 "defense": 35,
@@ -100,7 +100,7 @@
                 "weakness": "electric"
         },
         "mutant_bear": {
-                "name": "Mutant Bear",
+                "name": "变异熊",
                 "hp": 150,
                 "attack": 30,
                 "defense": 20,
@@ -116,7 +116,7 @@
                 "weakness": "ice"
         },
         "toxic_bloom": {
-                "name": "Toxic Bloom",
+                "name": "毒花",
                 "hp": 50,
                 "attack": 10,
                 "defense": 8,
@@ -133,7 +133,7 @@
                 "status_effect": "poison"
         },
         "raider_elite": {
-                "name": "Elite Raider",
+                "name": "精英突袭者",
                 "hp": 180,
                 "attack": 32,
                 "defense": 15,
@@ -151,7 +151,7 @@
                 "weakness": ""
         },
         "sentry_bot": {
-                "name": "Sentry Bot",
+                "name": "哨兵机器人",
                 "hp": 250,
                 "attack": 38,
                 "defense": 28,
@@ -168,7 +168,7 @@
                 "weakness": "electric"
         },
         "steel_golem": {
-                "name": "Steel Golem",
+                "name": "钢铁魔像",
                 "hp": 300,
                 "attack": 42,
                 "defense": 35,
@@ -184,7 +184,7 @@
                 "weakness": "electric"
         },
         "swamp_lurker": {
-                "name": "Swamp Lurker",
+                "name": "沼泽潜伏者",
                 "hp": 90,
                 "attack": 22,
                 "defense": 12,
@@ -201,7 +201,7 @@
                 "status_effect": "poison"
         },
         "lab_security": {
-                "name": "Lab Security Bot",
+                "name": "实验室安保机器人",
                 "hp": 200,
                 "attack": 35,
                 "defense": 25,
@@ -218,7 +218,7 @@
                 "weakness": "electric"
         },
         "prototype_mech": {
-                "name": "Prototype Mech",
+                "name": "原型机甲",
                 "hp": 600,
                 "attack": 55,
                 "defense": 40,
@@ -241,7 +241,7 @@
                 "weakness": "electric"
         },
         "mad_maxer": {
-                "name": "Mad Maxer",
+                "name": "疯狂麦克斯",
                 "hp": 350,
                 "attack": 45,
                 "defense": 25,

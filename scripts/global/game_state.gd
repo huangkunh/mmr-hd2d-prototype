@@ -25,7 +25,7 @@ enum BattleResult { VICTORY, DEFEAT, FLED }
 enum QuestStatus { INACTIVE, ACTIVE, COMPLETED, FAILED, CLAIMED }
 
 # --- Player State ---
-var player_name: String = "Hunter"
+var player_name: String = "猎人"
 var player_level: int = 1
 var player_hp: int = 100
 var player_max_hp: int = 100
