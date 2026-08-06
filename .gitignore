@@ -21,3 +21,5 @@ export_presets.cfg
 # Mono C# (if used)
 .mono/
 data_*/
+godot/
+*.import.bak

@@ -224,7 +224,7 @@ func _make_label(text: String, color: Color, size: int, align: int = HORIZONTAL_
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
 	l.add_theme_color_override("font_outline_color", Color.BLACK)
-	l.add_theme_outline_size_override("outline_size", 4)
+	l.add_theme_constant_override("outline_size", 4)
 	l.horizontal_alignment = align
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -254,7 +254,7 @@ func _make_hp_bar(width: float, height: float) -> Dictionary:
 	lbl.add_theme_font_size_override("font_size", 16)
 	lbl.add_theme_color_override("font_color", Color.WHITE)
 	lbl.add_theme_color_override("font_outline_color", Color.BLACK)
-	lbl.add_theme_outline_size_override("outline_size", 3)
+	lbl.add_theme_constant_override("outline_size", 3)
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(lbl)
 
@@ -346,7 +346,7 @@ func _build_battle_log() -> void:
 	_log_label.add_theme_font_size_override("font_size", 15)
 	_log_label.add_theme_color_override("font_color", COL_TEXT)
 	_log_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	_log_label.add_theme_outline_size_override("outline_size", 3)
+	_log_label.add_theme_constant_override("outline_size", 3)
 	_log_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(_log_label)
 
@@ -530,7 +530,7 @@ func _build_victory_screen() -> void:
 
 	var title := _make_label("VICTORY!", COL_ACCENT, 64, HORIZONTAL_ALIGNMENT_CENTER)
 	title.add_theme_color_override("font_outline_color", Color(0.2, 0.12, 0.0))
-	title.add_theme_outline_size_override("outline_size", 8)
+	title.add_theme_constant_override("outline_size", 8)
 	vbox.add_child(title)
 
 	var exp_label := _make_label("EXP gained: 0", COL_TEXT, 26, HORIZONTAL_ALIGNMENT_CENTER)
@@ -564,7 +564,7 @@ func _build_defeat_screen() -> void:
 
 	var title := _make_label("GAME OVER", COL_HP_RED, 72, HORIZONTAL_ALIGNMENT_CENTER)
 	title.add_theme_color_override("font_outline_color", Color(0.2, 0.0, 0.0))
-	title.add_theme_outline_size_override("outline_size", 8)
+	title.add_theme_constant_override("outline_size", 8)
 	vbox.add_child(title)
 
 	var sub := _make_label("You have fallen in the wasteland...", COL_TEXT_DIM, 22, HORIZONTAL_ALIGNMENT_CENTER)
@@ -937,7 +937,7 @@ func _spawn_popup(text: String, pos: Vector2, color: Color, big: bool) -> void:
 	lbl.add_theme_font_size_override("font_size", 34 if big else 24)
 	lbl.add_theme_color_override("font_color", color)
 	lbl.add_theme_color_override("font_outline_color", Color.BLACK)
-	lbl.add_theme_outline_size_override("outline_size", 5 if big else 4)
+	lbl.add_theme_constant_override("outline_size", 5 if big else 4)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	lbl.size = Vector2(160, 40)
@@ -1030,7 +1030,7 @@ func _update_status_display(target: BattleActor, container: HBoxContainer) -> vo
 		l.add_theme_font_size_override("font_size", 12)
 		l.add_theme_color_override("font_color", label_color)
 		l.add_theme_color_override("font_outline_color", Color.BLACK)
-		l.add_theme_outline_size_override("outline_size", 2)
+		l.add_theme_constant_override("outline_size", 2)
 		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		container.add_child(l)
 

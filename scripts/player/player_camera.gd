@@ -22,48 +22,48 @@ var _target: Node3D
 
 
 func _ready() -> void:
-	# Configure orthographic projection for HD-2D look
-	projection = Camera3D.PROJECTION_ORTHOGONAL
-	size = ortho_size
-	near = 0.1
-	far = 100.0
+        # Configure orthographic projection for HD-2D look
+        projection = Camera3D.PROJECTION_ORTHOGONAL
+        size = ortho_size
+        near = 0.1
+        far = 100.0
 
-	# Apply tilt angle (pitch down for top-down-ish perspective)
-	rotation_degrees.x = -tilt_angle
+        # Apply tilt angle (pitch down for top-down-ish perspective)
+        rotation_degrees.x = -tilt_angle
 
-	# Setup DOF via CameraAttributes
-	_setup_dof()
+        # Setup DOF via CameraAttributes
+        _setup_dof()
 
-	# Resolve target
-	if not target_path.is_empty():
-		_target = get_node_or_null(target_path)
+        # Resolve target
+        if not target_path.is_empty():
+                _target = get_node_or_null(target_path)
 
 
 func _setup_dof() -> void:
-	var attrs := CameraAttributesPractical.new()
-	attrs.auto_exposure_enabled = false
+        var attrs := CameraAttributesPractical.new()
+        attrs.auto_exposure_enabled = false
 
-	if dof_enabled:
-		attrs.dof_blur_far_enabled = true
-		attrs.dof_blur_far_distance = dof_blur_far
-		attrs.dof_blur_far_transition = 3.0
-		attrs.dof_blur_far_amount = dof_amount
+        if dof_enabled:
+                attrs.dof_blur_far_enabled = true
+                attrs.dof_blur_far_distance = dof_blur_far
+                attrs.dof_blur_far_transition = 3.0
+                attrs.dof_blur_amount = dof_amount
 
-		attrs.dof_blur_near_enabled = false  # Near blur rarely needed for HD-2D
+                attrs.dof_blur_near_enabled = false  # Near blur rarely needed for HD-2D
 
-	camera_attributes = attrs
+        set("camera_attributes", attrs)
 
 
 func _physics_process(delta: float) -> void:
-	if not is_instance_valid(_target):
-		# Try to re-resolve
-		_target = get_node_or_null(target_path)
-		if not _target:
-			return
+        if not is_instance_valid(_target):
+                # Try to re-resolve
+                _target = get_node_or_null(target_path)
+                if not _target:
+                        return
 
-	# Smooth follow with lerp
-	var target_pos := _target.global_position + offset
-	global_position = global_position.lerp(target_pos, follow_speed * delta)
+        # Smooth follow with lerp
+        var target_pos := _target.global_position + offset
+        global_position = global_position.lerp(target_pos, follow_speed * delta)
 
-	# Always look at the player
-	look_at(_target.global_position, Vector3.UP)
+        # Always look at the player
+        look_at(_target.global_position, Vector3.UP)

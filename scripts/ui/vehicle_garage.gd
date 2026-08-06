@@ -72,7 +72,7 @@ func _build_ui() -> void:
 	title.add_theme_font_size_override("font_size", 36)
 	title.add_theme_color_override("font_color", COL_ACCENT)
 	title.add_theme_color_override("font_outline_color", Color.BLACK)
-	title.add_theme_outline_size_override("outline_size", 6)
+	title.add_theme_constant_override("outline_size", 6)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.position = Vector2(0, 20)
 	title.size = Vector2(_vp_size.x, 50)
@@ -261,7 +261,7 @@ func _make_vehicle_entry(v: Dictionary, index: int) -> Panel:
 	name_label.add_theme_font_size_override("font_size", 20)
 	name_label.add_theme_color_override("font_color", COL_ACCENT if is_selected else COL_TEXT)
 	name_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	name_label.add_theme_outline_size_override("outline_size", 3)
+	name_label.add_theme_constant_override("outline_size", 3)
 	name_label.position = Vector2(12, 8)
 	name_label.size = Vector2(440, 28)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE

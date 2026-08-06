@@ -14,13 +14,15 @@ config/name="Metal Max HD-2D Prototype"
 config/description="HD-2D style RPG prototype inspired by Metal Max Returns. World and gameplay reimagined with AI-generated assets."
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
-config/icon="res://assets/ui/icon.png"
+config/icon="res://assets/ui/icon.jpg"
 
 [autoload]
 
 GameState="*res://scripts/global/game_state.gd"
 DataLoader="*res://scripts/global/data_loader.gd"
 AudioManager="*res://scripts/global/audio_manager.gd"
+ScreenshotHelper="*res://scripts/global/screenshot_helper.gd"
+DemoController="*res://scripts/global/demo_controller.gd"
 
 [display]
 

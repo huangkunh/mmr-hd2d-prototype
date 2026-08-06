@@ -250,7 +250,7 @@ func _show_choices() -> void:
 		l.add_theme_font_size_override("font_size", 18)
 		l.add_theme_color_override("font_color", Color.WHITE if i != _choice_index else Color(1.0, 0.92, 0.23))
 		l.add_theme_color_override("font_outline_color", Color.BLACK)
-		l.add_theme_outline_size_override("outline_size", 3)
+		l.add_theme_constant_override("outline_size", 3)
 		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_choice_container.add_child(l)
 		_choice_labels.append(l)

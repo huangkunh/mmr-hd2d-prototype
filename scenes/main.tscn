@@ -1,7 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://b1_main_entry_scn"]
+[gd_scene load_steps=5 format=3 uid="uid://b1_main_entry_scn"]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_main_menu"]
 [ext_resource type="Script" path="res://scripts/global/game_state.gd" id="2_gs"]
+[ext_resource type="Shader" path="res://shaders/menu_background.gdshader" id="3_menubg"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1"]
+shader = ExtResource("3_menubg")
+shader_parameter/top_color = Color(0.22, 0.13, 0.08, 1)
+shader_parameter/mid_color = Color(0.45, 0.25, 0.12, 1)
+shader_parameter/bot_color = Color(0.10, 0.07, 0.05, 1)
+shader_parameter/sand_intensity = 0.35
+shader_parameter/scanline_strength = 0.08
+shader_parameter/time_scale = 1.0
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -21,6 +31,30 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.07, 0.06, 0.09, 1)
 
+[node name="ShaderBG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+material = SubResource("ShaderMaterial_1")
+
+[node name="DustParticles" type="CPUParticles2D" parent="."]
+position = Vector2(640, 360)
+amount = 60
+lifetime = 8.0
+preprocess = 4.0
+texture_pixel_art = true
+direction = Vector2(-15, 8)
+spread = 30
+gravity = Vector2(0, 6)
+initial_velocity_min = 8.0
+initial_velocity_max = 24.0
+scale_amount_min = 0.5
+scale_amount_max = 1.5
+color = Color(0.85, 0.7, 0.5, 0.35)
+
 [node name="TitleContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
@@ -28,30 +62,40 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -150.0
-offset_right = 300.0
-offset_bottom = 150.0
+offset_left = -360.0
+offset_top = -180.0
+offset_right = 360.0
+offset_bottom = 180.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Title" type="Label" parent="TitleContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 42
-theme_override_colors/font_color = Color(0.9, 0.75, 0.3, 1)
-text = "METAL MAX
-HD-2D PROTOTYPE"
+theme_override_font_sizes/font_size = 56
+theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
+theme_override_colors/font_shadow_color = Color(0.2, 0.1, 0.03, 1)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/shadow_outline_size = 2
+text = "METAL MAX R"
+horizontal_alignment = 1
+
+[node name="Subtitle2" type="Label" parent="TitleContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.8, 0.65, 0.3, 1)
+text = "HD-2D PROTOTYPE"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="TitleContainer"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
 [node name="PressStart" type="Label" parent="TitleContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-text = "Press Z / Enter to Start"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+text = "▶  Press Z / Enter to Start"
 horizontal_alignment = 1
 
 [node name="BlinkTimer" type="Timer" parent="TitleContainer/PressStart"]
@@ -60,14 +104,14 @@ autostart = true
 
 [node name="Instructions" type="Label" parent="TitleContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-text = "WASD/Arrows: Move | Z: Confirm | X: Cancel | E: Interact | Esc: Menu"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
+text = "WASD/Arrows: Move  |  Z: Confirm  |  X: Cancel  |  E: Interact  |  Esc: Menu"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="TitleContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
-text = "A post-apocalyptic RPG prototype"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.45, 0.42, 0.38, 1)
+text = "A post-apocalyptic RPG prototype — wasteland edition"
 horizontal_alignment = 1

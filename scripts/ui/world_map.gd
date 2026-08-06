@@ -99,7 +99,7 @@ func _build_ui() -> void:
     title.add_theme_font_size_override("font_size", 24)
     title.add_theme_color_override("font_color", Color(1.0, 0.92, 0.23))
     title.add_theme_color_override("font_outline_color", Color.BLACK)
-    title.add_theme_outline_size_override("outline_size", 4)
+    title.add_theme_constant_override("outline_size", 4)
     _main_panel.add_child(title)
 
     # Map area (left side)
@@ -205,7 +205,7 @@ func _refresh_map() -> void:
             btn.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
             btn.text = "[HERE] " + btn.text
             btn.disabled = true
-        elif connections.has_value(map_id) or _is_connected(map_id, current_map):
+        elif connections.values().has(map_id) or _is_connected(map_id, current_map):
             btn.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
         else:
             btn.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))

@@ -94,7 +94,7 @@ func _build_ui() -> void:
     title.add_theme_font_size_override("font_size", 28)
     title.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
     title.add_theme_color_override("font_outline_color", Color.BLACK)
-    title.add_theme_outline_size_override("outline_size", 4)
+    title.add_theme_constant_override("outline_size", 4)
     _main_panel.add_child(title)
     
     var subtitle := Label.new()
