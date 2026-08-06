@@ -54,6 +54,15 @@ func close() -> void:
     bounty_board_closed.emit()
     AudioManager.play_sfx("cancel")
 
+func _translate_weakness(w: String) -> String:
+    match w:
+        "fire": return "火"
+        "ice": return "冰"
+        "electric": return "雷"
+        "poison": return "毒"
+        "": return "无"
+        _: return w
+
 func _build_ui() -> void:
     set_anchors_preset(Control.PRESET_FULL_RECT)
     mouse_filter = Control.MOUSE_FILTER_STOP
@@ -248,7 +257,7 @@ func _show_bounty_detail(idx: int) -> void:
     text += "  HP: %d\n" % hp
     text += "  Attack: %d\n" % atk
     text += "  Defense: %d\n" % def
-    text += "  Weakness: %s\n\n" % String(enemy.get("weakness", "Unknown"))
+    text += "  弱点: %s\n\n" % _translate_weakness(String(enemy.get("weakness", "未知")))
     text += "[b]Last Seen:[/b] %s\n" % location
     text += "[b]Reward:[/b] [color=yellow]%d G[/color]\n\n" % reward
     

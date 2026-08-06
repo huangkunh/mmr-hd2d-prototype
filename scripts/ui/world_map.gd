@@ -251,11 +251,11 @@ func _show_detail(map_id: String) -> void:
     var text := "[b][font_size=18]%s[/font_size][/b]\n\n" % name
     text += "[b]Type:[/b] "
     if is_town:
-        text += "Town (Safe Zone)\n"
+        text += "城镇（安全区）\n"
     elif is_dungeon:
-        text += "Dungeon (Dangerous)\n"
+        text += "地下城（危险区）\n"
     else:
-        text += "Wilderness\n"
+        text += "荒野\n"
 
     text += "[b]遭遇区:[/b] %s\n" % ("无" if no_enc else "有")
     text += "[b]商店:[/b] %s\n" % ("有" if not String(data.get("shop_id", "")).is_empty() else "无")

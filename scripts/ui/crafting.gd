@@ -160,7 +160,7 @@ func _build_ui() -> void:
 	_panel.add_child(_status_label)
 
 	# Hint label
-	_hint_label = _make_label("Up/Down: Select    Z: Craft    X: Back", 14)
+	_hint_label = _make_label("↑↓:选择  Z:合成  X:返回", 14)
 	_hint_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	_hint_label.offset_top = -30
 	_hint_label.offset_bottom = -10
